@@ -60,7 +60,7 @@ def _resolve_planner_model(*, thinking: bool) -> str:
     if configured:
         return configured
     if getattr(settings, 'DS_KEY', ''):
-        return 'deepseek-reasoner' if thinking else 'deepseek-v4-flash'
+        return 'deepseek-v4-flash'
     if getattr(settings, 'ALI_API_KEYS', ''):
         return 'qwq-32b-preview' if thinking else 'qwen-plus'
     if getattr(settings, 'GLM_API_KEY', ''):
@@ -140,25 +140,49 @@ def create_retrieval_planner_fn(
     thinking: bool = True,
     model: str | None = None,
     max_tokens: int = 8192,
+    reasoning_effort: str = 'low',
 ) -> LLMFn | None:
-    """Create a reasoning-capable LLM callable for query planning."""
+    """Create a reasoning-capable LLM callable for query planning.
+
+    When *thinking* is True, the model's built-in thinking mode is activated
+    via ``extra_body``.  The model name stays ``deepseek-v4-flash`` (or the
+    provider equivalent); reasoning is controlled purely by the thinking
+    toggle, not by switching to a separate model.
+    """
     if not _has_llm_credentials():
         logger.debug('retrieval: no LLM credentials configured, workflow planner disabled')
         return None
 
     effective_model = model or _resolve_planner_model(thinking=thinking)
+    effective_temperature = 0.0 if thinking else 0.1
+
+    if thinking:
+        logger.info(
+            'retrieval: planner thinking mode ENABLED, model={}, reasoning_effort={}',
+            effective_model,
+            reasoning_effort,
+        )
 
     async def llm_fn(prompt: LLMFnInput) -> str:
         from shared.services.ai.openai_compatible_client_sync import get_openai_client
 
         client = get_openai_client(model=effective_model)
         current_llm_usage.set(None)
+
+        kwargs: dict[str, Any] = {}
+        if thinking:
+            kwargs['extra_body'] = {
+                'thinking': {'type': 'enabled'},
+                'reasoning_effort': reasoning_effort,
+            }
+
         result, usage = await asyncio.to_thread(
             client.chat_completion_with_usage,
             cast(Any, prompt),
             model=effective_model,
-            temperature=0.0,
+            temperature=effective_temperature,
             max_tokens=max_tokens,
+            **kwargs,
         )
         current_llm_usage.set(usage)
         return result
