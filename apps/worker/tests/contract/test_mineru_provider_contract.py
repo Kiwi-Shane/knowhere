@@ -154,11 +154,11 @@ def test_local_provider_materializes_artifacts_without_cloud_or_raw_work(
 
 
 @pytest.mark.parametrize(
-    ("source", "project", "uv", "message"),
+    ("source", "project", "uv"),
     [
-        ("https://example.test/document.pdf", "configured", "configured", "local file"),
-        ("source.pdf", "", "configured", "project"),
-        ("source.pdf", "configured", "", "uv"),
+        ("https://example.test/document.pdf", "configured", "configured"),
+        ("source.pdf", "", "configured"),
+        ("source.pdf", "configured", ""),
     ],
 )
 def test_local_provider_rejects_remote_or_missing_configuration(
@@ -167,7 +167,6 @@ def test_local_provider_rejects_remote_or_missing_configuration(
     source: str,
     project: str,
     uv: str,
-    message: str,
 ) -> None:
     local_source = tmp_path / "source.pdf"
     local_source.write_bytes(b"%PDF")
@@ -186,8 +185,7 @@ def test_local_provider_rejects_remote_or_missing_configuration(
         provider.parse_pdf(source_value, "document.pdf", str(tmp_path / "output"))
 
     assert captured.value.internal_message.endswith("configuration")
-    assert isinstance(captured.value.original_exception, ValueError)
-    assert message in str(captured.value.original_exception)
+    assert captured.value.original_exception is None
 
 
 def test_local_provider_failure_removes_partial_work(
@@ -225,7 +223,7 @@ def test_local_provider_failure_removes_partial_work(
         provider.parse_pdf(str(source), source.name, str(output))
 
     assert captured.value.internal_message.endswith("process_exit")
-    assert isinstance(captured.value.original_exception, LocalMinerUError)
+    assert captured.value.original_exception is None
     assert not (output / "full.md").exists()
     assert not (output / "images").exists()
     assert not any(path.name.startswith(".mineru-local-") for path in output.iterdir())
@@ -348,6 +346,7 @@ def test_local_provider_failure_is_safe_and_never_falls_back_to_cloud(
                 str(tmp_path / "private-output"),
                 s3_key="private/s3/key",
             )
+        captured.value.logging()
 
     records = _provider_records(messages)
     assert len(records) == 1
@@ -374,6 +373,10 @@ def test_local_provider_failure_is_safe_and_never_falls_back_to_cloud(
         assert sensitive not in captured.value.user_message
         assert sensitive not in repr(captured.value.details)
     assert captured.value.details == {"service": "document_processing"}
+    assert captured.value.original_exception is None
+    assert captured.value.__cause__ is None
+    assert captured.value.__suppress_context__ is True
+    assert "original_exception" not in captured.value.to_log()
     assert cloud_calls == []
 
 

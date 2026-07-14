@@ -19,6 +19,7 @@ os.environ.setdefault("S3_TEMP_PATH", "/tmp")
 from app.services.document_parser.providers.mineru.runtime_preflight import (
     LocalMinerURuntimeStatus,
     LocalMinerURuntimeError,
+    _probe_writable,
     check_local_mineru_runtime,
     require_local_mineru_runtime,
 )
@@ -201,6 +202,21 @@ def test_local_runtime_reports_missing_uv_without_launching_subprocess(
     assert status.ready is False
     assert status.error_codes == ("uv_missing", "adapter_unavailable")
     assert commands.calls == []
+
+
+def test_temp_probe_maps_cleanup_failure_to_not_writable(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    private_path = "C:\\private\\customer-temp"
+
+    def fail_cleanup(_path: Path, *, missing_ok: bool = False) -> None:
+        del missing_ok
+        raise PermissionError(private_path)
+
+    monkeypatch.setattr(Path, "unlink", fail_cleanup)
+
+    assert _probe_writable(tmp_path) is False
 
 
 @pytest.mark.parametrize(("ready", "exit_code"), [(True, 0), (False, 1)])

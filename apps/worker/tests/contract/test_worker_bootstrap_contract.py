@@ -225,3 +225,87 @@ def test_worker_startup_can_defer_preflight_when_operator_disables_it(
     worker_bootstrap.init_worker()
 
     assert events == ["heartbeat"]
+
+
+def test_run_worker_completes_local_preflight_before_starting_beat(
+    worker_contract_environment: None,
+    monkeypatch: MonkeyPatch,
+) -> None:
+    from app.core import worker_bootstrap
+
+    events: list[str] = []
+    _configure_mineru_startup(
+        monkeypatch,
+        worker_bootstrap,
+        provider="local",
+        enabled=True,
+    )
+    monkeypatch.setattr(
+        worker_bootstrap,
+        "require_local_mineru_runtime",
+        lambda _: (
+            events.append("preflight")
+            or SimpleNamespace(
+                ready=True,
+                free_disk_bytes=20 * 1024**3,
+                available_memory_bytes=16 * 1024**3,
+            )
+        ),
+    )
+    monkeypatch.setattr(
+        worker_bootstrap.subprocess,
+        "Popen",
+        lambda _command: events.append("beat"),
+    )
+    monkeypatch.setattr(
+        worker_bootstrap.celery_app,
+        "worker_main",
+        lambda _args: events.append("worker"),
+    )
+
+    worker_bootstrap.run_worker()
+
+    assert events == ["preflight", "beat", "worker"]
+
+
+def test_run_worker_does_not_start_beat_when_local_preflight_fails(
+    worker_contract_environment: None,
+    monkeypatch: MonkeyPatch,
+) -> None:
+    from app.core import worker_bootstrap
+    from app.services.document_parser.providers.mineru.runtime_preflight import (
+        LocalMinerURuntimeError,
+    )
+
+    events: list[str] = []
+    _configure_mineru_startup(
+        monkeypatch,
+        worker_bootstrap,
+        provider="local",
+        enabled=True,
+    )
+
+    def fail_preflight(_: object) -> None:
+        events.append("preflight")
+        raise LocalMinerURuntimeError(("project_missing",))
+
+    monkeypatch.setattr(
+        worker_bootstrap,
+        "require_local_mineru_runtime",
+        fail_preflight,
+    )
+    monkeypatch.setattr(
+        worker_bootstrap.subprocess,
+        "Popen",
+        lambda _command: events.append("beat"),
+    )
+    monkeypatch.setattr(
+        worker_bootstrap.celery_app,
+        "worker_main",
+        lambda _args: events.append("worker"),
+    )
+
+    with pytest.raises(LocalMinerURuntimeError):
+        worker_bootstrap.run_worker()
+
+    assert events == ["preflight"]

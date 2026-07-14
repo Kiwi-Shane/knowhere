@@ -101,18 +101,30 @@ def _resolve_mineru_python(config: _RuntimeConfig, project: Path) -> Path:
 
 
 def _probe_writable(root: Path) -> bool:
+    descriptor: int | None = None
     temporary: Path | None = None
+    writable = False
     try:
         root.mkdir(parents=True, exist_ok=True)
         descriptor, name = tempfile.mkstemp(dir=root, prefix=".mineru-preflight-")
-        os.close(descriptor)
         temporary = Path(name)
-        return True
+        os.close(descriptor)
+        descriptor = None
+        writable = True
     except OSError:
-        return False
+        writable = False
     finally:
+        if descriptor is not None:
+            try:
+                os.close(descriptor)
+            except OSError:
+                writable = False
         if temporary is not None:
-            temporary.unlink(missing_ok=True)
+            try:
+                temporary.unlink(missing_ok=True)
+            except OSError:
+                writable = False
+    return writable
 
 
 def _probe_adapter(

@@ -18,6 +18,30 @@ from app.services.document_parser.providers.mineru.runtime_preflight import (
 )
 
 
+_local_mineru_preflight_complete = False
+
+
+def _preflight_local_mineru_runtime() -> None:
+    global _local_mineru_preflight_complete
+
+    if (
+        _local_mineru_preflight_complete
+        or settings.MINERU_PROVIDER != "local"
+        or not settings.MINERU_LOCAL_PREFLIGHT_ON_STARTUP
+    ):
+        return
+
+    status = require_local_mineru_runtime(settings)
+    logger.bind(
+        event="mineru.runtime_preflight",
+        provider="local",
+        ready=status.ready,
+        free_disk_bytes=status.free_disk_bytes,
+        available_memory_bytes=status.available_memory_bytes,
+    ).info("Local MinerU runtime preflight passed")
+    _local_mineru_preflight_complete = True
+
+
 def _register_task_modules() -> None:
     """Import task modules for Celery side-effect registration."""
     import app.core.tasks.document_ingestion_tasks  # noqa: F401
@@ -29,20 +53,7 @@ def _register_task_modules() -> None:
 def init_worker(**kwargs) -> None:
     """Initialize structured logging and sync Redis when worker process starts."""
     setup_logging(service_name="knowhere-worker")
-
-    if (
-        settings.MINERU_PROVIDER == "local"
-        and settings.MINERU_LOCAL_PREFLIGHT_ON_STARTUP
-    ):
-        status = require_local_mineru_runtime(settings)
-        logger.bind(
-            event="mineru.runtime_preflight",
-            provider="local",
-            ready=status.ready,
-            free_disk_bytes=status.free_disk_bytes,
-            available_memory_bytes=status.available_memory_bytes,
-        ).info("Local MinerU runtime preflight passed")
-
+    _preflight_local_mineru_runtime()
     start_worker_heartbeat()
 
     # Celery gevent cannot cancel greenlets on transport reconnect, so use a no-op.
@@ -116,6 +127,7 @@ def run_worker() -> None:
     task name.  Only the first invocation within each scheduling window
     executes; all subsequent duplicates log a skip and return immediately.
     """
+    _preflight_local_mineru_runtime()
     _register_task_modules()
 
     hostname = socket.gethostname()

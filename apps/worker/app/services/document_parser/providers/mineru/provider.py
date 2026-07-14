@@ -36,6 +36,20 @@ LocalErrorCategory = Literal[
 ]
 
 
+class LocalMinerUServiceException(MinerUServiceException):
+    """Safe local failure whose canonical log omits traceback diagnostics."""
+
+    def logging(self, **extra_context: object) -> None:
+        from shared.core.logging import LogEvent, get_log_context
+
+        logger.bind(
+            event=LogEvent.EXCEPTION_SYSTEM.value,
+            **self.to_log(),
+            **get_log_context(),
+            **extra_context,
+        ).error(self.internal_message)
+
+
 def _local_error_category(error: Exception) -> LocalErrorCategory:
     if isinstance(error, LocalMinerUCapacityError):
         return "capacity"
@@ -111,10 +125,9 @@ def parse_pdf(
             error_category=category,
         )
         if provider_name == "local":
-            raise MinerUServiceException(
+            raise LocalMinerUServiceException(
                 internal_message=f"Local MinerU provider failed: {category}",
-                original_exception=error,
-            ) from error
+            ) from None
         raise
 
     _observe_provider(
