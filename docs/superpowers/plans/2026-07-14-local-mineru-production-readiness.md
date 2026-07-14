@@ -341,7 +341,7 @@ git commit -m "feat: fail fast on invalid local MinerU runtime"
 - Produces: `LocalMinerUCapacityGuard`, `LocalMinerUCapacityError`, and `get_local_capacity_guard(limit, timeout_seconds)`.
 - Consumes: local max-concurrency and admission-timeout settings.
 
-- [ ] **Step 1: Write failing capacity tests**
+- [x] **Step 1: Write failing capacity tests**
 
 Use real threads plus events for one strict admission test and injected semaphore objects for failure paths. Prove:
 
@@ -351,7 +351,7 @@ Use real threads plus events for one strict admission test and injected semaphor
 - different repeated calls reuse the same guard for the same process/configuration;
 - no source metadata is present in the capacity exception.
 
-- [ ] **Step 2: Run the focused tests and observe the missing module**
+- [x] **Step 2: Run the focused tests and observe the missing module**
 
 Run:
 
@@ -361,7 +361,7 @@ python -m uv run pytest apps/worker/tests/contract/test_mineru_local_capacity_co
 
 Expected: collection fails because `local_capacity` does not exist.
 
-- [ ] **Step 3: Implement bounded admission**
+- [x] **Step 3: Implement bounded admission**
 
 Use this public shape:
 
@@ -404,11 +404,11 @@ def get_local_capacity_guard(
 
 Protect the process singleton/cache with a lock. Reject nonpositive values even if a non-Pydantic caller bypasses settings validation.
 
-- [ ] **Step 4: Wrap the complete local run and publication transaction**
+- [x] **Step 4: Wrap the complete local run and publication transaction**
 
 In `parse_via_local()`, acquire the guard after validating source/configuration and before creating `.mineru-local-*`. Hold it through runner execution, artifact copying, atomic publication, and temporary cleanup. This ensures capacity is not released while peak disk usage still exists.
 
-- [ ] **Step 5: Verify and commit capacity control**
+- [x] **Step 5: Verify and commit capacity control**
 
 Run:
 

@@ -7,6 +7,9 @@ import uuid
 from pathlib import Path
 
 from app.services.common.file_loading import is_remote
+from app.services.document_parser.providers.mineru.local_capacity import (
+    get_local_capacity_guard,
+)
 from app.services.document_parser.providers.mineru.local_process import (
     LocalMinerURequest,
     LocalMinerURunner,
@@ -77,40 +80,45 @@ def parse_via_local(
     if not uv_value:
         raise ValueError("Local MinerU uv executable is not configured")
 
-    output = Path(output_dir).expanduser().resolve(strict=False)
-    output.mkdir(parents=True, exist_ok=True)
-    run_root = output / f".mineru-local-{uuid.uuid4().hex}"
-    artifact_root = run_root / "artifacts"
-    staged = run_root / "publish"
-    run_root.mkdir()
-    try:
-        runner = LocalMinerURunner(
-            project_path=Path(project_value),
-            uv_executable=uv_value,
-            timeout_seconds=settings.MINERU_LOCAL_TIMEOUT_SECONDS,
-            max_log_chars=settings.MINERU_LOCAL_MAX_LOG_CHARS,
-        )
-        bundle = runner.run(
-            LocalMinerURequest(
-                source_path=source,
-                output_root=artifact_root,
-                backend=settings.MINERU_LOCAL_BACKEND,
-                method=settings.MINERU_LOCAL_METHOD,
-                language=settings.MINERU_LOCAL_LANGUAGE,
-                offline=settings.MINERU_LOCAL_OFFLINE,
+    guard = get_local_capacity_guard(
+        settings.MINERU_LOCAL_MAX_CONCURRENT_JOBS,
+        settings.MINERU_LOCAL_ADMISSION_TIMEOUT_SECONDS,
+    )
+    with guard.acquire():
+        output = Path(output_dir).expanduser().resolve(strict=False)
+        output.mkdir(parents=True, exist_ok=True)
+        run_root = output / f".mineru-local-{uuid.uuid4().hex}"
+        artifact_root = run_root / "artifacts"
+        staged = run_root / "publish"
+        run_root.mkdir()
+        try:
+            runner = LocalMinerURunner(
+                project_path=Path(project_value),
+                uv_executable=uv_value,
+                timeout_seconds=settings.MINERU_LOCAL_TIMEOUT_SECONDS,
+                max_log_chars=settings.MINERU_LOCAL_MAX_LOG_CHARS,
             )
-        )
-        staged.mkdir()
-        shutil.copy2(bundle.markdown_path, staged / "full.md")
-        if bundle.images_dir.is_dir():
-            _copy_confined_images(bundle.images_dir, staged / "images")
-        log_path = artifact_root.parent / "logs" / "mineru.log"
-        if not log_path.is_file():
-            raise ValueError("Local MinerU did not produce its sanitized log")
-        logs = staged / "logs"
-        logs.mkdir()
-        shutil.copy2(log_path, logs / "mineru.log")
-        _publish(staged, output)
-    finally:
-        if run_root.exists():
-            shutil.rmtree(run_root)
+            bundle = runner.run(
+                LocalMinerURequest(
+                    source_path=source,
+                    output_root=artifact_root,
+                    backend=settings.MINERU_LOCAL_BACKEND,
+                    method=settings.MINERU_LOCAL_METHOD,
+                    language=settings.MINERU_LOCAL_LANGUAGE,
+                    offline=settings.MINERU_LOCAL_OFFLINE,
+                )
+            )
+            staged.mkdir()
+            shutil.copy2(bundle.markdown_path, staged / "full.md")
+            if bundle.images_dir.is_dir():
+                _copy_confined_images(bundle.images_dir, staged / "images")
+            log_path = artifact_root.parent / "logs" / "mineru.log"
+            if not log_path.is_file():
+                raise ValueError("Local MinerU did not produce its sanitized log")
+            logs = staged / "logs"
+            logs.mkdir()
+            shutil.copy2(log_path, logs / "mineru.log")
+            _publish(staged, output)
+        finally:
+            if run_root.exists():
+                shutil.rmtree(run_root)
