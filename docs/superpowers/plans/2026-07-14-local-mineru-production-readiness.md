@@ -522,7 +522,7 @@ git commit -m "feat: add safe local MinerU provider observations"
 - Consumes: the preflight CLI, provider seam, existing validation corpus loader/runner, and public MinerU demo documents.
 - Produces: a three-document repeatable canary and exact operator rollout/rollback gates.
 
-- [ ] **Step 1: Add the three-document canary corpus**
+- [x] **Step 1: Add the three-document canary corpus**
 
 Use only these already committed public/test documents:
 
@@ -537,11 +537,11 @@ Use only these already committed public/test documents:
 }
 ```
 
-- [ ] **Step 2: Write an opt-in real provider seam test**
+- [x] **Step 2: Write an opt-in real provider seam test**
 
 Guard with `RUN_LOCAL_MINERU_E2E=1`. Require `MINERU_LOCAL_PROJECT_PATH` and `MINERU_LOCAL_UV_EXECUTABLE`. Set provider/local concurrency settings through monkeypatch, replace `provider.parse_via_full` with a sentinel that fails, replace only downstream `parse_md`, invoke standard `parse_pdfs()`, and assert `full.md`, sanitized log, no `.mineru-local-*`, and no cloud call.
 
-- [ ] **Step 3: Write the dedicated-worker canary runbook**
+- [x] **Step 3: Write the dedicated-worker canary runbook**
 
 Document exact stages:
 
@@ -554,7 +554,7 @@ Document exact stages:
 
 Explicitly prohibit changing `MINERU_PROVIDER` in place on a busy worker, automatic retry to cloud, customer-wide rollout, DOCX routing, and concurrency increases.
 
-- [ ] **Step 4: Verify docs, fixture loading, and opt-in skip**
+- [x] **Step 4: Verify docs, fixture loading, and opt-in skip**
 
 Run:
 

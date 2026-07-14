@@ -153,6 +153,8 @@ MINERU_PROVIDER=local
 MINERU_LOCAL_PROJECT_PATH=C:\path\to\MinerU
 MINERU_LOCAL_UV_EXECUTABLE=C:\path\to\uv.exe
 MINERU_LOCAL_SHARD_CONCURRENCY=1
+MINERU_LOCAL_MAX_CONCURRENT_JOBS=1
+MINERU_LOCAL_ADMISSION_TIMEOUT_SECONDS=30
 ```
 
 Local mode accepts only a local PDF path, publishes the validated Markdown as
@@ -161,6 +163,12 @@ raw temporary artifacts. It does not use S3, API keys, or HTTP requests and it
 never falls back to cloud after a local failure. DOCX production routing is
 unchanged. Keep local shard concurrency at one until capacity testing supports
 a higher value; cloud mode continues to use `MINERU_SHARD_CONCURRENCY`.
+
+Before enabling a dedicated local worker, follow the complete
+[Local MinerU production canary](local-mineru-production-canary.md). It defines
+the content-free preflight, repeat-three acceptance gates, 24-hour observation,
+and explicit rollback procedure. External firewall isolation remains the
+operator-run BL-001 backlog item and is not implied by application offline mode.
 
 ## Security and licensing notes
 
