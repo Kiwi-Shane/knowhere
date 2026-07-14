@@ -623,22 +623,30 @@ git commit -m "docs: record local MinerU readiness validation"
 
 - Content-free preflight: `ready=true`; project, uv, Python, adapter,
   temporary-write, disk, and memory checks all passed. Free disk was
-  468,916,858,880 bytes and available memory was 10,562,240,512 bytes.
+  465,115,213,824 bytes and available memory was 10,416,594,944 bytes in the
+  final post-review run.
 - Public CPU/offline canary: 9 runs, 9 completed, 0 failed, 0 expectation
   mismatches, and 0 reproducibility failures. Maximum sampled RSS was
   5,168,754,688 bytes, below the 8 GiB admission threshold; maximum duration
   was 88.474877 seconds. No `.building-*`, `.work-*`, `.failed-*`, or
   `.mineru-local-*` directory remained.
-- Real standard-provider seam: 1 passed in 22.24 seconds; the local provider
+- Real standard-provider seam: 1 passed in 28.13 seconds in the final
+  post-review run; the local provider
   published `full.md` and the sanitized log, and the cloud sentinel remained
   uncalled. The first pytest launch did not collect because the Windows process
   PATH lacked portable `libpq`; the successful rerun included the approved
   portable PostgreSQL `bin` directory.
-- Worker contract suite: 265 passed, 2 skipped, and 7 existing deprecation
-  warnings in 51.65 seconds.
+- Worker contract suite: 268 passed, 2 skipped, and 7 existing deprecation
+  warnings in 59.19 seconds after review hardening.
 - Repository Ruff: all checks passed for `apps` and `packages`.
 - Repository Pyright: 0 errors, 0 warnings, and 0 information messages.
-- Paired MinerU integration contract: 13 passed in 13.82 seconds.
+- Paired MinerU integration contract: 13 passed in 19.27 seconds in the final
+  run.
+- Independent review hardening: raw local failures are no longer retained or
+  traceback-logged at the domain boundary; direct worker startup completes
+  local preflight before starting Beat; temporary-probe cleanup failures map to
+  the stable `temp_not_writable` result. The three regression groups passed 31
+  focused tests before the full-suite rerun.
 - Cleanup: generated canary output, coverage output, Ruff/Pytest caches from
   this phase, and the untracked MinerU `uv.lock` were removed. Both working
   trees were clean before this evidence edit.
