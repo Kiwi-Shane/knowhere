@@ -574,15 +574,15 @@ git commit -m "docs: add local MinerU production canary runbook"
 - Consumes: all prior tasks and the paired MinerU checkout.
 - Produces: recorded readiness evidence with generated artifacts removed.
 
-- [ ] **Step 1: Run the actual content-free preflight**
+- [x] **Step 1: Run the actual content-free preflight**
 
 Set local provider/project/executable values only in the current process and run `check_local_mineru_runtime.py`. Record ready state, free disk bytes, available memory bytes, and check booleans; do not record paths or environment values.
 
-- [ ] **Step 2: Run the repeat-three public canary**
+- [x] **Step 2: Run the repeat-three public canary**
 
 Run the new three-document corpus into ignored `.codex-review/production-canary`. Acceptance is 9 completed, 0 failed, 0 expectation mismatches, 0 reproducibility failures, max sampled RSS below available-memory admission, and no `.building-*`, `.work-*`, `.failed-*`, or `.mineru-local-*` directory after completion.
 
-- [ ] **Step 3: Run the real provider seam E2E**
+- [x] **Step 3: Run the real provider seam E2E**
 
 Run:
 
@@ -595,7 +595,7 @@ python -m uv run pytest apps/worker/tests/integration/test_local_mineru_provider
 
 Expected: 1 passed and the cloud sentinel remains uncalled.
 
-- [ ] **Step 4: Run full verification**
+- [x] **Step 4: Run full verification**
 
 Run:
 
@@ -607,7 +607,7 @@ python -m uv run --all-packages --group typecheck pyright --project pyproject.to
 C:\Users\psc01\workspace\MinerU\.venv\Scripts\python.exe -m pytest C:\Users\psc01\workspace\MinerU\tests\unittest\test_knowhere_integration_contract.py -q
 ```
 
-- [ ] **Step 5: Record evidence, clean, and commit**
+- [x] **Step 5: Record evidence, clean, and commit**
 
 Append exact preflight, canary, E2E, test, Ruff, and Pyright results to this plan. Remove `.codex-review/production-canary`, coverage output, pytest caches created by this phase, and an untracked MinerU `uv.lock`. Confirm zero `Knowhere-MinerU-Offline-*` rules even though BL-001 was not run.
 
@@ -618,3 +618,30 @@ git -C C:\Users\psc01\workspace\MinerU status --short
 git add docs/superpowers/plans/2026-07-14-local-mineru-production-readiness.md
 git commit -m "docs: record local MinerU readiness validation"
 ```
+
+#### Validation evidence (2026-07-14)
+
+- Content-free preflight: `ready=true`; project, uv, Python, adapter,
+  temporary-write, disk, and memory checks all passed. Free disk was
+  468,916,858,880 bytes and available memory was 10,562,240,512 bytes.
+- Public CPU/offline canary: 9 runs, 9 completed, 0 failed, 0 expectation
+  mismatches, and 0 reproducibility failures. Maximum sampled RSS was
+  5,168,754,688 bytes, below the 8 GiB admission threshold; maximum duration
+  was 88.474877 seconds. No `.building-*`, `.work-*`, `.failed-*`, or
+  `.mineru-local-*` directory remained.
+- Real standard-provider seam: 1 passed in 22.24 seconds; the local provider
+  published `full.md` and the sanitized log, and the cloud sentinel remained
+  uncalled. The first pytest launch did not collect because the Windows process
+  PATH lacked portable `libpq`; the successful rerun included the approved
+  portable PostgreSQL `bin` directory.
+- Worker contract suite: 265 passed, 2 skipped, and 7 existing deprecation
+  warnings in 51.65 seconds.
+- Repository Ruff: all checks passed for `apps` and `packages`.
+- Repository Pyright: 0 errors, 0 warnings, and 0 information messages.
+- Paired MinerU integration contract: 13 passed in 13.82 seconds.
+- Cleanup: generated canary output, coverage output, Ruff/Pytest caches from
+  this phase, and the untracked MinerU `uv.lock` were removed. Both working
+  trees were clean before this evidence edit.
+- Firewall audit: zero `Knowhere-MinerU-Offline-*` rules were present. BL-001
+  external isolation testing was intentionally not executed and remains for
+  the operator.
