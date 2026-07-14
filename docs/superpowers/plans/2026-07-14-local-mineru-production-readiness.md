@@ -429,7 +429,7 @@ git commit -m "feat: bound concurrent local MinerU jobs"
 - Consumes: cloud/local provider functions, `LocalMinerUCapacityError`, `LocalMinerUError`, `MinerUArtifactContractError`, and `MinerUServiceException`.
 - Produces: exactly one allowlisted observation per provider call and safe local domain failures.
 
-- [ ] **Step 1: Write failing error and log contracts**
+- [x] **Step 1: Write failing error and log contracts**
 
 Capture Loguru records and assert successful cloud/local observations contain only:
 
@@ -459,7 +459,7 @@ For failures, allow only `error_category` from:
 
 Inject paths, filenames, S3 keys, API keys, and child stderr into exceptions and prove none appear in bound record fields, rendered log text, or `MinerUServiceException.details/user_message`. Prove local failure calls cloud zero times.
 
-- [ ] **Step 2: Run the focused tests and observe failure**
+- [x] **Step 2: Run the focused tests and observe failure**
 
 Run:
 
@@ -469,7 +469,7 @@ python -m uv run pytest apps/worker/tests/contract/test_mineru_provider_contract
 
 Expected: observation assertions and safe domain-exception assertions fail.
 
-- [ ] **Step 3: Add stable categorization and provider timing**
+- [x] **Step 3: Add stable categorization and provider timing**
 
 Implement private helpers with exhaustive typed branches:
 
@@ -499,7 +499,7 @@ raise MinerUServiceException(
 
 Cloud exceptions retain their current type and behavior after the error observation; never remap them through the local boundary.
 
-- [ ] **Step 4: Verify and commit the error boundary**
+- [x] **Step 4: Verify and commit the error boundary**
 
 Run:
 
