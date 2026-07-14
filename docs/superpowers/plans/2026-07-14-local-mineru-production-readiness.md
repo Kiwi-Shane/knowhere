@@ -277,7 +277,7 @@ git commit -m "feat: add local MinerU runtime preflight"
 - Consumes: `settings.MINERU_PROVIDER`, `settings.MINERU_LOCAL_PREFLIGHT_ON_STARTUP`, and `require_local_mineru_runtime(settings)`.
 - Produces: local-mode startup failure before the worker accepts jobs.
 
-- [ ] **Step 1: Write failing bootstrap tests**
+- [x] **Step 1: Write failing bootstrap tests**
 
 Add four named tests:
 
@@ -288,7 +288,7 @@ Add four named tests:
 
 Patch logging, heartbeat, Redis, and the preflight function. Assert invalid explicit local configuration raises `LocalMinerURuntimeError` and does not call `start_worker_heartbeat()`.
 
-- [ ] **Step 2: Run the focused tests and observe failure**
+- [x] **Step 2: Run the focused tests and observe failure**
 
 Run:
 
@@ -298,7 +298,7 @@ python -m uv run pytest apps/worker/tests/contract/test_worker_bootstrap_contrac
 
 Expected: new assertions fail because `init_worker()` does not perform the preflight.
 
-- [ ] **Step 3: Add preflight before worker side effects**
+- [x] **Step 3: Add preflight before worker side effects**
 
 At the beginning of `init_worker()` after `setup_logging()` but before heartbeat/Redis initialization:
 
@@ -319,7 +319,7 @@ if (
 
 Do not catch `LocalMinerURuntimeError`; explicit local misconfiguration must stop startup. Do not log `error_codes` until tests prove the fixed allowlist cannot expose free-form data.
 
-- [ ] **Step 4: Verify and commit worker startup**
+- [x] **Step 4: Verify and commit worker startup**
 
 Run:
 

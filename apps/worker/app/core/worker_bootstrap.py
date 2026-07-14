@@ -9,8 +9,13 @@ from celery.signals import worker_init, worker_shutdown
 from loguru import logger
 
 from shared.core.celery_app import celery_app
+from shared.core.config import settings
 from shared.core.logging import setup_logging
 from shared.services.worker_health import start_worker_heartbeat, stop_worker_heartbeat
+
+from app.services.document_parser.providers.mineru.runtime_preflight import (
+    require_local_mineru_runtime,
+)
 
 
 def _register_task_modules() -> None:
@@ -24,6 +29,20 @@ def _register_task_modules() -> None:
 def init_worker(**kwargs) -> None:
     """Initialize structured logging and sync Redis when worker process starts."""
     setup_logging(service_name="knowhere-worker")
+
+    if (
+        settings.MINERU_PROVIDER == "local"
+        and settings.MINERU_LOCAL_PREFLIGHT_ON_STARTUP
+    ):
+        status = require_local_mineru_runtime(settings)
+        logger.bind(
+            event="mineru.runtime_preflight",
+            provider="local",
+            ready=status.ready,
+            free_disk_bytes=status.free_disk_bytes,
+            available_memory_bytes=status.available_memory_bytes,
+        ).info("Local MinerU runtime preflight passed")
+
     start_worker_heartbeat()
 
     # Celery gevent cannot cancel greenlets on transport reconnect, so use a no-op.
@@ -97,8 +116,6 @@ def run_worker() -> None:
     task name.  Only the first invocation within each scheduling window
     executes; all subsequent duplicates log a skip and return immediately.
     """
-    from shared.core.config import settings
-
     _register_task_modules()
 
     hostname = socket.gethostname()
