@@ -36,7 +36,7 @@
 - Produces: `LocalMinerURuntimeStatus`, `LocalMinerURuntimeError`, `check_local_mineru_runtime()`, and `require_local_mineru_runtime()`.
 - Consumes: the combined `settings` object, injected command/capacity probes, and the exact local MinerU configuration.
 
-- [ ] **Step 1: Write failing configuration and status tests**
+- [x] **Step 1: Write failing configuration and status tests**
 
 Test cloud bypass, complete local readiness, missing project, missing `uv`, derived MinerU Python, failed adapter import, unwritable temp root, low disk, and low available memory. Assert serialization contains only this shape:
 
@@ -62,7 +62,7 @@ Test cloud bypass, complete local readiness, missing project, missing `uv`, deri
 
 Also assert the serialized payload excludes the configured project, executable, temp path, environment values, and fake subprocess output.
 
-- [ ] **Step 2: Run the focused test and observe the missing module**
+- [x] **Step 2: Run the focused test and observe the missing module**
 
 Run:
 
@@ -72,7 +72,7 @@ python -m uv run pytest apps/worker/tests/contract/test_mineru_runtime_preflight
 
 Expected: collection fails because `runtime_preflight` does not exist.
 
-- [ ] **Step 3: Add validated local readiness settings**
+- [x] **Step 3: Add validated local readiness settings**
 
 Add to `MineruConfig`:
 
@@ -87,7 +87,7 @@ MINERU_LOCAL_MIN_AVAILABLE_MEMORY_GB: int = Field(default=8, ge=1)
 
 Document the same defaults in `.env.example`. Do not read or validate these fields in cloud mode.
 
-- [ ] **Step 4: Implement typed, content-free runtime checks**
+- [x] **Step 4: Implement typed, content-free runtime checks**
 
 Implement these contracts:
 
@@ -250,11 +250,11 @@ Resolve `MINERU_LOCAL_PYTHON_EXECUTABLE` explicitly when non-empty; otherwise de
 
 Use a ten-second timeout and `HF_HUB_OFFLINE=1`, `TRANSFORMERS_OFFLINE=1`, and `MODELSCOPE_OFFLINE=1`. Reduce every failure to stable codes such as `project_missing`, `uv_missing`, `python_missing`, `adapter_unavailable`, `temp_not_writable`, `disk_below_minimum`, and `memory_below_minimum`.
 
-- [ ] **Step 5: Implement the deployment preflight CLI**
+- [x] **Step 5: Implement the deployment preflight CLI**
 
 The ignored script must be force-added to Git. It imports the shared settings, runs `check_local_mineru_runtime(settings)`, prints only `json.dumps(status.to_dict(), sort_keys=True)`, and exits 0 when ready or 1 when not ready. When the configured provider is cloud, return a ready status with `provider="cloud"` and no local subprocess calls.
 
-- [ ] **Step 6: Verify and commit the preflight**
+- [x] **Step 6: Verify and commit the preflight**
 
 Run:
 

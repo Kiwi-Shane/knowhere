@@ -113,3 +113,31 @@ class MineruConfig(BaseModel):
         ge=1,
         description="Maximum concurrent local MinerU PDF shard parses.",
     )
+    MINERU_LOCAL_PREFLIGHT_ON_STARTUP: bool = Field(
+        default=True,
+        description="Validate an explicitly selected local MinerU runtime at worker startup.",
+    )
+    MINERU_LOCAL_PYTHON_EXECUTABLE: str = Field(
+        default="",
+        description="Optional MinerU virtual-environment Python; derived from the project when empty.",
+    )
+    MINERU_LOCAL_MAX_CONCURRENT_JOBS: int = Field(
+        default=1,
+        ge=1,
+        description="Maximum independent local MinerU jobs admitted per worker process.",
+    )
+    MINERU_LOCAL_ADMISSION_TIMEOUT_SECONDS: int = Field(
+        default=30,
+        gt=0,
+        description="Maximum seconds a local MinerU job waits for process capacity.",
+    )
+    MINERU_LOCAL_MIN_FREE_DISK_GB: int = Field(
+        default=10,
+        ge=1,
+        description="Minimum free temporary-storage capacity required for local MinerU.",
+    )
+    MINERU_LOCAL_MIN_AVAILABLE_MEMORY_GB: int = Field(
+        default=8,
+        ge=1,
+        description="Minimum available system memory required for local MinerU.",
+    )
