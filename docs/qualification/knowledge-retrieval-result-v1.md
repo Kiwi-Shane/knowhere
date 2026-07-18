@@ -9,25 +9,28 @@ to a producer result, or establish source sufficiency.
 
 ## Current boundary
 
-The branch publishes the canonical schema and a content-free contract fixture.
-The existing native implementation currently produces a portable
+The branch publishes the canonical schema, a content-free contract fixture,
+and an opt-in pure serializer. The serializer requires explicit request,
+memory-snapshot, source-version, retrieval-configuration, and native-locator
+context; it does not infer extraction block IDs from database chunk IDs. The
+existing native implementation still produces a portable
 `codex-review-package/1.0` package and its derivative manifest; that package
-is an observed baseline, not a canonical `knowledge-retrieval-result-v1`
-payload. No compatibility claim is made between those shapes without an
-explicit producer serializer and qualification run.
+is an observed baseline, not an automatically compatible
+`knowledge-retrieval-result-v1` payload. The serializer is not wired into the
+active retrieval routes and does not change the edge status.
 
 ## Acceptance matrix
 
 | Qualification target | Current evidence | Disposition |
 |---|---|---|
 | Hierarchy, section path, and chunk boundaries | Existing package contract tests cover document-tree and block-normalization behavior. | `observed_mechanical_baseline` |
-| Table/image linkage and citation export | Existing package/table/page contract tests cover derivative asset references; canonical retrieval-result citation mapping is not implemented. | `partial_mechanical_only` |
+| Table/image linkage and citation export | Existing package/table/page contract tests cover derivative asset references; the opt-in serializer carries explicitly supplied table/image IDs and native citation text without deriving them from chunk IDs. | `partial_mechanical_only` |
 | Source allowlist and namespace isolation | Existing worker/API contract suites cover namespace-scoped document and retrieval behavior. | `partial_mechanical_only` |
 | Duplicate handling and source-version replacement | Existing lifecycle and ingestion tests cover related document identity/version behavior; no canonical result gold set is attached. | `partial_mechanical_only` |
 | Stale invalidation and deletion/purge | Existing lifecycle tests cover invalidation/purge paths; end-to-end canonical result non-retrievability evidence is not recorded. | `not_yet_qualified` |
 | Backup/restore | No source-owner qualification fixture in this slice. | `not_assessed` |
 | External telemetry and LLM/VLM egress | Local/offline contract tests cover application flags and provider boundaries; host-level network denial is a separate operator control. | `partial_mechanical_only` |
-| Result provenance and native locator | The canonical schema requires source/version, block IDs, page range, citation, and an `unverified` native-source status; no runtime serializer emits it yet. | `not_yet_qualified` |
+| Result provenance and native locator | The opt-in serializer requires source/version, explicit block IDs, page range, native citation, and emits the fixed `unverified` native-source status; no active retrieval route or gold result set is wired. | `partial_mechanical_only` |
 | RA acceptance fields in producer result | Canonical fixture has no `evidence_status`, `readiness_status`, or `regulatory_conclusion`. | `mechanical_pass` |
 | Critical gold evidence in top-N and meaning preservation | No retrieval gold-question set or extractive-only drift run is recorded. | `not_assessed` |
 
@@ -35,6 +38,20 @@ The first qualified private profile must remain extractive-only unless a later
 bounded decision demonstrates that summary/VLM enrichment does not change
 critical meaning. A review-package pass or API retrieval pass alone does not
 change this disposition.
+
+## Canonical serializer implementation note
+
+On 2026-07-18, `shared.services.retrieval.knowledge_retrieval_result` added an
+opt-in serializer for one already-ranked retrieval row. Its context and
+locator dataclasses require explicit producer-owned identity and native
+provenance; invalid hashes, page ranges, missing block IDs, missing native
+references, non-finite scores, and score-less rows fail closed. The serializer
+preserves retrieval score components and adds a derivative-content warning
+when the assembled row is a summary or other non-native representation. It
+does not call a database, expose RA/readiness fields, or alter the existing
+public retrieval routes. Focused contract tests cover the shape and the
+fail-closed boundaries; qualification, source-owner gold results, and runtime
+activation remain outstanding.
 
 ## Synthetic cross-edge observation
 
