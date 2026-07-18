@@ -5,6 +5,13 @@ directory. It runs MinerU as a local child process and does not require the
 Knowhere API, worker, Celery, PostgreSQL, Redis, S3, or LocalStack services. It
 does not replace Knowhere's production PDF or DOCX ingestion paths.
 
+The source-owned canonical retrieval-result contract is
+`schemas/knowledge-retrieval-result-v1.schema.json`. The review package
+manifest described by this guide remains a separate derivative-package
+baseline; it is not treated as a qualified retrieval-result payload. See
+`docs/qualification/knowledge-retrieval-result-v1.md` for the current gate
+status.
+
 ## Prerequisites
 
 1. Check out and install the paired MinerU project, including the
