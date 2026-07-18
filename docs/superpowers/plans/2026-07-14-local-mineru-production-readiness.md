@@ -653,3 +653,13 @@ git commit -m "docs: record local MinerU readiness validation"
 - Firewall audit: zero `Knowhere-MinerU-Offline-*` rules were present. BL-001
   external isolation testing was intentionally not executed and remains for
   the operator.
+
+#### Environment hardening follow-up (2026-07-18)
+
+- Added `psycopg[binary]>=3.2` to the API and worker development groups and
+  regenerated `uv.lock` after a clean Windows environment exposed that
+  `pytest-postgresql` otherwise required a host `libpq` installation during
+  collection.
+- Re-ran the paired focused readiness/package boundary set with the portable
+  PostgreSQL executable: 68 passed and 2 skipped. Repository Ruff remained
+  clean, and the MinerU integration contract remained 13 passed.
