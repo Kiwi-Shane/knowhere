@@ -35,3 +35,21 @@ The first qualified private profile must remain extractive-only unless a later
 bounded decision demonstrates that summary/VLM enrichment does not change
 critical meaning. A review-package pass or API retrieval pass alone does not
 change this disposition.
+
+## Synthetic cross-edge observation
+
+On 2026-07-18, the public MinerU fixture `test.pdf` was parsed locally and its
+validated legacy artifact bundle was consumed by the Knowhere review-package
+builder. The source SHA was
+`ae9e3f14cc3bea88dd0ce4e2715b3b03561378501318df61f0889df207aed25b`; the
+resulting package inventory contained 22 hashed files, 5 blocks, 1 table, 1
+page, and 2 extraction findings, with no temporary build directory left
+behind. Application offline mode was requested, while host-level network
+denial remained unverified.
+
+This is bounded WP-05 edge characterization only. The output carried the
+legacy `knowhere-mineru-artifacts/1.0` MinerU manifest inside a derivative
+review package; it did not emit a canonical `knowledge-retrieval-result-v1`
+payload, retrieval gold result, or RA acceptance disposition. The
+qualification status therefore remains `deferred` and the runtime edge
+remains `declared_not_runtime`.
