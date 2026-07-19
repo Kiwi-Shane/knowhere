@@ -389,3 +389,27 @@ This is active API startup/health/OpenAPI evidence only. It does not establish
 worker startup, ingestion, active retrieval against producer artifacts,
 host-level egress denial, telemetry exhaustiveness, deletion behavior, source
 sufficiency, or qualification; the disposition remains `deferred`.
+
+## Active localhost retrieval observation
+
+On 2026-07-19, the current Knowhere revision
+`b1db01a802cfbffcb7ccbadb4e14e47e3489a6e6` was started again through the
+existing `uvicorn main:app` entry point on `127.0.0.1:5505`, with
+`TELEMETRY_ENABLED=false`, no provider keys, filesystem object storage, and
+an isolated synthetic PostgreSQL database. After migrations completed, a
+synthetic authenticated user, current document/job-result revision, section,
+and text chunk were inserted directly into that isolated database. The actual
+`POST /api/v1/retrieval/query` route then returned HTTP 200 with
+`router_used=small_corpus_all`, one result, non-empty `evidence_text`
+containing the seeded marker, and an empty `answer_text`. The result carried
+the expected document, section, and chunk identifiers; the response's
+`referenced_chunks` list was empty and is not treated as positive citation
+evidence.
+
+The API process was stopped, the dedicated database was dropped, and port
+`5505` was verified free. This is active API retrieval evidence against
+directly seeded synthetic rows only. It does not establish worker startup,
+MinerU producer ingestion, retrieval against producer-owned artifacts, native
+or human semantic gold, source sufficiency, deletion behavior, host-level
+egress denial, telemetry exhaustiveness, or qualification; the disposition
+remains `deferred`.
