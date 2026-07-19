@@ -28,7 +28,7 @@ active retrieval routes and does not change the edge status.
 | Source allowlist and namespace isolation | Existing worker/API contract suites cover namespace-scoped document and retrieval behavior. | `partial_mechanical_only` |
 | Duplicate handling and source-version replacement | Existing lifecycle and ingestion tests cover related document identity/version behavior; no canonical result gold set is attached. | `partial_mechanical_only` |
 | Stale invalidation and deletion/purge | Existing lifecycle tests cover invalidation/purge paths; end-to-end canonical result non-retrievability evidence is not recorded. | `not_yet_qualified` |
-| Backup/restore | No source-owner qualification fixture in this slice. | `not_assessed` |
+| Backup/restore | A synthetic PostgreSQL 15.18 custom-format dump/restore smoke matched the source and restored two-row content fingerprint; production backup, retention, and recovery controls remain untested. | `partial_mechanical_only` |
 | External telemetry and LLM/VLM egress | Local/offline contract tests cover application flags and provider boundaries; host-level network denial is a separate operator control. | `partial_mechanical_only` |
 | Result provenance and native locator | The opt-in serializer requires source/version, explicit block IDs, page range, native citation, and emits the fixed `unverified` native-source status; no active retrieval route or gold result set is wired. | `partial_mechanical_only` |
 | RA acceptance fields in producer result | Canonical fixture has no `evidence_status`, `readiness_status`, or `regulatory_conclusion`. | `mechanical_pass` |
@@ -1363,3 +1363,19 @@ agentic planning, hard deletion, canonical manifest consumption, source
 sufficiency, native or human semantic gold, RA acceptance, or qualification.
 The temporary probe file was removed; cp950 emoji logging warnings remain an
 environment output boundary. No implementation or edge status changed.
+
+## Synthetic PostgreSQL backup/restore smoke
+
+On 2026-07-19, an isolated synthetic PostgreSQL 15.18 source database was
+populated with two fixture rows, exported with `pg_dump` custom format, and
+restored into a separate temporary database with `pg_restore`. The dump was
+1,864 bytes; the source and restored row-count/content fingerprints both
+matched `2:277039fca06d4cfdc5b5f313c4feb2d8`. The temporary databases and
+container dump were removed after the comparison.
+
+This is storage-layer synthetic backup/restore evidence only. It does not
+cover the production Knowhere database, object-storage/vector/memory
+artifacts, backup encryption or immutability, retention policy, scheduled
+backup delivery, restore authorization, RTO/RPO, application consistency, or
+qualification. The matrix disposition is therefore
+`partial_mechanical_only`; no implementation or edge status changed.
