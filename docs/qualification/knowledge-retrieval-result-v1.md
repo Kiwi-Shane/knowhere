@@ -1708,3 +1708,24 @@ evidence only and does not establish provider execution, private-source
 handling, native/semantic gold, source sufficiency, RA acceptance, or
 qualification. No implementation, database, active edge, private data,
 provider, or runtime status was changed.
+
+## Current-head D2 telemetry and offline-verifier contract recheck
+
+On 2026-07-19, the current qualification worktree at Knowhere revision
+`80abaad2` reran the API self-hosted telemetry contract suite and the worker
+offline-verifier contract suite. The telemetry selection passed `23` tests in
+`0.91` seconds; the offline-verifier selection passed `5` tests in `1.11`
+seconds.
+
+The telemetry contracts reconfirm installation identity handling,
+allowlisting/removal of unknown, non-scalar, and sensitive properties,
+startup/shutdown/heartbeat events, aggregate/request metrics, batching,
+flushing, and explicit disable/override behavior. The offline-verifier
+contracts reconfirm non-administrator fail-closed behavior, both executable
+rule requests, offline environment/attestation output, and cleanup/failure
+handling using a recorded `netsh` double. These are application-side and
+synthetic contract observations only; no host firewall rule was installed,
+no external telemetry destination was contacted, and D2 host-level egress,
+retention, credential, and runtime controls remain `blocked`. No
+implementation, database, active edge, private data, provider, or runtime
+status was changed.
