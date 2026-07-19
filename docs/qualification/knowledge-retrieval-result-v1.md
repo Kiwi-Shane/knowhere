@@ -1085,3 +1085,28 @@ semantic meaning preservation, retrieval top-N evidence, source sufficiency,
 deletion qualification, or producer/edge qualification. The package was
 requested offline but recorded `offline_verified: false`; that remains an
 environment attestation limitation. No implementation change was made.
+
+## Native physical-pagination cross-check for critical gold preparation
+
+On 2026-07-19, the exact private native `source.docx` from the critical
+synthetic package was converted with the installed LibreOffice 26.2.4.2 into
+a two-page letter-size PDF under the ignored `.qa` boundary. The rendered PDF
+SHA-256 was
+`59ca027d88587c884d75bd5edabd18ef1553e8b2628d5837bc594667e588251e`.
+The existing exporter-normalized PDF was also two pages with the same page
+size, but its byte hash differed because it was a separate generated artifact.
+
+A read-only text crosswalk found the run identifier, device identifier, lot
+identifier, negative-condition wording, table-cell guard, and image-locator
+guard on physical page 2. Their corresponding MinerU blocks still carried
+`office_logical_page` locators with `page_number: 1` and
+`normalized_pdf_mapping_status: unmapped`. The repeated current/temperature
+unit categories appeared on both physical pages; the no-fallback phrase was
+line-wrapped in PDF text extraction, while its `fallback` term was present on
+page 2. This is a native-pagination/locator discrepancy, not a source-content
+loss determination.
+
+The result is a negative locator observation: physical page citation and
+native locator qualification remain open. No locator was corrected, no
+implementation change was made, and no runtime edge or qualification status
+was promoted. The private rendered PDF and source package remain outside Git.
