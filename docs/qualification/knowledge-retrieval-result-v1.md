@@ -1311,3 +1311,20 @@ qualify citation locators. The existing handoff packet's physical-page 2
 versus producer logical-page 1 mapping remains `unmapped`; no locator was
 corrected, and the qualification disposition remains `deferred`. No
 implementation or edge status changed.
+
+## Offline-verifier safety contract recheck
+
+On 2026-07-19, the existing
+`test_codex_offline_verification_contract.py` selection completed with
+`5 passed` in 0.26 seconds. The contract covered non-administrator
+fail-closed behavior before rule creation, outbound blocking rules for both
+the `uv` and MinerU Python executables, `shell=False` command execution,
+offline environment variables, verified/unverified attestation output, rule
+cleanup after validator failure, and failure to attest when cleanup fails.
+
+The selection used a recorded command double for `netsh`; it did not install
+or exercise host firewall rules and does not prove deployed default-deny
+egress, external telemetry suppression, production configuration precedence,
+or runtime qualification. D2 and the qualification disposition remain
+`blocked`/`deferred` at their existing boundaries; no implementation or edge
+status changed.
