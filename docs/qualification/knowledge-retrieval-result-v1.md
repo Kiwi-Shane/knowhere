@@ -459,3 +459,28 @@ meaning evidence. No worker task, producer-artifact ingestion, Knowhere
 publication, retrieval top-N result, source-owner gold, source sufficiency,
 or qualification gate was exercised. The temporary output and process were
 cleaned up; the disposition remains `deferred`.
+
+## Active localhost local MinerU non-empty artifact and native concordance observation
+
+On 2026-07-19, the MinerU checkout's existing public fixture
+`tests/unittest/pdfs/test.pdf` (one page, 125,121 bytes; SHA-256
+`AE9E3F14CC3BEA88DD0CE4E2715B3B03561378501318DF61F0889DF207AED25B`) was
+passed through the standard local provider `parse_pdf` seam with the
+project-local Python 3.11 worker runtime, `uv 0.11.29`, MinerU revision
+`cebf5078a3ed2990260caa03110b0bab82a16b64`, pipeline backend, and offline
+flags. No cloud provider key was supplied. The seam returned exit code 0 and
+created a non-empty `full.md` of 1,098 bytes (SHA-256
+`773b6533ff1536ebef0fc5788c43fa67527033f6d09cb3c86a60b5b9e14d0c8d`), three
+image assets, and a sanitized `logs/mineru.log` of 5,931 bytes.
+
+A bounded native-text comparison using Poppler 25.07.0 found 49 of 52 native
+unique tokens in the Markdown (94.23% mechanical unique-token coverage).
+Controlled markers for the figure caption, table caption, displayed content,
+and paragraph text were present. An AI-assisted page-render check found the
+three extracted asset classes (figure, table, and equation) in corresponding
+native-page regions. These are mechanical/text and visual concordance
+observations only; they are not human native-source adjudication or semantic
+meaning-preservation proof. No worker task, producer-artifact ingestion,
+Knowhere publication, retrieval top-N result, source-owner gold, source
+sufficiency, or qualification gate was exercised. The temporary output and
+process were cleaned up; the disposition remains `deferred`.
