@@ -507,3 +507,19 @@ This is an environment/provider-admission boundary, not evidence that the
 local MinerU process seam or direct extraction failed. The eager exception,
 synthetic database, Redis DB14 state, temporary workspace, and child
 processes were cleaned up; the disposition remains `deferred`.
+
+## Checked-in local MinerU integration test observation
+
+On 2026-07-19, the repository-provided real local MinerU integration test
+`apps/worker/tests/integration/test_local_mineru_provider_integration.py`
+was run with the public MinerU `test.pdf` fixture, Python 3.11 worker
+runtime, `uv 0.11.29`, pipeline backend, offline flags, and no cloud
+provider key. The test passed `1 passed in 24.90s`. Its assertions exercised
+the real `parse_pdfs` local-provider path, downstream `full.md` handling,
+log creation, and the absence of cloud fallback or temporary local-run
+artifacts.
+
+This is checked-in integration-contract evidence for the provider seam only.
+It does not exercise the full worker task profile stage, producer-to-Knowhere
+publication, retrieval top-N, human/native semantic gold, source sufficiency,
+or qualification; the disposition remains `deferred`.
