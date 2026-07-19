@@ -1270,3 +1270,24 @@ emission, native or human semantic gold, source sufficiency, RA acceptance,
 or qualification. The qualification disposition remains `deferred`; the
 temporary probe file was removed and no implementation or edge status
 changed.
+
+## Worker process, artifact, and webhook safety contract recheck
+
+On 2026-07-19, the existing worker contract selection
+`test_local_mineru_process_contract.py`, `test_mineru_artifact_contract.py`,
+and `test_webhook_recovery_contract.py` completed with `20 passed, 1 skipped`
+in 20.52 seconds. The selection mechanically covered argv construction
+without a shell, secret redaction, timeout/process-tree termination, bounded
+stdout/stderr persistence, project-path validation, artifact manifest/schema
+validation, path traversal, hash/source-identity checks, required-artifact
+parsing, orphaned/completed/stale webhook recovery, and duplicate-Beat
+suppression.
+
+The artifact symlink-escape test was skipped because this Windows host could
+not create a symlink (`WinError 1314`, required privilege not held). The
+symlink guard is therefore not locally executed evidence. This recheck is
+mechanical process/artifact/recovery safety evidence only; it does not prove
+runtime no-cloud-fallback behavior, egress control, deletion completeness,
+canonical manifest consumption, source sufficiency, native/human semantic
+gold, RA acceptance, or qualification. The qualification disposition remains
+`deferred`; no implementation or edge status changed.
