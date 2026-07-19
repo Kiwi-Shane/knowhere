@@ -1687,3 +1687,24 @@ the verified portable PostgreSQL executable and passed. No executable shim,
 source change, database change, or runtime status change was made; the
 preflight compatibility gap remains recorded for a separately authorized
 implementation slice.
+
+## Current-head review CLI, batch-validation, and evidence-renderer recheck
+
+On 2026-07-19, the current qualification worktree at Knowhere revision
+`0aec7ae7` reran the existing review/batch boundary selection consisting of
+`test_codex_batch_validation_contract.py`,
+`test_codex_review_cli_contract.py`, and
+`test_agentic_evidence_renderer_contract.py`. The selection passed `18` tests
+in `1.36` seconds and recorded `1` skip because Windows symlink creation
+requires a privilege not held by the test process.
+
+The selection reconfirms safe relative validation-corpus resolution,
+rejection of unsafe/missing records and tamper, ordered private report output,
+offline sequential CLI defaults, traceback-free local-MinerU failure
+reporting, and page/table evidence rendering through summaries and asset URLs
+without inlining table HTML. The symlink-escape branch remains unexecuted on
+this host; it is not treated as a pass. This is synthetic offline contract
+evidence only and does not establish provider execution, private-source
+handling, native/semantic gold, source sufficiency, RA acceptance, or
+qualification. No implementation, database, active edge, private data,
+provider, or runtime status was changed.
