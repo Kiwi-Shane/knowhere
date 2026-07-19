@@ -769,3 +769,36 @@ This is checked-in integration-contract evidence for the provider seam only.
 It does not exercise the full worker task profile stage, producer-to-Knowhere
 publication, retrieval top-N, human/native semantic gold, source sufficiency,
 or qualification; the disposition remains `deferred`.
+
+## Local MinerU worker publication to active retrieval route
+
+On 2026-07-19, a separate isolated cross-edge observation used the existing
+`parse_task`/Celery eager path with the public MinerU `test.pdf` fixture
+(`AE9E3F14CC3BEA88DD0CE4E2715B3B03561378501318DF61F0889DF207AED25B`). The
+local-only Python 3.11 worker used MinerU revision
+`cebf5078a3ed2990260caa03110b0bab82a16b64`, `MINERU_PROVIDER=local`, pipeline
+backend, offline flags, filesystem object storage, and Redis DB15. The same
+isolated PostgreSQL database was then read through the active Knowhere
+retrieval route with authenticated user and namespace scope.
+
+The worker completed job `job_cross_edge_761543b515dd` with `status=done`,
+three job chunks, three published `document_chunks`, one `document_section`,
+and result/document linkage through job result
+`c5805703-bed9-49b8-8a04-b270e641e63e` and document
+`doc_7aaa424fed2c`. The worker task reported Redis `done`/100% progress and
+zero stored vectors. A subsequent `POST /api/v1/retrieval/query` using the
+same user/namespace and the extracted `Figure` marker returned HTTP 200,
+router `small_corpus_all`, one result, and 688 characters of evidence. The
+returned source identified `mineru-cross-edge-test.pdf`, the same document,
+and `Root`; `answer_text` remained empty as designed. This is direct evidence
+that the current worker publication rows can be consumed by the active
+retrieval route, not merely a memory-only or synthetic-row observation.
+
+The response still had an empty `referenced_chunks` list, used lexical
+small-corpus retrieval, and did not establish vector retrieval, ranked
+top-N/source sufficiency, citation projection, semantic meaning preservation,
+native/human gold, deletion, telemetry, egress, rollback, long-run stability,
+or qualification. The previously observed tuple-keyed `Counter` JSONB
+trace-persistence gap remained in the worker boundary. The isolated database,
+nine probe Redis keys, and temporary filesystem root were removed after the
+observation; the disposition remains `deferred`.
