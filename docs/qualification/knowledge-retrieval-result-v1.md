@@ -1902,3 +1902,34 @@ package evidence only; it does not qualify real local MinerU execution,
 producer-to-Knowhere canonical manifest consumption, semantic/native gold,
 source sufficiency, deletion completeness, RA acceptance, or D3/D4
 qualification, and the disposition remains `deferred`.
+
+## Opt-in local MinerU synthetic E2E seam recheck
+
+On 2026-07-19, the previously disabled model-backed local seam was exercised
+with public/synthetic inputs only. The outer Knowhere command used the locked
+project environment with `--frozen --offline`; the child MinerU runner used the
+same local `uv` executable with `UV_OFFLINE=1`, `UV_FROZEN=1`, the MinerU
+repository path, and the test's `--offline` application flag. The selection
+was:
+
+```text
+apps/worker/tests/integration/test_local_mineru_provider_integration.py
+apps/worker/tests/integration/test_codex_pdf_package_integration.py
+```
+
+The result was `3 passed` in `54.83` seconds. The run used the existing public
+MinerU `tests/unittest/pdfs/test.pdf` fixture and a generated synthetic PDF.
+The provider-seam test confirmed that the local provider reached the standard
+PDF path, produced `full.md` and a bounded log, and made no cloud-parser call.
+The package test confirmed an offline-requested manifest with no `server_url`
+and a non-empty block result. Pytest temporary outputs were outside the
+repository; no provider, browser, private source, or external network was
+used by the run.
+
+This is model-backed local execution and application/offline-runner evidence
+only. The offline flags do not prove host-level egress denial, and the result
+does not qualify model identity/legal provenance, semantic/native gold,
+critical-token meaning, source sufficiency, canonical MinerU manifest lineage,
+active edge use, RA acceptance, or D2/D3/D4 qualification. The qualification
+disposition remains `deferred`; no implementation, database, active edge,
+private-data, provider, or runtime promotion occurred.
