@@ -1650,3 +1650,40 @@ source/version lineage, ranked production top-N sufficiency, semantic/native
 gold, RA locators, and WP-04/WP-06 qualification remain deferred. No
 implementation, database, active edge, private data, provider, or runtime
 status was changed.
+
+## Current-head table export and fidelity-boundary recheck
+
+On 2026-07-19, the current qualification worktree at Knowhere revision
+`5d2b14cf` reran the existing `test_codex_table_export_contract.py` selection
+with the project-local Python 3.11 worker environment. All `9` tests passed in
+`0.81` seconds.
+
+The selection reconfirms deterministic HTML/CSV export for simple, nested,
+multiple, rowspan, and colspan tables; invalid-HTML preservation; caption,
+footnote, and fidelity metadata; deterministic CSV paths; formula/Unicode
+retention; and copying/linking of an existing MinerU table image. Complex
+rowspan/colspan or nested layouts remain explicitly marked lossy and are not
+treated as lossless semantic table evidence. This is a mechanical artifact
+contract only; it does not establish native-source or human semantic gold,
+critical-cell meaning, canonical manifest lineage, source sufficiency, RA
+acceptance, or WP-06 qualification. No implementation, database, active edge,
+private data, provider, or runtime status was changed.
+
+## Windows PostgreSQL test-preflight discovery boundary
+
+On 2026-07-19, the repository's official API test-environment preflight was
+run with the locked root `uv` environment. All four required Python modules
+were importable, but the preflight exited with six missing PostgreSQL checks
+(`initdb`, `pg_ctl`, `postgres`, `pg_config`, `uuid-ossp`, and `pg_trgm`). A
+direct filesystem check confirmed that PostgreSQL 15.18 and both extension
+control files exist under the installed portable runtime. The shared
+`find_executable()` helper resolves `pg_ctl.exe`, `postgres.exe`, and
+`pg_config.exe`, but returns no result for the extensionless names used by
+the preflight on Windows.
+
+This is an existing Windows executable-suffix discovery limitation, not a
+missing installation: the API retrieval and worker contract selections used
+the verified portable PostgreSQL executable and passed. No executable shim,
+source change, database change, or runtime status change was made; the
+preflight compatibility gap remains recorded for a separately authorized
+implementation slice.
