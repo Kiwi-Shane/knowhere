@@ -907,3 +907,21 @@ MinerU extraction blocks are linked, that semantic meaning is preserved, or
 that a source is sufficient for RA use. The active local-MinerU response
 still lacked canonical locators and had empty `referenced_chunks`; WP-06
 native verification, human gold, and acceptance remain deferred.
+
+## Active retrieval top-N and namespace-isolation probe
+
+On 2026-07-19, an isolated active API-route probe seeded three distinct
+synthetic documents in one user/namespace and one decoy document in a second
+namespace. A `POST /api/v1/retrieval/query` with `use_agentic=false` and
+`top_k=2` returned HTTP 200, `router_used=classic_topk`, exactly two results,
+and two distinct document IDs. Both result IDs belonged to the requested
+namespace; the decoy was absent. The active route logged ranked scores of
+1.0000 and 0.4920 for the returned rows.
+
+This closes only active-route mechanical top-N truncation and namespace
+isolation for controlled synthetic rows. It does not establish a gold ranking
+set, producer-manifest/source-version linkage, vector retrieval, semantic
+meaning preservation, source sufficiency, or RA acceptance. The probe also
+reproduced two Windows cp950 console encoding warnings for emoji log markers;
+the route/test completed successfully and no data-state failure was observed.
+WP-04 qualification and WP-06 acceptance remain deferred.
