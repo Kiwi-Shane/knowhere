@@ -32,7 +32,7 @@ active retrieval routes and does not change the edge status.
 | External telemetry and LLM/VLM egress | Local/offline contract tests cover application flags and provider boundaries; host-level network denial is a separate operator control. | `partial_mechanical_only` |
 | Result provenance and native locator | The opt-in serializer requires source/version, explicit block IDs, page range, native citation, and emits the fixed `unverified` native-source status; no active retrieval route or gold result set is wired. | `partial_mechanical_only` |
 | RA acceptance fields in producer result | Canonical fixture has no `evidence_status`, `readiness_status`, or `regulatory_conclusion`. | `mechanical_pass` |
-| Critical gold evidence in top-N and meaning preservation | No retrieval gold-question set or extractive-only drift run is recorded. | `not_assessed` |
+| Critical gold evidence in top-N and meaning preservation | A temporary synthetic four-question active-route probe found all expected chunks and exact extractive content in `classic_topk` top-three results; native-source and human adjudication remain open. | `partial_mechanical_only` |
 
 The first qualified private profile must remain extractive-only unless a later
 bounded decision demonstrates that summary/VLM enrichment does not change
@@ -1379,3 +1379,18 @@ artifacts, backup encryption or immutability, retention policy, scheduled
 backup delivery, restore authorization, RTO/RPO, application consistency, or
 qualification. The matrix disposition is therefore
 `partial_mechanical_only`; no implementation or edge status changed.
+
+## Active synthetic extractive gold-question probe
+
+On 2026-07-19, a temporary active API probe seeded four synthetic question
+categories in one namespace and queried the existing route with
+`use_agentic: false` and `top_k: 3`. All four queries returned HTTP 200 through
+`classic_topk` with three results; the expected document/chunk was present in
+the top three for every category, and the expected extractive content matched
+exactly (`4/4`).
+
+This is active-route synthetic top-N and extractive-content evidence only. It
+does not establish a native-source gold set, human semantic adjudication,
+meaning preservation for MinerU derivatives, source sufficiency, vector
+retrieval, canonical manifest lineage, RA acceptance, or qualification. The
+temporary probe file was removed; no implementation or edge status changed.
