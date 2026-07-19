@@ -1536,3 +1536,17 @@ not resolve the recorded package-root asset portability gap, establish native
 verification, semantic gold, source sufficiency, RA acceptance, or active-edge
 qualification. No path, package, storage, schema, or runtime implementation
 was changed.
+
+## Current-head WP-05 lifecycle recheck
+
+On 2026-07-19, the current qualification worktree at Knowhere revision
+`155f5cdf` reran `test_parse_task_contract.py` and
+`test_stale_job_sweeper_contract.py` with the project-local Python 3.11
+environment and portable PostgreSQL runtime. The selection passed `15` tests
+in `41.75` seconds. This reconfirms existing publication idempotency,
+terminal-job, cleanup, stale-expiry, and duplicate-sweeper controls only.
+The active worker still does not consume the source-owned
+`document-extraction-manifest-v1` or carry `source_version_id`,
+`extraction_run_id`, and canonical manifest-hash lineage; partial canonical
+manifest replay and source-owner recovery remain unqualified. No database,
+active edge, private data, provider, or implementation status was changed.
