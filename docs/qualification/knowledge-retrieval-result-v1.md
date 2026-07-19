@@ -973,3 +973,21 @@ boundaries only. It does not establish active manifest consumption, active
 canonical result emission, native-source verification, source sufficiency,
 deletion completeness, or RA acceptance authorization; qualification and
 runtime edge promotion remain deferred.
+
+## Current-head telemetry contract revalidation
+
+On 2026-07-19, the existing API self-hosted telemetry contract suite passed
+`23 passed` in 0.50 seconds from the project API environment. The suite covers
+anonymous event/property allowlisting, removal of unknown and non-scalar or
+sensitive values, installation identity, startup/shutdown/heartbeat events,
+batch sizing and flushing, API request metrics snapshots, aggregate telemetry,
+and explicit telemetry disable/override behavior. Current app source contains
+the API telemetry middleware and self-hosted telemetry runtime; this corrects
+the narrower earlier statement that the application lacked instrumentation.
+
+The suite uses a fake PostHog client and contract-local fixtures. It does not
+prove an actual external telemetry delivery, host-level egress denial, sink
+retention, or D2 runtime qualification. The existing D2 records therefore
+retain their `failed`/`blocked` dispositions, while this current-head result
+upgrades the application-side telemetry evidence from harness-not-run to
+`partial_mechanical_only`. No runtime edge was promoted.
