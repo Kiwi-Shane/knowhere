@@ -89,6 +89,18 @@ payload, retrieval gold result, or RA acceptance disposition. The
 qualification status therefore remains `deferred` and the runtime edge
 remains `declared_not_runtime`.
 
+## Canonical field-boundary audit
+
+The same two public MinerU manifests were loaded in memory by the opt-in
+serializer for a field-boundary audit. Each projection had 21 root fields and
+one explicit extraction block; the test.pdf projection carried one explicit
+table link and one explicit image link. No RA authority field or
+`source_sufficiency_decision` field was emitted, while
+`native_source_verification_status` remained `unverified` and
+`not_source_sufficiency_decision` remained true. This is a content-free
+mechanical audit with no database, active route, or runtime activation; the
+qualification status remains `deferred`.
+
 ## Synthetic fail-closed serializer smoke observation
 
 On 2026-07-18, the five existing canonical serializer contract tests passed
