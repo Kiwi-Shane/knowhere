@@ -29,7 +29,7 @@ active retrieval routes and does not change the edge status.
 | Duplicate handling and source-version replacement | Existing lifecycle and ingestion tests cover related document identity/version behavior; no canonical result gold set is attached. | `partial_mechanical_only` |
 | Stale invalidation and deletion/purge | Existing lifecycle tests cover invalidation/purge paths; end-to-end canonical result non-retrievability evidence is not recorded. | `not_yet_qualified` |
 | Backup/restore | Synthetic PostgreSQL 15.18 custom-format dump/restore smokes matched both a generic fixture and an Alembic-migrated application-schema fixture; LocalStack S3 service and existing Knowhere S3 adapter round-trips also matched; production backup, retention, and recovery controls remain untested. | `partial_mechanical_only` |
-| External telemetry and LLM/VLM egress | Local/offline contract tests cover application flags and provider boundaries; host-level network denial is a separate operator control. | `partial_mechanical_only` |
+| External telemetry and LLM/VLM egress | Local/offline contract tests cover application flags and provider boundaries; a read-only host firewall audit showed profiles enabled but default outbound `Allow`, so host-level default-deny network isolation remains unverified. | `partial_mechanical_only` |
 | Result provenance and native locator | The opt-in serializer requires source/version, explicit block IDs, page range, native citation, and emits the fixed `unverified` native-source status; no active retrieval route or gold result set is wired. | `partial_mechanical_only` |
 | RA acceptance fields in producer result | Canonical fixture has no `evidence_status`, `readiness_status`, or `regulatory_conclusion`. | `mechanical_pass` |
 | Critical gold evidence in top-N and meaning preservation | A temporary synthetic four-question active-route probe found all expected chunks and exact extractive content in `classic_topk` top-three results; native-source and human adjudication remain open. | `partial_mechanical_only` |
@@ -1451,3 +1451,17 @@ does not establish a native-source gold set, human semantic adjudication,
 meaning preservation for MinerU derivatives, source sufficiency, vector
 retrieval, canonical manifest lineage, RA acceptance, or qualification. The
 temporary probe file was removed; no implementation or edge status changed.
+
+## Host firewall outbound-policy observation
+
+On 2026-07-19, a read-only Windows Firewall audit showed Domain, Private, and
+Public profiles enabled with the active policy `BlockInbound,AllowOutbound`.
+The PowerShell ActiveStore view reported `DefaultOutboundAction=Allow` and
+seven enabled outbound block rules. No firewall rule or profile setting was
+created, changed, or removed.
+
+This confirms that host-level default-deny egress was not demonstrated on the
+qualification host; it is not a D2 pass. Application telemetry-disable and
+offline-verifier contract results remain application-side evidence only, D2
+remains `blocked`, and no implementation, edge, or qualification status
+changed.
