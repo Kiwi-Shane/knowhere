@@ -88,3 +88,14 @@ review package; it did not emit a canonical `knowledge-retrieval-result-v1`
 payload, retrieval gold result, or RA acceptance disposition. The
 qualification status therefore remains `deferred` and the runtime edge
 remains `declared_not_runtime`.
+
+## Synthetic fail-closed serializer smoke observation
+
+On 2026-07-18, the five existing canonical serializer contract tests passed
+with synthetic rows and contexts. They cover missing explicit native locators,
+refusal to derive extraction block IDs from `chunk_id`, invalid snapshot
+hashes, reversed native page ranges, and non-finite retrieval scores. The
+serializer therefore rejects these unsafe inputs without database access,
+route activation, or an RA disposition. This is mechanical boundary evidence
+only; source-owner qualification, gold retrieval results, and runtime
+activation remain outstanding.
