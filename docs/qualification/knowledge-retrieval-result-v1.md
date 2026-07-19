@@ -1563,3 +1563,22 @@ establish canonical MinerU manifest consumption, source/version or
 extraction-run lineage, native-source or semantic gold, source sufficiency,
 hard deletion, RA acceptance, or runtime-edge qualification. No database,
 active edge, private data, provider, or implementation status was changed.
+
+## Current-head hierarchy and citation contract recheck
+
+On 2026-07-19, the current qualification worktree at Knowhere revision
+`d5c12c70` reran a focused synthetic contract selection covering
+`test_codex_document_tree_contract.py`,
+`test_codex_block_normalizer_contract.py`,
+`test_knowledge_retrieval_result_v1_contract.py`, and
+`test_codex_review_package_contract.py`. All `36` tests passed in `3.84`
+seconds with the project-local Python 3.11 environment.
+
+The selection reconfirms document hierarchy and nearest-section paths, block
+normalization, table/image provenance references, canonical retrieval-result
+field boundaries, and review-package contract behavior. It is mechanical
+current-head evidence only; it does not establish cross-document semantic
+graph correctness, native-source or human gold, source sufficiency, active
+canonical-manifest consumption, RA acceptance, or runtime-edge qualification.
+No database, active edge, private data, provider, or implementation status was
+changed.
