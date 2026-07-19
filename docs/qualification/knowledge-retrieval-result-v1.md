@@ -1599,3 +1599,31 @@ future implementation and characterization slice would be required before
 graph correctness, graph isolation, or graph deletion could be qualified. No
 implementation, database, active edge, private data, provider, or runtime
 status was changed.
+
+## Current-head API retrieval isolation and runner-boundary recheck
+
+On 2026-07-19, the current qualification worktree at Knowhere revision
+`95f59f2e` reran the existing API retrieval contract suite
+`apps/api/tests/contract/test_retrieval_contract.py` with the repository-root
+locked `uv` environment (`uv run --locked`), the portable PostgreSQL runtime,
+and the test fixture's fake Redis boundary. All `15` tests passed in `110.06`
+seconds; the run reported `12` existing deprecation warnings.
+
+The selection reconfirms authenticated user and namespace isolation, default
+namespace behavior, empty-query handling, classic top-k routing, agentic
+root/discovery reference projection, table-artifact exclusion from VLM input,
+out-of-scope reference rejection, same-chunk-id disambiguation across
+documents and sections, request validation, and document/section exclusion
+filters.
+
+An earlier invocation with the worker-only `.qa` Python environment failed
+before application startup because that environment does not include the API
+package dependency `stripe==13.0.1`. The repository-root `uv` workspace
+environment already contains the declared dependency; rerunning with the
+canonical project command passed. This is an environment-runner boundary,
+not a retrieval regression or a source dependency change. The evidence is
+mechanical and synthetic only; canonical MinerU manifest publication,
+source/version lineage, ranked production top-N sufficiency, semantic/native
+gold, RA locators, and WP-04/WP-06 qualification remain deferred. No
+implementation, database, active edge, private data, provider, or runtime
+status was changed.
