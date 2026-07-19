@@ -579,6 +579,40 @@ Knowhere publication, retrieval top-N result, source-owner gold, source
 sufficiency, or qualification gate was exercised. The temporary output and
 process were cleaned up; the disposition remains `deferred`.
 
+## Local MinerU public repeat-three canary observation
+
+On 2026-07-19, the existing local MinerU canary corpus was run through the
+repository's `validate_codex_export_corpus.py` contract with three public PDF
+fixtures, `repeat=3` (nine runs total), pipeline backend, `auto` method,
+144-DPI rendering, offline mode, the project-local Python 3.11 runtime,
+`uv 0.11.29`, and MinerU revision
+`cebf5078a3ed2990260caa03110b0bab82a16b64`. The local runtime preflight was
+also rerun with the plan defaults of 10 GiB minimum free disk and 8 GiB
+minimum available memory: all project, uv, Python, adapter, temp-writable,
+disk, and memory checks were true (`ready=true`). The observed preflight
+values were 244,022,784,000 free-disk bytes and 11,079,454,720 available
+memory bytes.
+
+The canary report recorded `runs=9`, `completed=9`, `failed=0`,
+`expectation_mismatches=0`, and `reproducibility_failures=0`; all nine runs
+had verified artifacts, matched the expected completed status, and were
+reproducible. Per-fixture maxima were: `canary-unit-pdf` 22.804 seconds and
+2,035,503,104 peak RSS bytes; `canary-small-ocr` 40.597 seconds and
+2,622,230,528 peak RSS bytes; and `canary-table-pdf` 92.355 seconds and
+5,158,113,280 peak RSS bytes (4.804 GiB). The run output retained only in
+the private QA area contained zero active `.run-*` or `.mineru-local-*`
+directories after completion, and no canary process remained.
+
+This is repeatability, artifact-shape, and mechanical canary evidence for
+the direct local MinerU export path. The measured peak RSS is recorded for
+operator memory-limit comparison; no deployment/container memory limit was
+asserted here. Findings such as table-fidelity or hierarchy observations are
+not human meaning-preservation adjudication. The run does not establish full
+worker-task MinerU execution, producer-to-Knowhere publication, retrieval
+top-N, native/human semantic gold, source sufficiency, 24-hour operational
+stability, firewall/egress isolation, rollback, or qualification; the
+disposition remains `deferred`.
+
 ## Bounded worker task local MinerU execution boundary
 
 On 2026-07-19, an isolated worker-task probe used the existing
