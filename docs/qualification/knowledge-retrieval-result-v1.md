@@ -871,3 +871,22 @@ partial canonical-manifest replay, or source-owner recovery semantics.
 Therefore it strengthens the mechanical worker lifecycle observation only;
 WP-05 D5 remains deferred and no qualification or edge-promotion claim is
 made.
+
+## Retrieval isolation and reference projection contract observation
+
+On 2026-07-19, the existing API retrieval contract suite
+`apps/api/tests/contract/test_retrieval_contract.py` passed 15/15 with the
+project root API runtime, isolated PostgreSQL contract process, and fake
+Redis boundary. The suite covered authenticated user/namespace scoping,
+default namespace behavior, empty-query handling, classic top-k routing,
+agentic root/discovery reference projection, table-artifact exclusion from
+VLM input, out-of-scope reference rejection, same-chunk-id disambiguation
+across documents and sections, request validation, and document/section
+exclusion filters. Twelve existing deprecation warnings were reported.
+
+This is mechanical retrieval isolation and API reference-projection evidence
+against controlled seeded rows. It is not evidence that active local-MinerU
+publication supplies canonical source/version identity, ranked production
+top-N/source sufficiency, native semantic gold, or RA acceptance locators;
+the active cross-edge observation still returned an empty
+`referenced_chunks` list. WP-04/WP-06 qualification gates remain deferred.
