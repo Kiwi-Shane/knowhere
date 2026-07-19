@@ -1178,3 +1178,45 @@ environment-boundary evidence only; native/human semantic gold, source
 sufficiency, hard deletion, canonical active-edge consumption/emission, RA
 acceptance, and qualification remain deferred. No implementation change or
 runtime-edge promotion was made.
+
+## Source-owner/native adjudication handoff packet
+
+The existing private synthetic package
+`.qa/wp03-critical-gold-run-20260719-01` is now bounded as a handoff packet for
+source-owner and RA/native review. It is not a gold decision and does not
+change the qualification status. The packet identity is:
+
+* run ID: `EXT-WP03-20260719-CRITICAL-NEGATION-001`;
+* native source: `package/native/source.docx`, SHA-256
+  `09c8740b7a1e42d5bbeae97f23ce1adfd9c9c560da6277e1f4b9c123d07aedb1`;
+* parser: MinerU `3.4.4`, pinned revision
+  `cebf5078a3ed2990260caa03110b0bab82a16b64`, effective `office` backend;
+* producer logical page count: `1`; `offline_verified: false` remains an
+  environment-attestation limitation;
+* native LibreOffice render: two physical pages, with `source.pdf` SHA-256
+  `59ca027d88587c884d75bd5edabd18ef1553e8b2628d5837bc594667e588251e`.
+
+The nine critical categories are mechanically present in the producer
+package and mapped below for a human/native decision. The producer locator is
+logical page 1 for these blocks; the native crosswalk places the critical text
+on physical page 2, so the mapping remains unresolved.
+
+| Critical category | Producer block(s) | Native observation | Required owner disposition |
+|---|---|---|---|
+| Run identifier | `blk_b3ee4ef8cbf69c9ca189` | Text observed on physical page 2 | Confirm exact native text and citation |
+| Device identifier | `blk_a635b9bc012591f84f67` | Text observed on physical page 2 | Confirm identity and citation |
+| Lot identifier | `blk_a635b9bc012591f84f67` | Text observed on physical page 2 | Confirm identity and citation |
+| Measured current | `blk_a635b9bc012591f84f67`, `blk_2388158ac28fc3e2ba69` | Paragraph/table value observed on physical page 2 | Confirm value, unit, and native table cell |
+| Temperature | `blk_a635b9bc012591f84f67`, `blk_2388158ac28fc3e2ba69` | Paragraph/table value observed on physical page 2 | Confirm value, unit, and native table cell |
+| Acceptance threshold / negative rule | `blk_0a7cdd339e6ff33eeac1` | Text observed on physical page 2 | Confirm wording and decision meaning |
+| No-fallback rule | `blk_0a7cdd339e6ff33eeac1`, `blk_2388158ac28fc3e2ba69` | Text was line-wrapped in extracted PDF; `fallback` is present on physical page 2 | Confirm complete native wording and zero-fallback value |
+| No dropped table cell | `blk_afd01ab66dca63d82f43`, `blk_2388158ac28fc3e2ba69` | Guard text and identifier table observed on physical page 2 | Confirm each decision-relevant cell against native table |
+| Missing image locator fails closed | `blk_afd01ab66dca63d82f43`, `blk_c3930e0a052a7b5fffad` | Guard text is on physical page 2; embedded image is on physical page 1 | Confirm image identity, locator, and fail-closed interpretation |
+
+The table is a review index only. It does not assert that any category is
+accepted, source-sufficient, semantically preserved, or citation-qualified.
+The packet remains `pending_human_adjudication`; native verification remains
+`unverified`; top-N retrieval remains `not_run_active_route_disabled`; and the
+qualification disposition remains `deferred`. No database, active route,
+provider, private-data workflow, implementation change, or runtime-edge
+promotion was used.
