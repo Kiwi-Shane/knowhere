@@ -1923,8 +1923,9 @@ The provider-seam test confirmed that the local provider reached the standard
 PDF path, produced `full.md` and a bounded log, and made no cloud-parser call.
 The package test confirmed an offline-requested manifest with no `server_url`
 and a non-empty block result. Pytest temporary outputs were outside the
-repository; no provider, browser, private source, or external network was
-used by the run.
+repository; no provider, browser, or private source was used, and external
+network interaction was outside the test scope. Host-level egress remains
+unverified.
 
 This is model-backed local execution and application/offline-runner evidence
 only. The offline flags do not prove host-level egress denial, and the result
