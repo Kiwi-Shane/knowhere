@@ -1879,3 +1879,26 @@ egress denial, telemetry retention/exhaustiveness, canonical MinerU manifest
 lineage, native/semantic gold, source sufficiency, deletion, RA acceptance,
 provider execution, active-edge promotion, or qualification, and the
 disposition remains `deferred`.
+
+## Current-source worker MinerU boundary and package integration recheck
+
+On 2026-07-19, the current qualification worktree at Knowhere revision
+`2b1cf3fa` was checked with the repository-root locked offline `uv` environment.
+The existing worker artifact/provider/local-capacity/local-process contract
+selections and the static PDF/DOCX package integration selections completed
+with `46 passed, 2 skipped` in `4.21` seconds.
+
+The passing selection reconfirms artifact JSON/schema, relative-path and
+symlink-escape handling where the host permits symlink creation, hash and
+source-identity validation, local-provider configuration and no-cloud-fallback
+behavior, capacity leasing, process argument/timeout/log bounds, and static
+PDF/DOCX package construction and reproducibility. One skip was the Windows
+symlink branch because the test account lacks the privilege required to create
+the link; the other was the explicitly opt-in model-backed local MinerU E2E
+(`RUN_LOCAL_MINERU_E2E=1`), which was not enabled. No model-backed run,
+provider, private source, external network, active edge, database mutation, or
+runtime promotion was used. This is mechanical worker and synthetic local
+package evidence only; it does not qualify real local MinerU execution,
+producer-to-Knowhere canonical manifest consumption, semantic/native gold,
+source sufficiency, deletion completeness, RA acceptance, or D3/D4
+qualification, and the disposition remains `deferred`.
