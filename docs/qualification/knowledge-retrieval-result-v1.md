@@ -1465,3 +1465,43 @@ qualification host; it is not a D2 pass. Application telemetry-disable and
 offline-verifier contract results remain application-side evidence only, D2
 remains `blocked`, and no implementation, edge, or qualification status
 changed.
+
+## Source-owner/native packet integrity audit
+
+On 2026-07-19, a read-only integrity audit rechecked the existing private
+synthetic handoff packet `EXT-WP03-20260719-CRITICAL-NEGATION-001` without
+changing its files. The package and MinerU manifests both reported
+`completed`; the native DOCX SHA-256 matched the manifest and the recorded
+source hash. All 24 inventoried package artifacts matched their recorded
+size and SHA-256 values. The structured block file contained 18 parseable
+lines with 18 unique block IDs, and all six unique producer block IDs used by
+the nine-category review index were present. Their locators were consistently
+`office_logical_page`, logical page 1, with normalized-PDF mapping
+`unmapped`.
+
+The audit also found two portability boundaries that must remain visible to
+the owner/native review. The image block preserves the producer reference
+`images/c0fe4015d52e08dcc84cb5e0bad1feb22564800020e0e5fdd53e489644d04888.jpg`,
+but that exact package-root path is absent; the copied file is present under
+`assets/` and `raw/mineru/images/`. The package manifest reports zero selected
+render pages, so the two private native render PNGs used for the physical-page
+observation are adjacent to the package rather than self-contained under a
+package `pages/` directory. The package normalized PDF and the adjacent
+render PDF both have two pages and the same extracted-text SHA-256
+`fae8d758b58c482e82045f0614293ece5f2e3a181283d5e097b1431b860ce4e6`, while
+their file hashes differ (`9b590098300ebd966c2e24f24fa82869e3acadfdaff06d1dd402d18127d92a08`
+versus
+`59ca027d88587c884d75bd5edabd18ef1553e8b2628d5837bc594667e588251e`), so no
+PDF byte identity is inferred.
+
+The existing review-package contract suite passed `8` tests in `4.81`
+seconds. It verifies manifest inventory hashes and package safety, but does
+not verify that every structured block asset reference resolves from the
+package root or that native render pages are included when the packet claims
+physical-page observations. This audit therefore records a packet
+portability/locator gap for owner disposition; it does not correct a locator,
+accept a category, establish source sufficiency, or change
+`pending_human_adjudication`, `unverified`,
+`not_run_active_route_disabled`, or `deferred`. No implementation, database,
+active route, private-data workflow, provider, or runtime-edge promotion was
+used.
