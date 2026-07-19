@@ -955,3 +955,21 @@ version or extraction-run lineage, vector publication, native/human semantic
 gold, source-sufficiency decision, hard deletion proof, or RA acceptance
 authorization. WP-03/WP-04/WP-05/WP-06 qualification and runtime edge
 promotion remain deferred, and no implementation change was made.
+
+## Cross-repository contract boundary revalidation
+
+On 2026-07-19, the RA document-runtime contract validator passed the existing
+`pass`, `knowhere_to_ra`, and `mineru_to_knowhere` fixture roots. Each result
+kept the runtime-disabled and producer-qualification-explicit boundary. The
+four existing `synthetic-runtime-evidence-v1` records also passed structural
+and semantic validation, retaining their recorded `failed` or `blocked`
+statuses. Knowhere's canonical retrieval-result serializer and producer
+contract tests passed 7/7. The pinned producer schema hashes matched the RA
+records: MinerU `8d649b58e6748ae7d1fbd021d76b3c154d544044a37fd357b3e6bcdf03f25def`
+and Knowhere `54307e0c42ebf737af897b691badda18fd6c673f64aef3cf7eb961dab0123c4a`.
+
+This revalidation confirms contract identity and fail-closed metadata
+boundaries only. It does not establish active manifest consumption, active
+canonical result emission, native-source verification, source sufficiency,
+deletion completeness, or RA acceptance authorization; qualification and
+runtime edge promotion remain deferred.
