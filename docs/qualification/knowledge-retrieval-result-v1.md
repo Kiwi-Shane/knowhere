@@ -991,3 +991,19 @@ retention, or D2 runtime qualification. The existing D2 records therefore
 retain their `failed`/`blocked` dispositions, while this current-head result
 upgrades the application-side telemetry evidence from harness-not-run to
 `partial_mechanical_only`. No runtime edge was promoted.
+
+## Actual telemetry client localhost-sink smoke
+
+On 2026-07-19, the current telemetry client was exercised with its real
+PostHog SDK pointed at a temporary localhost-only HTTP sink. One queued
+`oss_instance_heartbeat` event produced one `/batch/` request and one captured
+event. The captured property keys contained the allowed `app_version` and
+`api_healthy` values plus SDK-safe fields; `private_prompt`, `document_id`,
+and nested non-scalar data were absent. The sink received no external
+destination, and the temporary server was stopped after the observation.
+
+This is stronger application-side delivery and sanitization evidence than the
+fake-client contract alone, but it does not prove host-level default-deny
+egress, real PostHog retention, production network policy, or the remaining D2
+controls. The disposition remains `partial_mechanical_only`; no runtime edge
+or qualification status changed.
