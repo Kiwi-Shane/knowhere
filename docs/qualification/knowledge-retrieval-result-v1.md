@@ -710,6 +710,50 @@ publication, native or human semantic gold, meaning preservation, deletion,
 telemetry exhaustiveness, egress isolation, rollback, long-run stability, or
 qualification; the disposition remains `deferred`.
 
+## Public-canary worker expansion
+
+On 2026-07-19, two additional public MinerU canary fixtures were run through
+the same existing `parse_task`/Celery eager path in the isolated PostgreSQL
+database, Redis DB15, and filesystem object-storage runtime described above.
+Both runs used the project-local Python 3.11 worker runtime, MinerU revision
+`cebf5078a3ed2990260caa03110b0bab82a16b64`, `MINERU_PROVIDER=local`, pipeline
+backend, offline flags, empty cloud-key configuration, and no configured
+profile/heading model.
+
+The `demo/pdfs/small_ocr.pdf` source (SHA-256
+`c48baa1997e719d414061bea6ca197ce36f1c47341837fbfbc976bbb1d226998`) completed
+as job `job_small-ocr_32450ecd`: eight-page workload, two job chunks, two
+document sections, result ZIP size 17,648 bytes, Redis task status `done` with
+progress `100`, and no remaining task workspace. The ZIP contained
+`full.md`, `manifest.json`, `chunks.json`, `doc_nav.json`, and debug
+trace/anatomy artifacts. The task result reported zero stored vectors and no
+cloud key was present.
+
+The `demo/pdfs/demo2.pdf` source (SHA-256
+`9e94e95637356e1599510436278747d1150a3dfb822233bdc77a9dcb9a4fc6e4`) completed
+as job `job_table-pdf_9e12f192`: six-page workload, 21 job chunks, 12 document
+sections, result ZIP size 235,738 bytes, Redis task status `done` with progress
+`100`, and no remaining task workspace. The ZIP contained `full.md`, eight
+image assets, two HTML table assets, manifest/chunk/navigation files, and debug
+trace/anatomy artifacts. The task result again reported zero stored vectors
+and no cloud key was present.
+
+Both expanded runs reproduced the same `document_page_plan.doc_profile` JSONB
+flush failure caused by a tuple-keyed `Counter`; the page-plan rows therefore
+did not provide database-side profile traceability even though artifact trace
+files and result publication remained available. The table fixture also logged
+`Lock already expired or stolen` during final lock release after its roughly
+93-second parse; the task still finalized successfully. This is an additional
+lease/long-task operational gap that must be dispositioned before stability or
+complete qualification claims.
+
+This expansion strengthens the local-provider worker and non-semantic result
+publication boundary across unit, OCR/image-heavy, and table/image-rich public
+fixtures. It does not establish retrieval top-N/source sufficiency, vector
+publication, native or human semantic gold, meaning preservation, deletion,
+telemetry exhaustiveness, egress isolation, rollback, long-run stability, or
+qualification; the disposition remains `deferred`.
+
 ## Checked-in local MinerU integration test observation
 
 On 2026-07-19, the repository-provided real local MinerU integration test
