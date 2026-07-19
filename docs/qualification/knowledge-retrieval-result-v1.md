@@ -1600,6 +1600,29 @@ graph correctness, graph isolation, or graph deletion could be qualified. No
 implementation, database, active edge, private data, provider, or runtime
 status was changed.
 
+## Current-head local-MinerU preflight, capacity, and provider boundary recheck
+
+On 2026-07-19, the current qualification worktree at Knowhere revision
+`0d25367e` reran the existing local-MinerU boundary selections
+`test_mineru_runtime_preflight_contract.py`,
+`test_mineru_local_capacity_contract.py`, and
+`test_mineru_provider_contract.py` with the project-local Python 3.11 worker
+environment. All `35` tests passed in `2.38` seconds.
+
+The selection reconfirms cloud-mode bypass of local probes, content-free local
+runtime preflight and stable failure codes, offline argv construction,
+temporary-path cleanup checks, bounded local capacity admission and release,
+local/cloud provider separation, partial-work cleanup, allowlisted provider
+observations, and fail-closed local-provider behavior without cloud fallback.
+The tests use synthetic temporary paths and stubbed commands; they do not
+start MinerU, initialize a model, process a source document, contact a
+provider, or exercise the active edge. This is mechanical safety and
+configuration-boundary evidence only; local production parsing,
+canonical-manifest lineage, native/semantic gold, no-egress enforcement,
+source sufficiency, and WP-03/WP-05 qualification remain deferred. No
+implementation, database, active edge, private data, provider, or runtime
+status was changed.
+
 ## Current-head API retrieval isolation and runner-boundary recheck
 
 On 2026-07-19, the current qualification worktree at Knowhere revision
