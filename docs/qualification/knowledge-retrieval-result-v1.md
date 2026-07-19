@@ -1783,3 +1783,21 @@ establish canonical MinerU manifest lineage, production ranking sufficiency,
 native or semantic gold, source sufficiency, hard deletion, RA acceptance, or
 WP-04/WP-06 qualification. No provider, private data, active edge, or runtime
 promotion was used.
+
+## Current-source document lifecycle and graph-row recheck
+
+On 2026-07-19, the current qualification branch head `a8d7eccb` was checked
+against runtime/source head `67d7fc0a`; the only intervening change remains the
+qualification record. The existing
+`apps/api/tests/contract/test_documents_contract.py` selection was rerun with
+the project `.venv` and portable PostgreSQL runtime. All `17` tests passed in
+`137.19` seconds.
+
+The selection reconfirms document namespace/list behavior, revision and page
+citation projections, table/image asset boundaries, archived-document
+handling, and the canonical archive route's bounded graph-node/edge cleanup
+and peer-node preservation assertions. These are synthetic API and database
+contract observations, not graph semantic link-quality, all-route isolation,
+stale-version, deletion-completeness, native-locator, source-sufficiency, or
+RA acceptance qualification. No provider, private data, active edge, or
+runtime promotion was used.
