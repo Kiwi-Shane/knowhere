@@ -169,3 +169,13 @@ parser-derived logical page locator was preserved without implying physical
 DOCX pagination. The observation used no database, memory snapshot service,
 active retrieval route, or runtime activation; gold retrieval, semantic
 meaning preservation, and qualification remain deferred.
+
+## Producer sentinel boundary
+
+The paired MinerU DOCX run included a producer-side synthetic sentinel smoke
+with 20/20 predefined category checks matched. Knowhere did not treat those
+checks as retrieval gold: no top-N question set, database result, active route,
+memory snapshot service, or semantic adjudication was used. The observation
+therefore provides no retrieval meaning-preservation or source-owner
+qualification evidence; the canonical retrieval-result disposition remains
+`deferred`.
