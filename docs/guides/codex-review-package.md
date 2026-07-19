@@ -10,7 +10,10 @@ The source-owned canonical retrieval-result contract is
 manifest described by this guide remains a separate derivative-package
 baseline; it is not treated as a qualified retrieval-result payload. See
 `docs/qualification/knowledge-retrieval-result-v1.md` for the current gate
-status.
+status. Knowhere also exposes an opt-in pure serializer for an already-ranked
+retrieval row, but it requires explicit source-version and native-locator
+context and is not called by this review-package builder or the active public
+retrieval routes.
 
 ## Prerequisites
 

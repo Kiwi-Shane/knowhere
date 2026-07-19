@@ -53,6 +53,24 @@ public retrieval routes. Focused contract tests cover the shape and the
 fail-closed boundaries; qualification, source-owner gold results, and runtime
 activation remain outstanding.
 
+## Synthetic canonical cross-edge projection observation
+
+On 2026-07-18, the two completed public MinerU canonical manifests from the
+paired smoke run were loaded in memory by the opt-in serializer at producer
+revision `1190d5753784827cb871774fe384de0930c98a05`. One first-page block from
+each fixture produced a `knowledge-retrieval-result-v1` projection with 21
+root fields, one explicit extraction block, `native_source_verification_status:
+unverified`, and `not_source_sufficiency_decision: true`. The test.pdf table
+record and image record were also projected separately with one explicit table
+link and one explicit image link, respectively.
+
+No database, active retrieval route, production memory snapshot, or result
+file was used. The memory/configuration IDs and hashes were synthetic, and the
+projection preserved the source-version and native block/page locator without
+turning the extraction derivative into source evidence. This is a bounded
+cross-edge mechanical observation only; no gold retrieval result, native-source
+adjudication, source sufficiency decision, or runtime promotion is implied.
+
 ## Synthetic cross-edge observation
 
 On 2026-07-18, the public MinerU fixture `test.pdf` was parsed locally and its
