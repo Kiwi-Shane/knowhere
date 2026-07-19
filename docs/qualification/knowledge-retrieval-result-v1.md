@@ -484,3 +484,26 @@ meaning-preservation proof. No worker task, producer-artifact ingestion,
 Knowhere publication, retrieval top-N result, source-owner gold, source
 sufficiency, or qualification gate was exercised. The temporary output and
 process were cleaned up; the disposition remains `deferred`.
+
+## Bounded worker task local MinerU execution boundary
+
+On 2026-07-19, an isolated worker-task probe used the existing
+`parse_task`/Celery eager dispatch path, project-local Python 3.11 runtime,
+filesystem object storage, Redis database 14, and the public MinerU
+`test.pdf` fixture
+(`AE9E3F14CC3BEA88DD0CE4E2715B3B03561378501318DF61F0889DF207AED25B`). The
+source upload, database job creation, one-page workload estimation, PyMuPDF
+page probe, and native-page render child processes all completed. The
+isolated database required the repository's existing `upgrade heads` target
+and standalone user-table bootstrap; the generic `upgrade head` target is
+ambiguous because the repository has two Alembic heads.
+
+The task then entered the existing coarse document-profile stage and attempted
+the configured `qwen3.6-flash` Ali provider. With no `ALI_API_KEYS`
+configured, it raised `LLMServiceException` before reaching the local
+MinerU `parse_pdf` seam. No worker-task MinerU artifact, job result,
+chunk publication, result ZIP, or Knowhere retrieval record was produced.
+This is an environment/provider-admission boundary, not evidence that the
+local MinerU process seam or direct extraction failed. The eager exception,
+synthetic database, Redis DB14 state, temporary workspace, and child
+processes were cleaned up; the disposition remains `deferred`.
