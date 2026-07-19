@@ -1550,3 +1550,16 @@ The active worker still does not consume the source-owned
 `extraction_run_id`, and canonical manifest-hash lineage; partial canonical
 manifest replay and source-owner recovery remain unqualified. No database,
 active edge, private data, provider, or implementation status was changed.
+
+## Current-head page-memory qualification recheck
+
+On 2026-07-19, the current qualification worktree at Knowhere revision
+`46cff4b6` reran the existing page-memory retrieval, page-tagger,
+node-assembler, and navigation contract selection with the project-local
+Python 3.11 environment and portable PostgreSQL runtime. The selection passed
+`31` tests in `4.26` seconds. This reconfirms mechanical page-memory,
+locator/hydration, navigation, and node-assembly behavior only. It does not
+establish canonical MinerU manifest consumption, source/version or
+extraction-run lineage, native-source or semantic gold, source sufficiency,
+hard deletion, RA acceptance, or runtime-edge qualification. No database,
+active edge, private data, provider, or implementation status was changed.
