@@ -1505,3 +1505,22 @@ accept a category, establish source sufficiency, or change
 `not_run_active_route_disabled`, or `deferred`. No implementation, database,
 active route, private-data workflow, provider, or runtime-edge promotion was
 used.
+
+## Review-package/client-artifact seam audit
+
+On 2026-07-19, a read-only seam probe compared the existing critical packet's
+image block reference with the existing client-artifact contract. The block
+reference is `images/c0fe4015d52e08dcc84cb5e0bad1feb22564800020e0e5fdd53e489644d04888.jpg`;
+the exact package-root path does not exist, while equivalent copies exist
+under `assets/` and `raw/mineru/images/`. The existing storage normalizer
+accepts the `images/...` reference and the existing ingestion collector emits
+it for an image chunk, but rejects both `assets/...` and
+`raw/mineru/images/...` as client artifact references. The focused review-
+package and page-memory contract selection passed `20` tests.
+
+This narrows the finding to a portability seam between the Codex review
+package's copied asset layout and the client-visible artifact-root contract;
+it is not evidence of an active runtime-edge failure because no active edge or
+private workflow was exercised. No path was corrected and no package, storage,
+schema, or runtime implementation was changed. Native verification, source
+sufficiency, RA acceptance, and qualification remain deferred.
