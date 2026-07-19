@@ -1291,3 +1291,23 @@ runtime no-cloud-fallback behavior, egress control, deletion completeness,
 canonical manifest consumption, source sufficiency, native/human semantic
 gold, RA acceptance, or qualification. The qualification disposition remains
 `deferred`; no implementation or edge status changed.
+
+## Native locator and page-render contract recheck
+
+On 2026-07-19, the existing worker contracts
+`test_codex_block_normalizer_contract.py` and
+`test_codex_page_render_contract.py` completed with `33 passed` in 2.41
+seconds. The selection covered deterministic block IDs and content hashes,
+page and section structure, table/image provenance, unknown-block handling,
+logical-versus-normalized DOCX page locators, JSONL round-tripping, supported
+MinerU block types, standalone rendering, explicit normalized-page selection,
+invalid page/DPI rejection, argv construction without a shell, and standard
+LibreOffice resolution.
+
+This is mechanical locator/render contract evidence only. It does not verify
+the critical private native source against producer blocks, resolve physical
+versus logical pagination, establish source sufficiency or semantic gold, or
+qualify citation locators. The existing handoff packet's physical-page 2
+versus producer logical-page 1 mapping remains `unmapped`; no locator was
+corrected, and the qualification disposition remains `deferred`. No
+implementation or edge status changed.
