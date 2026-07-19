@@ -1832,3 +1832,28 @@ reference, table/image linkage, score, and fail-closed field-boundary rules.
 This is opt-in serializer evidence only: the normal retrieval route still does
 not invoke it, no canonical result was accepted by RA, and no provider,
 private data, active edge, or runtime promotion was used.
+
+## Current-source ancillary API contract recheck
+
+On 2026-07-19, the current qualification branch head `7c3ae6cd` was checked
+against runtime/source head `67d7fc0a`; the intervening changes remain
+qualification documentation only. Using the repository-root locked `uv`
+environment (`uv run --locked`) and the existing portable PostgreSQL test
+runtime, the ancillary API contract selections passed as follows:
+
+| Selection | Result |
+|---|---:|
+| Agentic discovery selection, page-memory/parse-track, chunk/document-path, and legacy evidence renderer | `49 passed` in `5.24` seconds; `1` existing duplicate OpenAPI operation-ID warning |
+| Job creation contract | `24 passed` in `147.83` seconds |
+
+The selections reconfirm discovery-action/rejection precedence, parse-track and
+public-route boundaries, legacy path compatibility, evidence rendering, v2
+job/document/retrieval creation, authorization and namespace checks, archived
+document rejection, URL/private-network rejection, and retryable upload
+transitions. The worker-only `.qa` environment was not used for API imports
+because it intentionally omits the API-only `stripe==13.0.1` dependency; the
+canonical project environment contains the declared dependency. These are
+synthetic API contract observations using disposable test resources only; no
+provider, private data, active edge, canonical MinerU manifest consumption,
+native/semantic gold, source sufficiency, RA acceptance, or runtime promotion
+was performed, and the qualification disposition remains `deferred`.
