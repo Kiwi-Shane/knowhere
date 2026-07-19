@@ -180,6 +180,32 @@ therefore provides no retrieval meaning-preservation or source-owner
 qualification evidence; the canonical retrieval-result disposition remains
 `deferred`.
 
+## MinerU manifest consumption boundary
+
+The 2026-07-19 active-path source audit compared the source-owned MinerU
+`document-extraction-manifest-v1` schema with the current worker boundary.
+The active `parse_task` path returns `ParseOutput`, converts its parsed
+dataframe through `dataframe_to_chunks`, and publishes Knowhere document
+rows/chunks through the existing lifecycle services. The active path has no
+consumer reference for `document-extraction-manifest-v1`,
+`extraction_run_id`, `source_version_id`, or a canonical manifest hash.
+
+Knowhere's local-provider seam does validate a separate
+`knowhere-mineru-artifacts/1.0` `mineru_manifest.json` containing source
+filename/size/SHA-256 and local artifact hashes. The result ZIP also emits a
+Knowhere application `manifest.json`. These are useful artifact-integrity and
+result-package records, but they are not the source-owned canonical
+`document-extraction-manifest-v1` and are not evidence of canonical manifest
+consumption by the active worker path. The legacy `codex-review-package/1.0`
+export path is likewise outside this active worker-to-retrieval edge.
+
+Accordingly, the current evidence closes local MinerU extraction followed by
+non-semantic worker publication and active lexical-route consumption only.
+WP-05 canonical manifest consumption, source/version/extraction-run lineage,
+idempotency, and recovery evidence remain unqualified; D5 is not promoted and
+no implementation change is authorized by this observation. The disposition
+remains `deferred`.
+
 ## Chinese-only DOCX projection observation
 
 On 2026-07-19, the completed MinerU manifest for the existing
