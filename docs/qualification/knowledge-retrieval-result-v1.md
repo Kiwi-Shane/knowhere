@@ -440,6 +440,23 @@ active result publication, source-owner gold, native or human semantic
 adjudication, source sufficiency, deletion, egress, telemetry exhaustiveness,
 or qualification; the disposition remains `deferred`.
 
+## Checked-in worker publication contract observation
+
+On 2026-07-19, the existing contract
+`apps/worker/tests/contract/test_parse_task_contract.py::test_parse_task_should_process_uploaded_file_through_real_contract_boundaries`
+passed `1 passed in 20.57s` with the project-local Python 3.11 runtime and
+the locked worker dev/test environment. The contract used the existing
+synthetic XLSX fixture and exercised source upload, Celery eager task
+dispatch, job completion, result-ZIP publication, job/document chunk
+creation, document sections, and Redis task status/progress assertions. The
+pytest PostgreSQL process and contract storage were cleaned up.
+
+This adds mechanical worker publication evidence for a non-PDF parser path.
+It does not establish local MinerU PDF execution through the full task,
+producer-artifact ingestion, native or human semantic gold, retrieval
+top-N/source sufficiency, deletion, or qualification; the disposition
+remains `deferred`.
+
 ## Active localhost local MinerU artifact seam observation
 
 On 2026-07-19, the existing public/synthetic fixture
