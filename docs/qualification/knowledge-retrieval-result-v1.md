@@ -1028,3 +1028,29 @@ sufficiency, deletion completeness, or RA acceptance authorization. The
 profiles remain `source_owner_frozen` / `pending_source_owner`, both edges
 remain `declared_not_runtime`, and the qualification disposition remains
 `deferred`. No implementation change was made.
+
+## Current-head worker and API contract recheck with process-local PostgreSQL
+
+On 2026-07-19, the current pinned Knowhere worktree at `b2df5d9b` was
+rechecked using the existing Python 3.11 worker environment and the project
+API environment. The worker-side MinerU provider/runtime/artifact, parse,
+page-memory, canonical retrieval-result serializer, stale-job, and local
+provider integration scope completed with `85 passed, 2 skipped` in 30.64
+seconds. The API retrieval and page-memory/parse-track contract scope
+completed with `33 passed` in 100.70 seconds and 13 warnings (12 existing
+retrieval deprecation warnings and one duplicate OpenAPI operation-ID warning).
+
+The worker tests require `pg_config`/`pg_ctl` for their local
+`pytest-postgresql` fixtures. The Codex process had not inherited the user PATH
+entry added for the existing portable PostgreSQL installation, so an initial
+invocation stopped at setup with 12 environment errors. A process-local PATH
+prepend resolved `pg_config` and `pg_ctl` to that existing installation; one
+failing parse-task test then passed, followed by the complete worker scope
+above. No repository, database, service, or test configuration was changed.
+
+This is current-head mechanical contract and environment-reproducibility
+evidence only. It does not add canonical MinerU manifest consumption,
+source-version or extraction-run lineage, active canonical result emission,
+native/human semantic gold, source sufficiency, hard deletion, or RA
+acceptance authorization. WP-03/WP-04/WP-05/WP-06 qualification and runtime
+edge promotion remain deferred, and no implementation change was made.
