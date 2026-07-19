@@ -241,3 +241,20 @@ semantic adjudication was used in this slice, and no retrieval-result
 projection or qualification status was inferred from the concordance. Native
 verification remains `unverified`, `not_source_sufficiency_decision` remains
 true, and the retrieval qualification disposition remains `deferred`.
+
+## Candidate gold-question and retrieval boundary preflight
+
+On 2026-07-19, a separate MinerU preparation run used the existing synthetic
+DOCX generator and produced a completed canonical manifest with run identity
+`EXT-WP03-20260719-DOCX-GOLD-PREP-RUN1` and input SHA-256
+`83c43e25c9e1359b2a9be605fd6ecf1308470531c0619ab589c59c49c1cb446e`. The
+preparation packet contained 7 bounded source-derived question categories and
+explicit `content_list_v2` artifact locators. All 7/7 categories passed the
+mechanical source/derivative preflight, including the 55-token source set and
+6/6 table/image structure checks.
+
+This did not create a retrieval result. No Knowhere database, memory snapshot,
+active route, ranking/top-N question set, or serializer projection was used;
+the packet remains `pending_human_adjudication`, and the top-N status remains
+`not_run_active_route_disabled`. No native verification or source-sufficiency
+decision was inferred; retrieval qualification remains `deferred`.
