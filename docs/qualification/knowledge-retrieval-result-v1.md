@@ -802,3 +802,23 @@ or qualification. The previously observed tuple-keyed `Counter` JSONB
 trace-persistence gap remained in the worker boundary. The isolated database,
 nine probe Redis keys, and temporary filesystem root were removed after the
 observation; the disposition remains `deferred`.
+
+## Active retrieval response to RA acceptance boundary
+
+The cross-edge response remained the native API `RetrievalQueryResponse` shape
+(`namespace`, `query`, `router_used`, `evidence_text`, `results`, and related
+runtime fields); it did not emit the opt-in canonical
+`knowledge-retrieval-result-v1` serializer payload. Required canonical
+source/version identity, memory-snapshot and configuration hashes, native page
+and extraction-block locators, citation, and fixed `unverified`/
+`not_source_sufficiency_decision` fields were not present in the active route
+response. The empty `referenced_chunks` list therefore cannot be treated as a
+native citation locator.
+
+The current serializer/schema contract tests passed 7/7, and the RA-side
+document-runtime CLI/contract tests passed 30/30 against their controlled
+fixtures. No active local-MinerU route response was passed through the
+canonical serializer or RA `verify-result`, and no acceptance record or
+runtime authorization was created. WP-06 therefore remains
+`declared_not_runtime`/`pending_source_owner`; the disposition remains
+`deferred`.
