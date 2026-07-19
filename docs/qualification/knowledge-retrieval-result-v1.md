@@ -323,3 +323,23 @@ The qualification disposition remains `deferred`. The contract results expand
 mechanical route and storage-boundary evidence but do not promote the opt-in
 serializer, activate a runtime edge, or close the native/human semantic-gold,
 meaning-preservation, stale/deletion, or source-owner qualification gates.
+
+## Native page-render and derivative visual concordance boundary
+
+On 2026-07-19, a local rendered page for the public package
+`cross-edge-native-text-20260718-run3` was visually compared with its
+producer-owned structured blocks and derivative assets. The visible page
+contained a figure/caption, displayed equation, paragraph, rotated complex
+table/caption, and page number. The existing five-block package mapped those
+regions to explicit image, interline-equation, paragraph, table, and
+page-number locators, and the figure/equation assets matched their page
+regions.
+
+The table image retained the visible rotated presentation and the HTML
+derivative retained the four data rows and three columns. The accompanying
+metadata marked the CSV representation `lossy_complex` and recorded
+rowspan/colspan warnings, so the CSV was not treated as a lossless semantic
+table result. This is an AI-assisted visual/mechanical observation only; it is
+not native-source adjudication, retrieval gold, meaning-preservation proof,
+source sufficiency, stale/deletion evidence, or qualification. The
+qualification disposition remains `deferred`.
