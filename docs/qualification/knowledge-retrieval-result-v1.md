@@ -222,3 +222,22 @@ This is page-structure mechanical cross-edge coverage only. It does not
 establish table/image fidelity, retrieval meaning preservation, native
 adjudication, source sufficiency, or qualification; the disposition remains
 `deferred`.
+
+## Native-source concordance handoff boundary
+
+On 2026-07-19, the paired MinerU native DOCX observation used source-side
+metadata and token extraction from the existing synthetic generator fixture.
+The run was `EXT-WP03-20260719-DOCX-NATIVE-GOLD-RUN1` with input SHA-256
+`70f9dabe1368d59714a678c928dfab60defb2a91a0d7b4b49b0e17f3715aed03`. MinerU
+reported a completed canonical manifest with 1 parser-derived logical page,
+12 page blocks, 2 tables, 1 image, 5 outputs, 0 errors, and no fallback. A
+source-derived comparison found all 55 normalized source tokens and all
+source table-cell tokens in the derivative outputs; this included preserving
+`sub`/`sup` contents while treating other markup as field boundaries.
+
+Knowhere treats this as producer-side mechanical handoff evidence only. No
+database, memory snapshot, active retrieval route, top-N question set, or
+semantic adjudication was used in this slice, and no retrieval-result
+projection or qualification status was inferred from the concordance. Native
+verification remains `unverified`, `not_source_sufficiency_decision` remains
+true, and the retrieval qualification disposition remains `deferred`.
