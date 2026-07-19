@@ -670,6 +670,46 @@ local MinerU process seam or direct extraction failed. The eager exception,
 synthetic database, Redis DB14 state, temporary workspace, and child
 processes were cleaned up; the disposition remains `deferred`.
 
+## Local-only worker task MinerU execution observation
+
+On 2026-07-19, the same public MinerU `test.pdf` fixture was run through the
+existing `parse_task`/Celery eager path in a separate isolated PostgreSQL
+database and Redis DB15 with filesystem object storage. The worker used the
+project-local Python 3.11 runtime, MinerU revision
+`cebf5078a3ed2990260caa03110b0bab82a16b64`, `MINERU_PROVIDER=local`, pipeline
+backend, offline flags, no cloud provider key, and empty
+`IMAGE_MODEL`/`NORMOL_MODEL`/`HIERARCHY_LLM_MODEL` settings so the existing
+deterministic profile and heading fallbacks were exercised. The direct parser
+seam first completed profile/anatomy, local MinerU extraction, heading
+fallback, and Markdown/table/image downstream processing with three rows and
+1,098-byte `full.md`.
+
+The actual worker task then completed source upload, database job creation,
+one-page workload estimation, PyMuPDF probing, local MinerU parsing, chunk
+conversion, result publication, and workspace cleanup. The representative
+result was `task_successful=true`, job `status=done`, `page_count=1`, three
+job chunks, one document section, a 38,781-byte result ZIP, Redis task status
+`done` with progress `100` and message `Task complete!`, and no remaining task
+workspace. The ZIP contained `full.md`, `manifest.json`, `chunks.json`,
+`doc_nav.json`, `debug/trace.json`, `debug/anatomy_map.json`, one image asset,
+and one table asset. No cloud fallback was invoked.
+
+The worker path also reproducibly logged an existing trace-persistence gap:
+`document_page_plan.doc_profile` flush failed because the JSONB bind received
+a tuple-keyed `Counter` in the profile payload. The task continued and the
+result ZIP was published, but this means database-side profile-plan
+traceability was not proven by this run; the explicit artifact trace remained
+available in the ZIP. This is a worker trace/serialization issue, not evidence
+of local MinerU extraction failure, and it must be resolved or explicitly
+dispositioned before any complete traceability or qualification claim.
+
+This observation closes only the local-provider path through the existing
+worker task and non-semantic result publication for this one-page public
+fixture. It does not establish retrieval top-N/source sufficiency, vector
+publication, native or human semantic gold, meaning preservation, deletion,
+telemetry exhaustiveness, egress isolation, rollback, long-run stability, or
+qualification; the disposition remains `deferred`.
+
 ## Checked-in local MinerU integration test observation
 
 On 2026-07-19, the repository-provided real local MinerU integration test
