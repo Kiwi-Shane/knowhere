@@ -1153,3 +1153,28 @@ approved egress policy before runtime qualification. The probe does not verify
 deployed environment precedence, container network enforcement, telemetry
 exhaustiveness, or D2. D2 remains `blocked`, and no implementation, runtime
 edge, or qualification status changed.
+
+## Current-head isolated contract regression recheck
+
+On 2026-07-19, the current pinned Knowhere head
+`67a18d4bc32cae7ab3bb55da39a411dc1afb5e9a` was rechecked with the existing
+project-local environments and a process-local PostgreSQL PATH prepend. The
+isolated worker selection covering MinerU provider/artifact/runtime
+preflight, local-process boundaries, parse tasks, page-memory retrieval,
+canonical retrieval-result serialization, stale-job lifecycle, and the local
+MinerU integration marker completed with `80 passed, 2 skipped` in 30.98
+seconds. The isolated API selection covering retrieval, documents, and
+page-memory/parse-track contracts completed with `50 passed` in 176.54
+seconds and 13 existing warnings.
+
+An initial attempt launched both selections concurrently and produced one
+failure in the worker concurrent-parse billing test while the API suite was
+running. The failure showed shared test object-storage cleanup removing a
+temporary result/source path; the same test passed in three consecutive
+isolated reruns, and the complete worker selection then passed when run alone.
+The bounded validation rule is therefore sequential suite execution, not a
+product failure claim. This is current-head mechanical contract and test
+environment-boundary evidence only; native/human semantic gold, source
+sufficiency, hard deletion, canonical active-edge consumption/emission, RA
+acceptance, and qualification remain deferred. No implementation change or
+runtime-edge promotion was made.
