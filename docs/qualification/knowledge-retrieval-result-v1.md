@@ -1764,3 +1764,22 @@ no external telemetry destination was contacted, and D2 host-level egress,
 retention, credential, and runtime controls remain `blocked`. No
 implementation, database, active edge, private data, provider, or runtime
 status was changed.
+
+## Current-source-head API retrieval isolation recheck
+
+On 2026-07-19, the current qualification branch head `b8de6e26` was checked
+against its runtime/source head `67d7fc0a`; the only intervening change is the
+qualification record itself. The existing
+`apps/api/tests/contract/test_retrieval_contract.py` selection was rerun with
+the project `.venv` and the verified portable PostgreSQL runtime. All `15`
+tests passed in `118.56` seconds, with `12` existing deprecation warnings.
+
+The selection reconfirms authenticated user and namespace isolation,
+namespace defaults, empty-query and top-k routing, agentic reference
+projection, table-artifact exclusion, out-of-scope reference rejection,
+same-chunk-id disambiguation, request validation, and document/section
+filters. This is direct current-source mechanical evidence only; it does not
+establish canonical MinerU manifest lineage, production ranking sufficiency,
+native or semantic gold, source sufficiency, hard deletion, RA acceptance, or
+WP-04/WP-06 qualification. No provider, private data, active edge, or runtime
+promotion was used.
