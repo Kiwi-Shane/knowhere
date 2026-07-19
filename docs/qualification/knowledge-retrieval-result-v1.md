@@ -1118,3 +1118,20 @@ conclusion, critical identifiers, negative rule, and identifier table. This
 confirms that the physical-page discrepancy is not an artifact of text
 extraction. The rendered page images remain private and no locator correction or
 qualification claim was made.
+
+## Telemetry disabled-path localhost negative control
+
+On 2026-07-19, the existing `start_self_hosted_telemetry` runtime path was
+exercised with `TELEMETRY_ENABLED=false`, a synthetic project key, and a
+temporary localhost-only HTTP sink. The installed PostHog package was
+importable, but the disabled branch returned `None` before installation
+identity resolution or client construction; the sink received zero POST
+requests during the bounded observation window.
+
+This is application-side negative-control evidence that the explicit telemetry
+disable flag suppresses the self-hosted telemetry startup path. It does not
+prove host-level default-deny egress, production configuration precedence,
+telemetry exhaustiveness, retention behavior, or any remaining D2 control. The
+telemetry evidence remains `partial_mechanical_only`, D2 remains `blocked`, and
+no runtime edge or qualification status changed. No implementation change was
+made.
