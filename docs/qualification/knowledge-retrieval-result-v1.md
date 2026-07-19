@@ -28,7 +28,7 @@ active retrieval routes and does not change the edge status.
 | Source allowlist and namespace isolation | Existing worker/API contract suites cover namespace-scoped document and retrieval behavior. | `partial_mechanical_only` |
 | Duplicate handling and source-version replacement | Existing lifecycle and ingestion tests cover related document identity/version behavior; no canonical result gold set is attached. | `partial_mechanical_only` |
 | Stale invalidation and deletion/purge | Existing lifecycle tests cover invalidation/purge paths; end-to-end canonical result non-retrievability evidence is not recorded. | `not_yet_qualified` |
-| Backup/restore | Synthetic PostgreSQL 15.18 custom-format dump/restore smokes matched both a generic fixture and an Alembic-migrated application-schema fixture; production backup, retention, and recovery controls remain untested. | `partial_mechanical_only` |
+| Backup/restore | Synthetic PostgreSQL 15.18 custom-format dump/restore smokes matched both a generic fixture and an Alembic-migrated application-schema fixture; a separate LocalStack S3 object round-trip also matched; production backup, retention, and recovery controls remain untested. | `partial_mechanical_only` |
 | External telemetry and LLM/VLM egress | Local/offline contract tests cover application flags and provider boundaries; host-level network denial is a separate operator control. | `partial_mechanical_only` |
 | Result provenance and native locator | The opt-in serializer requires source/version, explicit block IDs, page range, native citation, and emits the fixed `unverified` native-source status; no active retrieval route or gold result set is wired. | `partial_mechanical_only` |
 | RA acceptance fields in producer result | Canonical fixture has no `evidence_status`, `readiness_status`, or `regulatory_conclusion`. | `mechanical_pass` |
@@ -1402,6 +1402,23 @@ artifacts, encryption or immutability, retention, restore authorization,
 RTO/RPO, application-consistency coordination, deletion recovery, native or
 human gold, source sufficiency, or qualification. The matrix disposition
 remains `partial_mechanical_only`; no implementation or edge status changed.
+
+### Synthetic object-storage round-trip control
+
+On 2026-07-19, the existing LocalStack S3 service (`3.8.1`) was used with
+two uniquely named temporary buckets and a 68-byte synthetic JSON fixture.
+The fixture was written to the source bucket, read back, written to the
+restore bucket, and read back again. Source and restored content matched at
+SHA-256
+`d70d0f08461f8304479c4deb008b2826c58cdebee370d9f35893b56a072c43d1` and
+content length `68`. The temporary object and both buckets were removed, and
+the post-run bucket check found no `qa-app-bk-obj-*` buckets remaining.
+
+This is an object-storage service/control round-trip only. It does not prove
+production backup scheduling or restore orchestration, object versioning,
+encryption or immutability, retention, vector/memory artifact coverage,
+authorization, RTO/RPO, or qualification. The matrix disposition remains
+`partial_mechanical_only`; no implementation or edge status changed.
 
 ## Active synthetic extractive gold-question probe
 
