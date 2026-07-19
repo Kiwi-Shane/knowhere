@@ -1801,3 +1801,20 @@ contract observations, not graph semantic link-quality, all-route isolation,
 stale-version, deletion-completeness, native-locator, source-sufficiency, or
 RA acceptance qualification. No provider, private data, active edge, or
 runtime promotion was used.
+
+## Current-source review and offline-verifier recheck
+
+On 2026-07-19, the current qualification branch head `444a5c52` was checked
+against runtime/source head `67d7fc0a`; the only intervening change remains
+qualification documentation. The existing review/batch/evidence-renderer and
+offline-verifier selections passed together with `23` tests and `1` skip in
+`1.39` seconds. The skip is the Windows symlink-privilege branch and is not
+counted as a pass.
+
+The selections reconfirm safe relative validation-corpus resolution, tamper
+and missing-record rejection, ordered private-report output, offline CLI
+defaults, traceback-free local-MinerU failure reporting, evidence rendering,
+and fail-closed offline-verifier behavior with bounded environment/attestation
+output. This is synthetic offline contract evidence only; no host firewall
+rule, external telemetry destination, provider, private data, active edge,
+native/gold decision, or runtime promotion was used.
