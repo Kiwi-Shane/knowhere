@@ -1235,3 +1235,20 @@ derived retrieval results; it does not establish stale-version non-retrieval,
 source sufficiency, native/human gold, RA acceptance, or qualification. The
 qualification disposition remains `deferred`, and no implementation, edge,
 private-data, provider, or runtime status changed.
+
+## Archived retrieval runtime probe
+
+On 2026-07-19, a temporary synthetic API probe seeded one document containing
+the marker `archived retrieval probe sentinel`, changed only that document's
+status to `archived`, and queried the existing `/api/v1/retrieval/query`
+route. The route returned HTTP 200 with `result_count: 0`; the archived
+document ID and marker were absent from the result set. The probe also
+confirmed the current query path's `Document.status == 'active'` and
+`current_job_result_id` join boundary through observed zero-row behavior.
+
+This is runtime evidence for active-status exclusion only. It does not prove
+hard deletion of object-storage/vector/memory artifacts, stale-version
+non-retrieval across every route, canonical producer-result emission, native
+or human semantic gold, source sufficiency, RA acceptance, or qualification.
+The qualification disposition remains `deferred`; the temporary probe file
+was removed and no implementation or edge status changed.
