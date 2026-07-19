@@ -890,3 +890,20 @@ publication supplies canonical source/version identity, ranked production
 top-N/source sufficiency, native semantic gold, or RA acceptance locators;
 the active cross-edge observation still returned an empty
 `referenced_chunks` list. WP-04/WP-06 qualification gates remain deferred.
+
+## Page locator and citation-asset contract observation
+
+On 2026-07-19, the existing page-memory retrieval and node-assembler contract
+suites passed 26/26. The contracts covered page/table search-text projection,
+summary-over-raw-content assembly, page-number asset URL generation,
+page-citation asset precedence over lazy page-PDF fallback, artifact allowlist
+and referenced-file filtering, source-PDF page cropping/cache reuse,
+reference hydration, page ownership/order behavior, and preservation of
+page-citation assets in node rows.
+
+This is mechanical artifact/locator and retrieval-hydration evidence. It does
+not establish that the locator came from a reviewed native source, that
+MinerU extraction blocks are linked, that semantic meaning is preserved, or
+that a source is sufficient for RA use. The active local-MinerU response
+still lacked canonical locators and had empty `referenced_chunks`; WP-06
+native verification, human gold, and acceptance remain deferred.
