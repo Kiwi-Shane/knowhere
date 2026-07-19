@@ -1252,3 +1252,21 @@ non-retrieval across every route, canonical producer-result emission, native
 or human semantic gold, source sufficiency, RA acceptance, or qualification.
 The qualification disposition remains `deferred`; the temporary probe file
 was removed and no implementation or edge status changed.
+
+## Current-revision runtime probe
+
+On 2026-07-19, a temporary synthetic API probe seeded an older and a newer
+job result for the same document, advanced the document's
+`current_job_result_id` to the newer result, and queried the existing
+`/api/v1/retrieval/query` route for both revision markers. Both responses
+returned HTTP 200 and `result_count: 1`; the older marker was absent while the
+newer marker was present (`old_marker_present: False`,
+`new_marker_present: True`).
+
+This is observed stale-content exclusion through the current-result join for
+the exercised route. It does not prove every retrieval route, hard deletion
+from object storage/vector/memory artifacts, canonical producer-result
+emission, native or human semantic gold, source sufficiency, RA acceptance,
+or qualification. The qualification disposition remains `deferred`; the
+temporary probe file was removed and no implementation or edge status
+changed.
