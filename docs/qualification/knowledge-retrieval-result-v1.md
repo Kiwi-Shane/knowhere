@@ -413,3 +413,29 @@ MinerU producer ingestion, retrieval against producer-owned artifacts, native
 or human semantic gold, source sufficiency, deletion behavior, host-level
 egress denial, telemetry exhaustiveness, or qualification; the disposition
 remains `deferred`.
+
+## Active localhost worker startup observation
+
+On 2026-07-19, the current Knowhere worker implementation baseline
+`b1db01a802cfbffcb7ccbadb4e14e47e3489a6e6` was started through the existing
+`worker.py` entry point with the lockfile-resolved project-local Python 3.11
+runtime, a dedicated synthetic PostgreSQL database, Redis database 14,
+filesystem storage, `MINERU_PROVIDER=cloud`, no provider keys, and
+`TELEMETRY_ENABLED=false`. No task was enqueued. The worker wrote a fresh
+heartbeat with PID `23224`; the observed worker/beat process tree remained
+present, and Redis database 14 contained the expected six Celery/RedBeat
+startup keys.
+
+The pre-existing Knowhere `.venv` uses Python 3.13; a bounded comparison
+probe failed before readiness because Celery 5.4's beat path calls the removed
+Python 3.13 `logging._acquireLock` API. This is recorded as an environment
+compatibility boundary, not a source-code qualification result. The
+Python 3.11 probe was the selected startup observation for this slice. The
+worker and beat processes were stopped, the heartbeat was removed, Redis
+database 14 was flushed, and the dedicated PostgreSQL database was dropped.
+
+This establishes worker/beat startup and heartbeat mechanics only. It does
+not establish task execution, MinerU parsing, producer-artifact ingestion,
+active result publication, source-owner gold, native or human semantic
+adjudication, source sufficiency, deletion, egress, telemetry exhaustiveness,
+or qualification; the disposition remains `deferred`.
