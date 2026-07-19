@@ -362,3 +362,16 @@ result as proven. This is DB-backed current-revision/archive route evidence
 only. It does not prove hard deletion, vector/memory-snapshot deletion,
 canonical result lifecycle semantics, source-version identity completeness,
 cross-case isolation, or qualification; the disposition remains `deferred`.
+
+## Current-head contract recheck
+
+On 2026-07-19, the same Knowhere revision
+`b1db01a802cfbffcb7ccbadb4e14e47e3489a6e6` was rechecked with the worktree's
+`.venv` and the explicit PostgreSQL 17.10 `pg_ctl` test executable. The
+archive-focused selection passed 3/3 tests; the complete documents contract
+suite passed 17/17; and the complete retrieval contract suite passed 15/15
+with 12 existing deprecation warnings and no test failures. This revalidates
+the current-head mechanical API/archive/retrieval contract boundary only. It
+does not prove hard deletion, object-storage/vector/memory deletion, native
+or human semantic gold, source sufficiency, or qualification; the
+disposition remains `deferred`.
