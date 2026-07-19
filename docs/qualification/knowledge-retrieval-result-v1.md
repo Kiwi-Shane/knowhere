@@ -28,7 +28,7 @@ active retrieval routes and does not change the edge status.
 | Source allowlist and namespace isolation | Existing worker/API contract suites cover namespace-scoped document and retrieval behavior. | `partial_mechanical_only` |
 | Duplicate handling and source-version replacement | Existing lifecycle and ingestion tests cover related document identity/version behavior; no canonical result gold set is attached. | `partial_mechanical_only` |
 | Stale invalidation and deletion/purge | Existing lifecycle tests cover invalidation/purge paths; end-to-end canonical result non-retrievability evidence is not recorded. | `not_yet_qualified` |
-| Backup/restore | A synthetic PostgreSQL 15.18 custom-format dump/restore smoke matched the source and restored two-row content fingerprint; production backup, retention, and recovery controls remain untested. | `partial_mechanical_only` |
+| Backup/restore | Synthetic PostgreSQL 15.18 custom-format dump/restore smokes matched both a generic fixture and an Alembic-migrated application-schema fixture; production backup, retention, and recovery controls remain untested. | `partial_mechanical_only` |
 | External telemetry and LLM/VLM egress | Local/offline contract tests cover application flags and provider boundaries; host-level network denial is a separate operator control. | `partial_mechanical_only` |
 | Result provenance and native locator | The opt-in serializer requires source/version, explicit block IDs, page range, native citation, and emits the fixed `unverified` native-source status; no active retrieval route or gold result set is wired. | `partial_mechanical_only` |
 | RA acceptance fields in producer result | Canonical fixture has no `evidence_status`, `readiness_status`, or `regulatory_conclusion`. | `mechanical_pass` |
@@ -1379,6 +1379,29 @@ artifacts, backup encryption or immutability, retention policy, scheduled
 backup delivery, restore authorization, RTO/RPO, application consistency, or
 qualification. The matrix disposition is therefore
 `partial_mechanical_only`; no implementation or edge status changed.
+
+### Application-schema backup/restore extension
+
+On 2026-07-19, the existing Alembic migrations were applied to an isolated
+synthetic PostgreSQL 15.18 source database through both current heads. The
+source was populated with one linked user/job/job-result/document/document-
+chunk fixture, then exported as a container-local custom-format dump of
+95,475 bytes (SHA-256
+`55d0a865eca3fc967964938c8955f8c9542149f96328ee8dfb27ee33d2306d4a`) and
+restored into a separate temporary database with `pg_restore --exit-on-error`.
+The source and restored databases each contained 33 public tables with the
+same schema fingerprint
+`33:f0b1c1eafb1356470e3235f114362018`; the five core fixture table counts
+were `1:1:1:1:1` and the linked-data fingerprint matched at
+`cb73baaa78084a55f7b20dff9045528f`. Both temporary databases and the
+container dump were removed after comparison.
+
+This strengthens application-schema mechanical recovery evidence only. It
+does not cover production backup scheduling, object-storage/vector/memory
+artifacts, encryption or immutability, retention, restore authorization,
+RTO/RPO, application-consistency coordination, deletion recovery, native or
+human gold, source sufficiency, or qualification. The matrix disposition
+remains `partial_mechanical_only`; no implementation or edge status changed.
 
 ## Active synthetic extractive gold-question probe
 
