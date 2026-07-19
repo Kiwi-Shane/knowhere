@@ -1857,3 +1857,25 @@ synthetic API contract observations using disposable test resources only; no
 provider, private data, active edge, canonical MinerU manifest consumption,
 native/semantic gold, source sufficiency, RA acceptance, or runtime promotion
 was performed, and the qualification disposition remains `deferred`.
+
+## Current-source job, health, demo, and telemetry contract recheck
+
+On 2026-07-19, the current qualification branch head `4d698ad8` was checked
+against runtime/source head `67d7fc0a`; the intervening changes remain
+qualification documentation only. Using the repository-root locked `uv`
+environment (`uv run --locked`) and the existing disposable PostgreSQL test
+runtime, the existing job-read, health, demo-document, and self-hosted
+telemetry contract selections passed `37` tests in `95.59` seconds, with `2`
+existing demo-route deprecation warnings.
+
+The selections reconfirm job listing/detail ownership and date filtering,
+health bootstrap, demo catalog citation/materialization and no-credit/no-parse
+behavior, telemetry installation identity, allowlists, sensitive-property
+removal, batching, flush/stop behavior, and explicit disable/override paths.
+Telemetry delivery assertions use contract doubles/local boundaries; no
+external telemetry destination was contacted. This is synthetic API and
+application-side contract evidence only; it does not establish host-level
+egress denial, telemetry retention/exhaustiveness, canonical MinerU manifest
+lineage, native/semantic gold, source sufficiency, deletion, RA acceptance,
+provider execution, active-edge promotion, or qualification, and the
+disposition remains `deferred`.
