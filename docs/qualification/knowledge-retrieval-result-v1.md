@@ -1585,20 +1585,55 @@ changed.
 
 ## Cross-document graph coverage boundary audit
 
-On 2026-07-19, a read-only current-tree search of `apps/worker/app` and
-`apps/worker/tests` found no current cross-document graph implementation,
-graph-state consumer, related-document link path, or focused graph contract
-selection. The only graph-named application match was a comment referring to a
-historical `GraphNode` property; the runnable current tests cover document
-tree/section hierarchy and retrieval/package boundaries, not cross-document
-graph semantics.
+On 2026-07-19, a follow-up read-only current-tree search superseded the earlier
+statement that no graph implementation existed. Current head `67d7fc0a` contains
+`shared.services.retrieval.graph.service.DocumentGraphService`; the normal job
+publication finalizer calls it for a non-duplicate document publication. The
+writer creates document-level `GraphNode` records and keyword/entity-overlap
+`GraphEdge` records, and `agentic.discovery.tools` reaches
+`build_knowledge_map_overview`, which reads document graph-node summaries for
+file selection. The source therefore has a real graph write path and a bounded
+graph-state read consumer.
 
-The WP-04 cross-document graph acceptance target is therefore recorded as
-`not_assessed`, not inferred from hierarchy or retrieval tests. An authorized
-future implementation and characterization slice would be required before
-graph correctness, graph isolation, or graph deletion could be qualified. No
-implementation, database, active edge, private data, provider, or runtime
-status was changed.
+The current graph is not a canonical MinerU manifest or native-locator graph:
+the writer stores document-level keywords/entities, summaries, counts, and
+document references, with no producer extraction-block identity, source
+version, native page locator, or table/image locator. `GraphQueryService` exists
+as a read-side lexical helper but has no non-test caller in the inspected
+application tree; agentic discovery reads `GraphNode` summaries rather than
+traversing `GraphEdge` relations. Existing contract coverage found graph-row
+cleanup/count assertions in the document archive test, but no focused semantic
+link-quality, isolation, stale-version, or graph-deletion qualification suite.
+
+The corrected disposition is therefore `partial_mechanical_only` for graph
+implementation/wiring and `not_assessed` for cross-document semantic
+correctness, isolation, stale/deletion behavior, and native-locator support.
+This correction is source-traceability evidence only; no implementation,
+database, active edge, private data, provider, or runtime status was changed.
+
+## Current-head D5/D6 manifest-to-result route audit
+
+The same current-head source audit traced the active parse-to-retrieval route.
+`ParseOutput` carries only `output_dir` and `parsed_df`; the worker's
+`build_parse_result_package` immediately converts that dataframe to chunks.
+The local MinerU seam validates a `knowhere-mineru-artifacts/1.0`
+`mineru_manifest.json`, but `parse_via_local` publishes only `full.md`, images,
+and a sanitized log, then removes the temporary artifact root. The validated
+manifest and producer block identity are not carried into `ParseOutput`, the
+chunk package, or the normal retrieval response. The cloud MinerU polling path
+also materializes the result ZIP into the same output boundary without a
+source-owned canonical manifest consumer.
+
+The opt-in `knowledge-retrieval-result-v1` serializer still requires explicit
+source/version, memory/configuration, producer block, page, and native-reference
+context; its module documentation confirms that normal retrieval routes do not
+call it. The active public response projection instead exposes database
+`document_id`/`chunk_id`/section fields and derivative asset URLs. This closes
+only the route-level absence/ownership characterization: canonical manifest
+consumption, source/version/extraction-run lineage, native locator mapping,
+idempotency, stale/deletion behavior, RA acceptance, and D5/D6 promotion remain
+deferred. No implementation, database, active edge, private data, provider, or
+runtime status was changed.
 
 ## Current-head local-MinerU preflight, capacity, and provider boundary recheck
 
