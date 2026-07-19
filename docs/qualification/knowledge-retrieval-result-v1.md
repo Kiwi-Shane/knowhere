@@ -1220,3 +1220,18 @@ The packet remains `pending_human_adjudication`; native verification remains
 qualification disposition remains `deferred`. No database, active route,
 provider, private-data workflow, implementation change, or runtime-edge
 promotion was used.
+
+## Archived citation-source negative-path recheck
+
+On 2026-07-19, the existing API document contract was re-run with the focused
+selection `-k "archive or archived_page_citation"`. The canonical and legacy
+archive-route tests passed, and the archived-document page-citation-source
+test returned HTTP 404 even when a citation source object had been staged.
+The focused selection completed with `3 passed, 14 deselected`.
+
+This is bounded archive-state and citation-source negative-path evidence only.
+It does not prove hard deletion from object storage, vectors, memory, or
+derived retrieval results; it does not establish stale-version non-retrieval,
+source sufficiency, native/human gold, RA acceptance, or qualification. The
+qualification disposition remains `deferred`, and no implementation, edge,
+private-data, provider, or runtime status changed.
