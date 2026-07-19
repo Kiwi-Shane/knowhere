@@ -848,3 +848,26 @@ canonical serializer or RA `verify-result`, and no acceptance record or
 runtime authorization was created. WP-06 therefore remains
 `declared_not_runtime`/`pending_source_owner`; the disposition remains
 `deferred`.
+
+## Existing worker lifecycle idempotency and recovery controls
+
+After the user-level PostgreSQL 15 portable runtime was installed and added
+to the user PATH, the existing worker contract suite
+`apps/worker/tests/contract/test_parse_task_contract.py` passed 13/13. The
+suite exercised real lifecycle boundaries for successful result publication,
+result ZIP creation, a second job with the same parsed content, concurrent
+billing initialization, terminal-job skip without outputs, missing-source
+failure cleanup, parse-failure refund, and PDF page-limit rejection. The
+existing stale-job sweeper contract passed 2/2 for durable expiry failure
+state and duplicate-Beat lock handling.
+
+Static review also confirms that the existing success finalizer reuses a
+`JobResult` by `job_id`, replaces its job chunks inside the lifecycle
+transaction, and applies a document-current-result/stale-completion guard
+when publishing document revisions. This is bounded job-lifecycle
+idempotency/recovery evidence. It does not connect those controls to
+`document-extraction-manifest-v1`, source-version or extraction-run lineage,
+partial canonical-manifest replay, or source-owner recovery semantics.
+Therefore it strengthens the mechanical worker lifecycle observation only;
+WP-05 D5 remains deferred and no qualification or edge-promotion claim is
+made.
