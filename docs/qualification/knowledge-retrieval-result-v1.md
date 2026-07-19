@@ -1054,3 +1054,34 @@ source-version or extraction-run lineage, active canonical result emission,
 native/human semantic gold, source sufficiency, hard deletion, or RA
 acceptance authorization. WP-03/WP-04/WP-05/WP-06 qualification and runtime
 edge promotion remain deferred, and no implementation change was made.
+
+## Critical identifier and negation gold-preparation mechanical recheck
+
+On 2026-07-19, a new synthetic-only DOCX was generated under the private
+`.qa` boundary from the existing public fixture generator, then extended with
+explicit identifier, lot, numeric/unit, negative-condition, no-fallback, and
+table/image-locator categories. The input SHA-256 was
+`09c8740b7a1e42d5bbeae97f23ce1adfd9c9c560da6277e1f4b9c123d07aedb1`.
+
+The existing offline/local export path completed with manifest status
+`completed`; the manifest source hash matched the host input hash. It emitted
+18 blocks, 3 tables, 1 image block, 24 inventoried artifacts, and 2
+mechanical findings. All 9/9 critical category tokens were present in the
+derivative/raw/structured package, and all matching blocks had explicit
+producer source locators and provenance metadata. The Office parser locators
+were logical page locators; normalized-PDF mapping remained `unmapped`.
+
+Thirteen memory-only projections were then built from the producer blocks
+through the existing opt-in `knowledge-retrieval-result-v1` serializer. All
+13 passed the canonical JSON Schema, retained an explicit extraction block
+locator, emitted no RA authority/readiness fields, and preserved
+`native_source_verification_status: unverified` plus
+`not_source_sufficiency_decision: true`. No Knowhere API, worker task,
+database, vector store, active retrieval route, or provider was used.
+
+This is critical-category mechanical gold preparation only. It does not
+constitute human/native adjudication, physical pagination verification,
+semantic meaning preservation, retrieval top-N evidence, source sufficiency,
+deletion qualification, or producer/edge qualification. The package was
+requested offline but recorded `offline_verified: false`; that remains an
+environment attestation limitation. No implementation change was made.
