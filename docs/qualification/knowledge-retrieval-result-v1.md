@@ -1007,3 +1007,24 @@ fake-client contract alone, but it does not prove host-level default-deny
 egress, real PostHog retention, production network policy, or the remaining D2
 controls. The disposition remains `partial_mechanical_only`; no runtime edge
 or qualification status changed.
+
+## Canonical contract frozen-revision ancestry revalidation
+
+On 2026-07-19, the two cross-repository compatibility profiles were checked
+against the current pinned worktree histories without changing either
+repository. The MinerU profile's canonical revision
+`7048473f0c51c2062e98e700c56286c94e8ea90a` and the Knowhere profile's
+canonical revision `71ff7fc1128743a9135f65b110d49504768c08b3` were present as
+ancestors of the current pinned heads. The schema bytes at the frozen
+revisions matched the current producer schema bytes exactly: MinerU
+`8d649b58e6748ae7d1fbd021d76b3c154d544044a37fd357b3e6bcdf03f25def` and
+Knowhere `54307e0c42ebf737af897b691badda18fd6c673f64aef3cf7eb961dab0123c4a`.
+
+This closes only the specific frozen-revision ancestry and schema-byte
+identity check. It does not establish active consumption of
+`document-extraction-manifest-v1`, active emission of
+`knowledge-retrieval-result-v1`, native-source verification, source
+sufficiency, deletion completeness, or RA acceptance authorization. The
+profiles remain `source_owner_frozen` / `pending_source_owner`, both edges
+remain `declared_not_runtime`, and the qualification disposition remains
+`deferred`. No implementation change was made.
