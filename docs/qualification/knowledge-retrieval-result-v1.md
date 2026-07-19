@@ -277,3 +277,49 @@ meaning preservation. Duplicate and superseded SHA evidence is an inventory
 boundary only; no replacement, stale, deletion, or retrieval-lifecycle
 behavior was tested. Native verification, gold retrieval results, semantic
 meaning preservation, and qualification remain deferred.
+
+## Candidate top-N preflight and retrieval contract observation
+
+On 2026-07-19, the existing public cross-edge review package
+`cross-edge-native-text-20260718-run3` was used for a memory-only candidate
+ranking preflight. The source document identity was
+`doc_ae9e3f14cc3bea88` with source SHA-256
+`ae9e3f14cc3bea88dd0ce4e2715b3b03561378501318df61f0889df207aed25b`; the
+five producer-owned extraction blocks were addressed by explicit locators.
+The memory snapshot was `MEM-CODEX-CROSS-EDGE-NATIVE-TEXT-RUN3` with block
+snapshot SHA-256
+`22b908ed9c3189d075a7343153cbb4840cb2bd30eaa8b53acf71f52970d46b46`.
+
+Four bounded fixture questions covering image/caption, formula, paragraph,
+and table locators were ranked with the existing `content_bm25` path at
+`top_k=3`. All 4/4 expected producer block IDs appeared in the candidate
+top-three. The image/caption expected block ranked second because another
+derivative block shared caption/number tokens; the other three expected
+blocks ranked first. Each candidate was passed through the opt-in
+`knowledge-retrieval-result-v1` serializer with explicit source-version and
+native-locator context. The serialized boundary retained
+`native_source_verification_status: unverified` and
+`not_source_sufficiency_decision: true`. Knowhere was observed at revision
+`0026c9895b6f3f97268b01a6233cbeb326022a05`, and the retrieval configuration
+SHA-256 was
+`bf7afab3816cc98ae3c418cf98b70b00eed6b18e09e38f29e0a47cbe0271276f`.
+
+This was a candidate preflight only: it used no Knowhere API, worker,
+database, vectors, memory service, or active route. The expected mapping is
+fixture preparation, not human/native gold adjudication. It does not establish
+semantic meaning preservation, source sufficiency, stale-version behavior,
+deletion-negative retrieval, cross-case isolation, or qualification.
+
+The same Knowhere revision then passed the existing DB-backed API contract
+surfaces using a private local PostgreSQL 17.10 test process: the retrieval
+contract suite passed 15/15 tests, and the documents contract suite passed
+17/17 tests. These tests mechanically cover authenticated namespace scoping,
+active-document selection, document and section exclusion, reference
+hydration boundaries, current chunk listing, and archived/missing page-citation
+negative paths. The retrieval run emitted 12 existing deprecation warnings;
+no test failure was observed.
+
+The qualification disposition remains `deferred`. The contract results expand
+mechanical route and storage-boundary evidence but do not promote the opt-in
+serializer, activate a runtime edge, or close the native/human semantic-gold,
+meaning-preservation, stale/deletion, or source-owner qualification gates.
