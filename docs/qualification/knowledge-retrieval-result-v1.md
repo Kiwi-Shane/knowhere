@@ -613,6 +613,40 @@ top-N, native/human semantic gold, source sufficiency, 24-hour operational
 stability, firewall/egress isolation, rollback, or qualification; the
 disposition remains `deferred`.
 
+## Local MinerU public canary native/asset mechanical concordance
+
+The same private repeat-three output was checked mechanically against its
+preserved native PDF using Poppler 25.07.0. The representative run was
+`run-001`; the repeated runs were additionally checked for stable source,
+derivative, structured-tree, and asset-count signatures. For
+`canary-unit-pdf`, the native PDF had one page and one embedded image object;
+the package rendered one page, preserved three MinerU asset files mirrored by
+three raw-image files with identical SHA-256 sets, resolved one Markdown image
+reference, and exported one HTML/metadata table. The normalized native-text
+token coverage was 89.58% (48 native unique tokens; the metric is mechanical
+and tokenizer-dependent).
+
+For `canary-small-ocr`, the native PDF reported eight pages and 496 embedded
+image objects, while the requested/rendered package pages were 1 and 2. The
+native text extraction contained no comparable alphanumeric/CJK token set, so
+native-text coverage is not applicable; this fixture remains an OCR/image
+path observation rather than a text-fidelity result. For `canary-table-pdf`,
+the native PDF had six pages and 14 embedded image objects; the package
+selected/rendered pages 1, 2, 4, and 5, preserved 19 mirrored asset/raw-image
+files, resolved eight Markdown image references, exported two HTML/metadata
+tables, and produced 93.64% normalized native-text unique-token coverage
+(1,100 native unique tokens).
+
+Across all three runs of each fixture, source, `document.md`,
+`structured/blocks.jsonl`, and `structured/document_tree.json` SHA-256
+signatures were singletons, asset counts were stable, and all checked image
+references resolved. These checks establish native-file identity, package
+asset linkage, and repeatable mechanical concordance only. They do not close
+human/native semantic gold, meaning preservation, critical-cell adjudication,
+source sufficiency, or any worker-task, producer-publication, retrieval,
+security, operational-stability, rollback, or qualification gate; the
+disposition remains `deferred`.
+
 ## Bounded worker task local MinerU execution boundary
 
 On 2026-07-19, an isolated worker-task probe used the existing
