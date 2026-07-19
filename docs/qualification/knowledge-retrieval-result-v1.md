@@ -1110,3 +1110,11 @@ The result is a negative locator observation: physical page citation and
 native locator qualification remain open. No locator was corrected, no
 implementation change was made, and no runtime edge or qualification status
 was promoted. The private rendered PDF and source package remain outside Git.
+
+The same two-page PDF was also rendered at 150 DPI with the existing Poppler
+`pdftoppm` tool and visually inspected under `.qa`. Page 1 ends with the
+overview metrics and embedded image; page 2 visibly contains the results table,
+conclusion, critical identifiers, negative rule, and identifier table. This
+confirms that the physical-page discrepancy is not an artifact of text
+extraction. The rendered page images remain private and no locator correction or
+qualification claim was made.
