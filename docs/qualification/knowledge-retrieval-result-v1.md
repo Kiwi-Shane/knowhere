@@ -498,6 +498,42 @@ artifact ingestion, retrieval top-N/source sufficiency, native or human
 semantic gold, vector publication, telemetry exhaustiveness, deletion,
 egress, or qualification; the disposition remains `deferred`.
 
+## Active localhost worker-produced retrieval route observation
+
+On 2026-07-19, the live daemon publication path was connected to the actual
+API retrieval route using a second isolated synthetic run. The daemon used
+`CELERY_TASK_ALWAYS_EAGER=false`, the project-local Python 3.11 runtime,
+isolated PostgreSQL, Redis database 15, filesystem object storage, no provider
+keys, and `TELEMETRY_ENABLED=false`. It consumed Celery task
+`04a087f4-721c-4c6b-b9f6-9a160950d37c` from `document_ingestion_low` and
+completed job `job_worker_retrieval_83b6463d32f0` with status `done` and
+`page_count=2`. The result row recorded document ID `doc_2db4ccdfcc8c`, one
+document section, one table chunk
+(`2616669a-1a1f-566b-a037-3edcc8753bc4`), result key
+`results/job_worker_retrieval_83b6463d32f0.zip`, result size 1,902 bytes, and
+checksum
+`1966e5f5fe9f14b2eb5e9e4a4fa88e7ba3019e8220a9e4709cc2a509332cdb5e`.
+
+Using a dedicated synthetic API key for the same worker user, the active API
+`POST /api/v1/retrieval/query` route returned HTTP 200 for namespace
+`worker-contract`. The response used `router_used=small_corpus_all`, returned
+one result with `chunk_type=table`, score `1.0`, the same chunk and document
+IDs as the worker publication, and the expected synthetic source file and
+section path. `evidence_text` was non-empty (123 characters),
+`answer_text` was empty, and `referenced_chunks` was empty; the route was
+therefore not treated as citation or answer-generation evidence. The worker
+log again showed a Windows `cp950` emoji `UnicodeEncodeError` warning while
+the task completed successfully.
+
+This establishes a mechanical worker-produced-document-to-active-retrieval
+route link for a non-PDF synthetic XLSX path. It does not establish MinerU
+PDF execution through the worker, ranked top-N behavior (the one-chunk route
+used the small-corpus path), citation projection, vector publication,
+producer-owned artifact ingestion, native or human semantic gold, source
+sufficiency, telemetry, deletion, egress, or qualification. The API and
+worker/beat processes, port 5005, Redis DB15, isolated database, and temporary
+root were cleaned up and verified; the disposition remains `deferred`.
+
 ## Active localhost local MinerU artifact seam observation
 
 On 2026-07-19, the existing public/synthetic fixture
