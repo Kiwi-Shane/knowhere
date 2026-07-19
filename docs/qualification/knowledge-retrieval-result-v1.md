@@ -1135,3 +1135,21 @@ telemetry exhaustiveness, retention behavior, or any remaining D2 control. The
 telemetry evidence remains `partial_mechanical_only`, D2 remains `blocked`, and
 no runtime edge or qualification status changed. No implementation change was
 made.
+
+## Telemetry configuration default/override audit
+
+On 2026-07-19, a read-only `BaseConfig` probe with the project `.env` source
+excluded and only synthetic required storage settings supplied resolved the
+application defaults as `TELEMETRY_ENABLED=True` and
+`TELEMETRY_POSTHOG_HOST=https://us.i.posthog.com`. Supplying the explicit
+constructor override `TELEMETRY_ENABLED=False` resolved the flag to `False`
+while leaving the host value unchanged. No telemetry client was started and
+no network request was made by this configuration probe.
+
+This confirms that the current application default is opt-out rather than
+default-off, and that the public PostHog host remains the configured default;
+an operator deployment must therefore demonstrate an explicit disable or
+approved egress policy before runtime qualification. The probe does not verify
+deployed environment precedence, container network enforcement, telemetry
+exhaustiveness, or D2. D2 remains `blocked`, and no implementation, runtime
+edge, or qualification status changed.
