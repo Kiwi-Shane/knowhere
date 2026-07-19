@@ -1347,3 +1347,19 @@ manifest consumption, source sufficiency, native or human semantic gold, RA
 acceptance, or qualification. The temporary probe file was removed; the
 existing Windows cp950 emoji logging warnings remain an environment output
 boundary. No implementation or edge status changed.
+
+## Current-revision agentic runtime probe
+
+On 2026-07-19, a temporary synthetic API probe enabled the existing
+`LLM_MOCK_ENABLED` boundary and exercised `/api/v1/retrieval/query` with
+`use_agentic: true` after advancing one document from an older to a newer
+result. Both old and new queries returned HTTP 200 through
+`workflow_single_step` with `result_count: 1`; the old marker was absent from
+the result/evidence/reference payload while the new marker was present.
+
+This is bounded stale-content exclusion evidence for the exercised mocked
+agentic route. It does not prove external LLM/VLM behavior, production
+agentic planning, hard deletion, canonical manifest consumption, source
+sufficiency, native or human semantic gold, RA acceptance, or qualification.
+The temporary probe file was removed; cp950 emoji logging warnings remain an
+environment output boundary. No implementation or edge status changed.
