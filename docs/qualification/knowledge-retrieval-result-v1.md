@@ -258,3 +258,22 @@ active route, ranking/top-N question set, or serializer projection was used;
 the packet remains `pending_human_adjudication`, and the top-N status remains
 `not_run_active_route_disabled`. No native verification or source-sufficiency
 decision was inferred; retrieval qualification remains `deferred`.
+
+## Required fixture-family handoff boundary
+
+On 2026-07-19, a temporary local synthetic/public fixture batch supplied 10
+completed MinerU manifests for the remaining input families: Traditional
+Chinese plus English DOCX, multi-column/header-footer PDF, footnote PDF,
+cross-page table PDF, rotated-page PDF, a 12-page long PDF, two same-basename
+files with different SHA-256 values, and superseded v1/v2 files. Every valid
+manifest had zero errors and no fallback. The corrupt and encrypted inputs
+both failed closed with exit code 2 and no canonical manifest.
+
+Knowhere did not load these results into a database or active memory snapshot,
+did not invoke an active retrieval route, and did not create top-N result
+objects. The cross-page-table producer output had no table record, and the
+producer manifest did not by itself prove footnote, multi-column, or rotated
+meaning preservation. Duplicate and superseded SHA evidence is an inventory
+boundary only; no replacement, stale, deletion, or retrieval-lifecycle
+behavior was tested. Native verification, gold retrieval results, semantic
+meaning preservation, and qualification remain deferred.
