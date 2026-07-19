@@ -936,3 +936,22 @@ current-route visibility behavior for controlled rows. They do not establish
 hard deletion, object-storage deletion, vector or memory-snapshot deletion,
 canonical result lifecycle, or source-version completeness; WP-04 deletion
 qualification remains deferred.
+
+## Current-head contract regression recheck
+
+On 2026-07-19, the existing worker-side qualification and lifecycle contract
+group was rerun from the current Knowhere head with the project-local Python
+3.11 worker environment and the portable PostgreSQL runtime. The selected
+MinerU provider/runtime/artifact, canonical retrieval-result serializer,
+page-memory retrieval and node-assembly, parse-task, and stale-job suites
+completed with `82 passed, 1 skipped` in 30.62 seconds. The selected API
+retrieval and document/archive contract group completed with `32 passed` and
+12 existing deprecation warnings in 184.13 seconds.
+
+This is current-head regression evidence only. It confirms that the existing
+mechanical contract baseline remains reproducible after the environment
+qualification work; it does not add a canonical manifest consumer, source
+version or extraction-run lineage, vector publication, native/human semantic
+gold, source-sufficiency decision, hard deletion proof, or RA acceptance
+authorization. WP-03/WP-04/WP-05/WP-06 qualification and runtime edge
+promotion remain deferred, and no implementation change was made.
