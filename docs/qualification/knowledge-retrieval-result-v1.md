@@ -925,3 +925,14 @@ meaning preservation, source sufficiency, or RA acceptance. The probe also
 reproduced two Windows cp950 console encoding warnings for emoji log markers;
 the route/test completed successfully and no data-state failure was observed.
 WP-04 qualification and WP-06 acceptance remain deferred.
+
+## Archive and current-revision negative contract recheck
+
+The current-head API document contracts passed 4/4 for the selected archive
+and negative-path cases: authenticated namespace document listing, archived
+page-citation-source rejection, canonical archive route persistence, and
+legacy archive route persistence. These checks confirm archive-state and
+current-route visibility behavior for controlled rows. They do not establish
+hard deletion, object-storage deletion, vector or memory-snapshot deletion,
+canonical result lifecycle, or source-version completeness; WP-04 deletion
+qualification remains deferred.
