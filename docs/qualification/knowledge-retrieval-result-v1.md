@@ -1818,3 +1818,17 @@ and fail-closed offline-verifier behavior with bounded environment/attestation
 output. This is synthetic offline contract evidence only; no host firewall
 rule, external telemetry destination, provider, private data, active edge,
 native/gold decision, or runtime promotion was used.
+
+## Current-source canonical retrieval-result serializer recheck
+
+On 2026-07-19, the current qualification branch head `0e841e38` was checked
+against runtime/source head `67d7fc0a`; the intervening changes remain
+qualification documentation only. The existing shared serializer and worker
+`knowledge-retrieval-result-v1` contract selections passed `7/7` tests in
+`0.10` seconds.
+
+The selection reconfirms explicit source/version, producer-block, page, native
+reference, table/image linkage, score, and fail-closed field-boundary rules.
+This is opt-in serializer evidence only: the normal retrieval route still does
+not invoke it, no canonical result was accepted by RA, and no provider,
+private data, active edge, or runtime promotion was used.
