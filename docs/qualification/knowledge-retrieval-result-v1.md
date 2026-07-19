@@ -439,3 +439,23 @@ not establish task execution, MinerU parsing, producer-artifact ingestion,
 active result publication, source-owner gold, native or human semantic
 adjudication, source sufficiency, deletion, egress, telemetry exhaustiveness,
 or qualification; the disposition remains `deferred`.
+
+## Active localhost local MinerU artifact seam observation
+
+On 2026-07-19, the existing public/synthetic fixture
+`apps/worker/tests/fixtures/sample_3pages.pdf` (736 bytes; SHA-256
+`B1DD4D86D2B7C6505E35D972D0074EC08A7431013DD95E926BA92C7FBF165B1D`) was
+passed through the current local MinerU provider path with the project-local
+Python 3.11 worker runtime, `uv 0.11.29`, MinerU checkout revision
+`cebf5078a3ed2990260caa03110b0bab82a16b64`, and offline flags. No cloud
+provider key was supplied. The direct `parse_pdf` seam returned exit code
+0 and produced `full.md`, an images directory, and a sanitized
+`logs/mineru.log` file of 7,031 bytes; `full.md` was 0 bytes.
+
+The observation proves only that the local process/output seam can return
+success and create the expected output locations. Because the extracted
+Markdown was empty, it provides no content, native concordance, or semantic
+meaning evidence. No worker task, producer-artifact ingestion, Knowhere
+publication, retrieval top-N result, source-owner gold, source sufficiency,
+or qualification gate was exercised. The temporary output and process were
+cleaned up; the disposition remains `deferred`.
