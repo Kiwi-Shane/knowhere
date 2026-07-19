@@ -1582,3 +1582,20 @@ graph correctness, native-source or human gold, source sufficiency, active
 canonical-manifest consumption, RA acceptance, or runtime-edge qualification.
 No database, active edge, private data, provider, or implementation status was
 changed.
+
+## Cross-document graph coverage boundary audit
+
+On 2026-07-19, a read-only current-tree search of `apps/worker/app` and
+`apps/worker/tests` found no current cross-document graph implementation,
+graph-state consumer, related-document link path, or focused graph contract
+selection. The only graph-named application match was a comment referring to a
+historical `GraphNode` property; the runnable current tests cover document
+tree/section hierarchy and retrieval/package boundaries, not cross-document
+graph semantics.
+
+The WP-04 cross-document graph acceptance target is therefore recorded as
+`not_assessed`, not inferred from hierarchy or retrieval tests. An authorized
+future implementation and characterization slice would be required before
+graph correctness, graph isolation, or graph deletion could be qualified. No
+implementation, database, active edge, private data, provider, or runtime
+status was changed.
