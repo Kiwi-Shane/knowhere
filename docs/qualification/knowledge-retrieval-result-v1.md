@@ -1328,3 +1328,22 @@ egress, external telemetry suppression, production configuration precedence,
 or runtime qualification. D2 and the qualification disposition remain
 `blocked`/`deferred` at their existing boundaries; no implementation or edge
 status changed.
+
+## Current-revision multi-router runtime probe
+
+On 2026-07-19, a temporary synthetic API probe seeded older and newer results
+for one document in isolated contract databases and exercised the active
+`/api/v1/retrieval/query` route through both router selections. The
+`small_corpus_all` old/new queries each returned HTTP 200 with
+`result_count: 1`; the old marker was absent from the result/evidence/
+reference payload while the new marker was present. The `classic_topk`
+old/new queries showed the same boundary: HTTP 200, `result_count: 1`, old
+marker absent, and new marker present.
+
+This strengthens observed current-result/stale-content exclusion across two
+active router paths only. It does not prove agentic-path behavior across all
+variants, hard deletion from object storage/vector/memory artifacts, canonical
+manifest consumption, source sufficiency, native or human semantic gold, RA
+acceptance, or qualification. The temporary probe file was removed; the
+existing Windows cp950 emoji logging warnings remain an environment output
+boundary. No implementation or edge status changed.
