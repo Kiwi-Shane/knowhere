@@ -375,3 +375,17 @@ the current-head mechanical API/archive/retrieval contract boundary only. It
 does not prove hard deletion, object-storage/vector/memory deletion, native
 or human semantic gold, source sufficiency, or qualification; the
 disposition remains `deferred`.
+
+## Active localhost API startup observation
+
+On 2026-07-19, the current Knowhere revision was started through the existing
+`uvicorn main:app` entry point on `127.0.0.1:5505` using the worktree `.venv`,
+a newly created synthetic PostgreSQL database, filesystem object storage, no
+provider keys, and `TELEMETRY_ENABLED=false`. Database migrations completed;
+`GET /health` returned HTTP 200 with the expected healthy service payload; and
+`GET /openapi.json` returned HTTP 200 with 42 routes. The API process was
+stopped after the probe and the dedicated synthetic database was dropped.
+This is active API startup/health/OpenAPI evidence only. It does not establish
+worker startup, ingestion, active retrieval against producer artifacts,
+host-level egress denial, telemetry exhaustiveness, deletion behavior, source
+sufficiency, or qualification; the disposition remains `deferred`.
