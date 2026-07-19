@@ -111,3 +111,22 @@ serializer therefore rejects these unsafe inputs without database access,
 route activation, or an RA disposition. This is mechanical boundary evidence
 only; source-owner qualification, gold retrieval results, and runtime
 activation remain outstanding.
+
+## Bounded public-manifest cross-edge observation
+
+On 2026-07-19, one newly generated public MinerU canonical manifest for
+`demo/pdfs/demo2.pdf` was loaded in memory by the opt-in serializer. The
+producer was MinerU `3.4.4` at revision
+`6450b02c2d1c2fb0ef2c9369037bbe3c6663d052`; the Knowhere serializer was
+observed at revision `a25a9729da84c213dd45ebcea3ddeb37532b49a1`. Three
+explicit projections were produced from producer-owned page-block locators,
+including the available table/image links.
+
+All three projections had 21 root fields and passed the
+`knowledge-retrieval-result-v1` schema with zero errors. No RA authority field
+was emitted; `native_source_verification_status` remained `unverified` and
+`not_source_sufficiency_decision` remained true. The observation used no
+database, memory snapshot service, active retrieval route, or runtime
+activation. It is a mechanical cross-edge check only, and the qualification
+status remains `deferred` pending source-owner gold retrieval results, native
+adjudication, stale/deletion evidence, and the other acceptance targets above.
