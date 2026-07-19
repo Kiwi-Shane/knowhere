@@ -457,6 +457,47 @@ producer-artifact ingestion, native or human semantic gold, retrieval
 top-N/source sufficiency, deletion, or qualification; the disposition
 remains `deferred`.
 
+## Active localhost worker daemon non-PDF publication observation
+
+On 2026-07-19, the existing `worker.py` daemon was started with
+`CELERY_TASK_ALWAYS_EAGER=false`, the project-local Python 3.11 worker
+runtime, a dedicated synthetic PostgreSQL database, Redis database 14,
+filesystem object storage, `MINERU_PROVIDER=cloud` with no provider keys,
+and `TELEMETRY_ENABLED=false`. The existing synthetic XLSX fixture was
+uploaded with source key
+`uploads/job_worker_daemon_01_a1496a857807.xlsx` (6,438 bytes; SHA-256
+`791055b0b09b95f8ca52e60940abb13d75f27fd90a99d2e327d79bef10d7cd0d`). The
+task was enqueued on `document_ingestion_low` with Celery task ID
+`6beec9fb-fdd6-4041-9bb6-4369ea181d07`; the live daemon, rather than eager
+dispatch, consumed it. The worker heartbeat identified PID `24852`, and
+the worker log recorded successful `parse_task` completion.
+
+The isolated job finished with status `done`, no error code or message,
+`page_count=2`, and `credits_charged=0`. The result row recorded document
+ID `doc_2b9136bbc5dd`, job-result ID `679ff223-89b6-47e5-9f5e-0a5bc96f2c3b`,
+result key `results/job_worker_daemon_01_a1496a857807.zip`, result size
+1,901 bytes, and checksum
+`5bbc2ee42a530c27368a87827dc3b6cfa410322f69598587eb98e559e8928eab`.
+The filesystem result object had the same size and SHA-256; one document
+section and one published table chunk were present. Redis recorded task
+status `done` with progress `100`, `storage_completed=True`,
+`delivery_mode=url`, and `stored_count=0`.
+
+The daemon emitted Windows `cp950` `UnicodeEncodeError` warnings while
+writing emoji-bearing log messages to its console sink, but the task
+completed and its result/publication records were committed. This is an
+observed logging-environment warning, not a task-success or result-integrity
+failure. The exact worker/beat process tree was stopped after capture; the
+heartbeat and temporary root were removed, Redis DB14 returned to zero keys,
+and the dedicated database was dropped.
+
+This closes only live daemon queue consumption and non-PDF result
+publication for the existing synthetic XLSX contract path. It does not
+establish local MinerU PDF execution through the worker task, producer-owned
+artifact ingestion, retrieval top-N/source sufficiency, native or human
+semantic gold, vector publication, telemetry exhaustiveness, deletion,
+egress, or qualification; the disposition remains `deferred`.
+
 ## Active localhost local MinerU artifact seam observation
 
 On 2026-07-19, the existing public/synthetic fixture
