@@ -200,3 +200,25 @@ This is Chinese-only mechanical cross-edge coverage. The fixture is not a
 Traditional-Chinese-plus-English bilingual gold set, and the projection does
 not establish retrieval meaning preservation, native adjudication, source
 sufficiency, or qualification; the disposition remains `deferred`.
+
+## Synthetic PDF page-structure projection observation
+
+On 2026-07-19, the completed MinerU manifest for the existing
+`apps/worker/tests/fixtures/sample_3pages.pdf` corpus fixture was loaded in
+memory by the opt-in serializer. MinerU was observed at image-contained
+revision `6450b02c2d1c2fb0ef2c9369037bbe3c6663d052`; the Knowhere checkout was
+observed at `07f5afad068deee8df7c258e4240f3f185447098`. Three explicit
+producer-owned page-block projections were produced.
+
+All three projections had 21 root fields and passed the
+`knowledge-retrieval-result-v1` schema. No RA authority field was emitted;
+`native_source_verification_status` remained `unverified` and
+`not_source_sufficiency_decision` remained true. No database, memory snapshot
+service, active retrieval route, top-N question set, or runtime activation was
+used. The producer manifest contained no table or image record for this run,
+so no such links were asserted.
+
+This is page-structure mechanical cross-edge coverage only. It does not
+establish table/image fidelity, retrieval meaning preservation, native
+adjudication, source sufficiency, or qualification; the disposition remains
+`deferred`.
