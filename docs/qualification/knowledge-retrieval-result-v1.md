@@ -343,3 +343,22 @@ table result. This is an AI-assisted visual/mechanical observation only; it is
 not native-source adjudication, retrieval gold, meaning-preservation proof,
 source sufficiency, stale/deletion evidence, or qualification. The
 qualification disposition remains `deferred`.
+
+## DB-backed revision and archive negative-path observation
+
+On 2026-07-19, a one-off contract probe used the existing local PostgreSQL
+17.10 test runtime and the existing API routes to retain two job-result
+revisions under one document ID, switch `documents.current_job_result_id` to
+the newer revision, and query the active retrieval route. The old revision's
+chunk remained physically retained for inspection, but it did not appear in
+the current retrieval scope; returned rows were from the current revision
+only. The probe also exercised the canonical archive route and observed zero
+results for the current marker after the document became archived.
+
+The route's small-corpus optimization returns the current in-scope row even
+when an unmatched marker is queried, so the probe intentionally asserted
+absence of the old revision rather than treating an unmatched-query empty
+result as proven. This is DB-backed current-revision/archive route evidence
+only. It does not prove hard deletion, vector/memory-snapshot deletion,
+canonical result lifecycle semantics, source-version identity completeness,
+cross-case isolation, or qualification; the disposition remains `deferred`.
