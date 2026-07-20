@@ -102,7 +102,7 @@ def test_d2_application_images_bind_to_the_current_source_revision() -> None:
         service = services[service_name]
         assert service["build"]["context"] == "../..", service_name
         assert service["build"]["dockerfile"] == dockerfile, service_name
-        assert service["build"]["args"]["GIT_COMMIT"] == "f79b3f1e", service_name
+        assert service["build"]["args"]["GIT_COMMIT"] == "c564a363", service_name
 
 
 def test_d2_application_services_are_internal_telemetry_off_and_secret_file_backed() -> None:

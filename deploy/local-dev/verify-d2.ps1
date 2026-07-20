@@ -99,7 +99,7 @@ try {
             "$containerName does not use the file-backed database password"
         Assert-D2 ($environment -contains $expectedDatabaseUrl) `
             "$containerName exposes a database URL with an embedded password or unexpected host"
-        Assert-D2 ($environment -contains "GIT_COMMIT=f79b3f1e") `
+        Assert-D2 ($environment -contains "GIT_COMMIT=c564a363") `
             "$containerName is not bound to the characterized source revision"
         if ($serviceName -eq "worker") {
             Assert-D2 ($environment -contains "WORKER_HEARTBEAT_FILE=/tmp/knowhere-worker-heartbeat.json") `

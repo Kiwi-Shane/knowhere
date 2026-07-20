@@ -128,7 +128,7 @@ services:
       args:
         ENVIRONMENT: development
         APP_VERSION: d2-synthetic
-        GIT_COMMIT: f79b3f1e
+        GIT_COMMIT: c564a363
     image: knowhere-api:d2-synthetic
     container_name: knowhere_d2_api
     ports: !reset []
@@ -167,7 +167,7 @@ services:
       args:
         ENVIRONMENT: development
         APP_VERSION: d2-synthetic
-        GIT_COMMIT: f79b3f1e
+        GIT_COMMIT: c564a363
     image: knowhere-worker:d2-synthetic
     container_name: knowhere_d2_worker
     ports: !reset []
