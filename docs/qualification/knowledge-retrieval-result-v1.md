@@ -2392,3 +2392,30 @@ deletion, cross-case isolation, rollback, source-owner or semantic-gold
 evidence, reviewer qualification, provider approval, private-data execution,
 active-edge promotion, or RA acceptance. No private data, provider, or
 upstream synchronization was used; D2 remains `blocked`.
+
+## D2 synthetic application fault and lifecycle recheck (2026-07-20)
+
+After the application-runtime characterization, the deployed D2 worker and
+API containers were each restarted in place without changing the Compose
+project or its named volumes. The worker returned healthy with a fresh
+heartbeat and Redis connection; the API reran database migration and
+connection-pool prewarming, returned healthy from `/health`, recreated its
+Redis pool, and again logged self-hosted telemetry disabled. The full D2
+verifier passed after both restarts.
+
+A one-run deployed synthetic lifecycle probe used only generated IDs and
+cleaned them in a `finally` path. It invoked the deployed `DocumentService`
+archive operation against two same-user/same-namespace synthetic documents,
+then confirmed that the archived document was excluded from the visible
+namespace list, the peer document remained visible, and the archived
+document's graph node and edge were removed while the peer graph node remained.
+The general verifier passed again after cleanup.
+
+This provides bounded fault-restart, archive-exclusion, peer-isolation, and
+graph-cleanup evidence for the deployed synthetic runtime. It does not prove
+hard deletion of every artifact, all-route isolation, rollback, full fault
+injection, source-owner or semantic-gold sufficiency, host-level firewall
+enforcement, external telemetry-sink absence, D2 qualification, provider or
+private-data authorization, active-edge promotion, or RA acceptance. No
+private data, provider, or upstream synchronization was used; D2 remains
+`blocked`.
