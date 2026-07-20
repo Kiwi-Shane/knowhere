@@ -53,6 +53,19 @@ def pptx_to_pdf_libreoffice(pptx_path, outdir="."):
 
 # ==================== iLoveAPI conversion ====================
 
+_ILOVEAPI_SERVER_HOST_PATTERN = re.compile(
+    r"(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+ilovepdf\.com"
+)
+
+
+def _build_iloveapi_server_url(server: str) -> str:
+    normalized_server = server.strip().rstrip(".").lower()
+    if not _ILOVEAPI_SERVER_HOST_PATTERN.fullmatch(normalized_server):
+        raise ValueError(
+            f"iLoveAPI server is outside the approved iLoveAPI host family: {server!r}"
+        )
+    return f"https://{normalized_server}/v1"
+
 
 def _get_iloveapi_token_lease():
     """acquire iLoveAPI token lease from the quotas pool and generate a JWT token"""
@@ -173,7 +186,7 @@ def _pptx_bytes_to_pdf_bytes(pptx_bytes: bytes, filename: str) -> bytes:
             start_data = res.json()
             upstream_server = start_data["server"]
             upstream_task_id = start_data["task"]
-            server_url = f"https://{upstream_server}/v1"
+            server_url = _build_iloveapi_server_url(upstream_server)
 
             # Step 2: Upload from memory (BytesIO, no disk write)
             current_step = "upload"

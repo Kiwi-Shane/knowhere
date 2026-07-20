@@ -57,6 +57,18 @@ def test_iloveapi_requests_have_explicit_timeout_and_no_redirects() -> None:
     )
 
 
+def test_iloveapi_server_url_is_limited_to_approved_host_family() -> None:
+    assert pptx_parser._build_iloveapi_server_url("api.ilovepdf.com") == (
+        "https://api.ilovepdf.com/v1"
+    )
+
+    with pytest.raises(ValueError, match="approved iLoveAPI host"):
+        pptx_parser._build_iloveapi_server_url("attacker.example")
+
+    with pytest.raises(ValueError, match="approved iLoveAPI host"):
+        pptx_parser._build_iloveapi_server_url("api.ilovepdf.com.evil.example")
+
+
 @pytest.mark.parametrize("status", [301, 302, 307, 308])
 def test_redirect_statuses_are_not_treated_as_success(status: int) -> None:
     assert status not in range(200, 300)
