@@ -2148,3 +2148,23 @@ recreate, or volume operation was issued.
 This confirms the distinction between tracked deployment configuration and
 runtime state. D2 host/runtime hardening remains unqualified; no data,
 provider, active edge, source-sufficiency, or RA status changed.
+
+## Current local Compose host-access correction (2026-07-19)
+
+The `internal: true` default-dev experiment was reproduced and then corrected
+forward at Knowhere revision `ae7645a9a909c40e2b7a5f01e4420fa6c99b7a6e`.
+Docker Desktop kept the containers healthy and retained the resource limits,
+but refused host connections to all three published ports while the network
+was internal; container-local PostgreSQL and Redis probes still passed. The
+default local-dev network therefore no longer declares `internal: true`, and
+the contract now protects host accessibility for the host-run API/worker.
+
+The same `ra-d2-knowhere-20260718` project was reconciled with the corrected
+configuration without removing its named volumes. Fresh runtime checks showed
+all three services healthy, loopback connectivity on ports `5432`, `6379`, and
+`4566`, LocalStack HTTP `200`, PostgreSQL/Redis service probes passing,
+`network_internal=false`, and the declared memory/CPU/PID limits active. This
+does not establish host-level egress denial; an internal network remains an
+isolated D2-harness control rather than a default host-integrated dev setting.
+D2 remains `blocked`, with no provider, private-data, active-edge,
+source-sufficiency, or RA status change.
