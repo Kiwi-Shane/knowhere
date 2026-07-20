@@ -2168,3 +2168,24 @@ does not establish host-level egress denial; an internal network remains an
 isolated D2-harness control rather than a default host-integrated dev setting.
 D2 remains `blocked`, with no provider, private-data, active-edge,
 source-sufficiency, or RA status change.
+
+## Bounded canonical-manifest consumer seam (2026-07-19)
+
+Knowhere revision `8364d7a7` adds an opt-in consumer seam for the existing
+MinerU source-owned `document-extraction-manifest-v1` output. The local
+review-package runner now passes explicit source, source-version, and
+extraction-run identifiers to the paired MinerU CLI, fails closed when the
+canonical output is absent or mismatched, verifies the input SHA-256 and every
+declared output artifact hash, and preserves the canonical manifest plus its
+lineage identifiers in the review package.
+
+The bounded contract tests passed `32` tests with `1` expected skip; the
+relevant Ruff check passed; and a real public synthetic manifest from the
+MinerU `.qa` smoke output was consumed read-only with the legacy artifact
+contract, `7` canonical outputs, matching source SHA-256, and both producer
+boundary flags set to `true`. This is mechanical cross-edge evidence only. It
+does not add canonical consumption to the standard `parse_task` path, and it
+does not establish source-owner review, native or semantic gold, source
+sufficiency, retrieval quality, host egress denial, runtime-edge qualification,
+provider approval, or RA acceptance. D5/source-owner qualification remains
+deferred; the default exporter path remains unchanged.

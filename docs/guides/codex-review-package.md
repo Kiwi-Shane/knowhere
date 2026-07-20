@@ -188,6 +188,39 @@ the content-free preflight, repeat-three acceptance gates, 24-hour observation,
 and explicit rollback procedure. External firewall isolation remains the
 operator-run BL-001 backlog item and is not implied by application offline mode.
 
+## Opt in to source-owned canonical lineage
+
+The local review-package exporter can optionally request and consume the
+source-owned `document-extraction-manifest-v1` emitted by the paired MinerU
+checkout. The caller must provide explicit `source_id`, `source_version_id`, and
+`extraction_run_id`; Knowhere passes those values to the existing MinerU CLI,
+fails closed if the returned manifest is absent or mismatched, and verifies the
+input SHA-256 plus every declared output artifact hash before package creation.
+
+```powershell
+python apps/worker/scripts/export_codex_review_package.py `
+  --input C:\path\to\source.pdf `
+  --output C:\path\to\package `
+  --mineru-project C:\path\to\MinerU `
+  --lang en --offline --canonical-manifest `
+  --source-id SRC-EXAMPLE-001 `
+  --source-version-id SRC-EXAMPLE-001-V001 `
+  --extraction-run-id EXT-EXAMPLE-001
+```
+
+When enabled, the canonical manifest is preserved at
+`raw/mineru/document-extraction-manifest-v1.json` and its lineage identifiers
+are recorded in `metadata/manifest.json`. The producer-owned schema remains the
+contract authority; this consumer performs only the cross-edge identity,
+boundary, path, and hash checks needed to avoid silently binding the wrong
+source run. The default exporter path and the standard `parse_task` ingestion
+path remain unchanged.
+
+This option establishes a bounded mechanical consumer seam only. It does not
+establish source-owner review, native or semantic gold, source sufficiency,
+retrieval quality, offline host denial, runtime-edge qualification, provider
+approval, or RA acceptance.
+
 ## Security and licensing notes
 
 The adapter validates relative artifact paths, resolves symlinks, verifies
