@@ -7,7 +7,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Sequence, cast
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.models.database.document import Document, DocumentChunk, DocumentSection
@@ -67,6 +67,29 @@ class DocumentRepository:
             .where(Document.user_id == user_id)
         )
         return result.scalar_one_or_none()
+
+    async def list_document_jobs_for_deletion(
+        self,
+        db: AsyncSession,
+        *,
+        user_id: str,
+        document_id: str,
+    ) -> Sequence[Job]:
+        """Return every owned job that can retain document data or artifacts."""
+
+        result = await db.execute(
+            select(Job)
+            .outerjoin(JobResult, JobResult.job_id == Job.job_id)
+            .where(Job.user_id == user_id)
+            .where(
+                or_(
+                    JobResult.document_id == document_id,
+                    Job.job_metadata["document_id"].as_string() == document_id,
+                )
+            )
+            .order_by(Job.created_at.asc(), Job.job_id.asc())
+        )
+        return result.scalars().unique().all()
 
     async def get_current_document_job_revision(
         self,
