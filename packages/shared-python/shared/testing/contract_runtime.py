@@ -347,6 +347,7 @@ def configure_contract_environment(
         "STRIPE_WEBHOOK_SECRET": "whsec_contract_test_secret",
         "DS_KEY": "test-deepseek-key",
         "DS_URL": "https://example.com/v1",
+        "ILOVEAPI_EXTERNAL_CALLS_ENABLED": "true",
         "MINERU_EXTERNAL_CALLS_ENABLED": "true",
         "QSTASH_WEBHOOK_ENABLED": "true",
         "QSTASH_CURRENT_SIGNING_KEY": "qstash-current-test-key",

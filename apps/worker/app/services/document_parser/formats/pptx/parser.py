@@ -124,6 +124,7 @@ def _pptx_bytes_to_pdf_bytes(pptx_bytes: bytes, filename: str) -> bytes:
     Acquires an in-flight slot before starting. Slots are released only if
     the Redis-backed reservation actually succeeded.
     """
+    settings.require_iloveapi_external_calls_enabled()
     from shared.services.ai.iloveapi_quota_manager import get_iloveapi_quota_manager
 
     quota_manager = get_iloveapi_quota_manager()

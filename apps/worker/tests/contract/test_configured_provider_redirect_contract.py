@@ -17,6 +17,7 @@ from app.services.document_parser.formats.pptx import parser as pptx_parser
 from app.services.document_parser.providers.mineru import pdf_service
 from app.services.document_parser.providers.mineru import client as mineru_client
 from app.services.document_parser.providers.mineru import task_polling
+from shared.core.config.ai import AIConfig
 from shared.core.config.mineru import MineruConfig
 from shared.core.exceptions.domain_exceptions import SystemSettingMissingException
 
@@ -124,6 +125,60 @@ def test_parse_via_full_rejects_disabled_provider_before_storage_preparation(
             "output",
             s3_key="uploads/job-1.pdf",
         )
+
+
+def test_iloveapi_external_calls_require_explicit_opt_in() -> None:
+    config = AIConfig()
+
+    assert config.ILOVEAPI_EXTERNAL_CALLS_ENABLED is False
+    with pytest.raises(
+        SystemSettingMissingException,
+        match="ILOVEAPI_EXTERNAL_CALLS_ENABLED=true",
+    ):
+        config.require_iloveapi_external_calls_enabled()
+
+
+def test_iloveapi_request_path_requires_explicit_opt_in_before_quota_setup(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        pptx_parser.settings,
+        "ILOVEAPI_EXTERNAL_CALLS_ENABLED",
+        False,
+        raising=False,
+    )
+
+    class UnexpectedQuotaManager:
+        def acquire_inflight(self) -> bool:
+            raise AssertionError("disabled iLoveAPI must not acquire quota")
+
+    monkeypatch.setattr(
+        "shared.services.ai.iloveapi_quota_manager.get_iloveapi_quota_manager",
+        lambda: UnexpectedQuotaManager(),
+    )
+
+    with pytest.raises(
+        SystemSettingMissingException,
+        match="ILOVEAPI_EXTERNAL_CALLS_ENABLED=true",
+    ):
+        pptx_parser._pptx_bytes_to_pdf_bytes(b"pptx", "document.pptx")
+
+
+def test_iloveapi_request_function_keeps_the_opt_in_guard_visible() -> None:
+    tree = ast.parse(Path(pptx_parser.__file__).read_text(encoding="utf-8"))
+    function_node = next(
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name == "_pptx_bytes_to_pdf_bytes"
+    )
+
+    assert any(
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "require_iloveapi_external_calls_enabled"
+        for node in ast.walk(function_node)
+    )
 
 
 def test_iloveapi_requests_have_explicit_timeout_and_no_redirects() -> None:

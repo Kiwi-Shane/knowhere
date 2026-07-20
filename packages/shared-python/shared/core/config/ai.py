@@ -2,6 +2,8 @@
 
 from pydantic import BaseModel, Field
 
+from shared.core.exceptions.domain_exceptions import SystemSettingMissingException
+
 
 class AIConfig(BaseModel):
     """AI model configuration."""
@@ -174,6 +176,12 @@ class AIConfig(BaseModel):
     ILOVEAPI_BASE_URL: str = Field(
         default="https://api.ilovepdf.com/v1", description="iLoveAPI base URL"
     )
+    ILOVEAPI_EXTERNAL_CALLS_ENABLED: bool = Field(
+        default=False,
+        description=(
+            "Explicit operator opt-in for outbound iLoveAPI conversion requests"
+        ),
+    )
     ILOVEAPI_TIMEOUT: int = Field(
         default=120, description="iLoveAPI request timeout in seconds"
     )
@@ -193,6 +201,19 @@ class AIConfig(BaseModel):
         default=5,
         description="Max concurrent in-flight iLoveAPI conversions across all workers. Fail-open to LibreOffice when exceeded.",
     )
+
+    def require_iloveapi_external_calls_enabled(self) -> None:
+        """Fail closed until outbound iLoveAPI conversion calls are explicitly enabled."""
+        if self.ILOVEAPI_EXTERNAL_CALLS_ENABLED:
+            return
+
+        raise SystemSettingMissingException(
+            internal_message=(
+                "iLoveAPI conversion calls are not explicitly enabled; set "
+                "ILOVEAPI_EXTERNAL_CALLS_ENABLED=true to authorize outbound "
+                "provider operations"
+            )
+        )
     SPLIT_CHAR: str = Field(default="/", description="Path separator")
     ALL_DF_COLS: str = Field(
         default="content,path,type,length,keywords,summary,know_id,tokens,connectto,addtime,page_nums,entities,asset_title",
