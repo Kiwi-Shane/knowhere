@@ -2133,3 +2133,18 @@ development credential, LocalStack Docker-socket, current runtime network,
 firewall, and production deployment controls remain open; D2 stays `blocked`
 and no runtime edge, provider, private-data, source-sufficiency, or RA status
 changed.
+
+## Current Docker deployment-application boundary (2026-07-19)
+
+A read-only Docker inspect found the running `knowhere_postgres`,
+`knowhere_redis`, and `knowhere_localstack` containers owned by the separate
+`ra-d2-knowhere-20260718` Compose project. Their named data volumes were
+present, but the running containers still exposed `5432`, `6379`, and `4566`
+on `0.0.0.0`/IPv6, and reported zero memory, CPU, and PID limits. The
+configuration hardening above was not applied to them because their Compose
+project identity does not match the current local-dev file; no stop, remove,
+recreate, or volume operation was issued.
+
+This confirms the distinction between tracked deployment configuration and
+runtime state. D2 host/runtime hardening remains unqualified; no data,
+provider, active edge, source-sufficiency, or RA status changed.
