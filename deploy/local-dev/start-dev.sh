@@ -99,12 +99,12 @@ print_summary() {
 Local development services are ready.
 
 Service endpoints:
-  - LocalStack: http://localhost:4566
-  - PostgreSQL: localhost:5432 (root/root123)
-  - Redis: localhost:6379
+  - LocalStack: http://127.0.0.1:4566
+  - PostgreSQL: 127.0.0.1:5432
+  - Redis: 127.0.0.1:6379
 
 Next steps:
-  1. Start the API: cd apps/api && uv run uvicorn main:app --host 0.0.0.0 --port 5005 --reload
+  1. Start the API: cd apps/api && uv run uvicorn main:app --host 127.0.0.1 --port 5005 --reload
   2. Start the worker: cd apps/worker && uv run python worker.py
 
 Stop services:

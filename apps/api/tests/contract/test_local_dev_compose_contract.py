@@ -13,6 +13,7 @@ COMPOSE_PATH = (
     / "local-dev"
     / "docker-compose.dev.yml"
 )
+START_SCRIPT_PATH = COMPOSE_PATH.parent / "start-dev.sh"
 
 
 def _compose_config() -> dict[str, object]:
@@ -49,3 +50,11 @@ def test_local_dev_network_is_internal() -> None:
     for network_name, network in networks.items():
         assert isinstance(network, dict), network_name
         assert network.get("internal") is True, network_name
+
+
+def test_local_dev_launcher_summary_stays_loopback_and_secret_free() -> None:
+    script = START_SCRIPT_PATH.read_text(encoding="utf-8")
+
+    assert "--host 127.0.0.1" in script
+    assert "--host 0.0.0.0" not in script
+    assert "root/root123" not in script
