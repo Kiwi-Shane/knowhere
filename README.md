@@ -255,10 +255,12 @@ client/document mix). Events never include filenames, prompts, emails, IPs, or
 geo. Schema and allowlists are locked in
 [ADR-0004](docs/adr/0004-anonymous-self-hosted-telemetry.md).
 
-Telemetry is **default-on**. To opt out, set:
+Telemetry is **default-off**. To opt in, set `TELEMETRY_ENABLED=true` and
+provide an explicit PostHog project token:
 
 ```bash
-TELEMETRY_ENABLED=false
+TELEMETRY_ENABLED=true
+TELEMETRY_POSTHOG_PROJECT_KEY=<PostHog project token>
 ```
 
 Related settings live in `apps/api/.env.example` under `TELEMETRY_*`.

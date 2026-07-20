@@ -12,10 +12,7 @@ from typing import Any, cast
 import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.core.config.base import (
-    DEFAULT_TELEMETRY_POSTHOG_PROJECT_KEY,
-    BaseConfig,
-)
+from shared.core.config.base import BaseConfig
 from shared.services.telemetry.client import TelemetryClient
 from shared.services.telemetry.config import SCHEMA_VERSION, TelemetryRuntimeConfig
 from shared.services.telemetry.api_metrics import ApiRequestTelemetryMetrics
@@ -278,7 +275,7 @@ def test_usage_aggregate_allowlist_includes_v2_keys() -> None:
     }
 
 
-def test_self_hosted_telemetry_defaults_to_enabled(
+def test_self_hosted_telemetry_defaults_to_disabled(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.delenv("TELEMETRY_ENABLED", raising=False)
@@ -288,9 +285,9 @@ def test_self_hosted_telemetry_defaults_to_enabled(
 
     config = BaseConfig(_env_file=None, TMP_PATH="/tmp/knowhere")
 
-    assert config.TELEMETRY_ENABLED is True
+    assert config.TELEMETRY_ENABLED is False
     assert config.TELEMETRY_POSTHOG_HOST == "https://us.i.posthog.com"
-    assert config.TELEMETRY_POSTHOG_PROJECT_KEY == DEFAULT_TELEMETRY_POSTHOG_PROJECT_KEY
+    assert config.TELEMETRY_POSTHOG_PROJECT_KEY == ""
 
 
 def test_self_hosted_telemetry_env_can_disable_and_override_key(
