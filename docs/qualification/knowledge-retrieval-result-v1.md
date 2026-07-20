@@ -2050,3 +2050,24 @@ The locally available upstream comparison object and fork baseline remain
 unchanged; no fetch, sync, merge, rebase, cherry-pick, provider operation, or
 private-data processing was performed. The source-owner, native/semantic gold,
 runtime-edge, RA acceptance, and release-provenance gates remain deferred.
+
+## Current post-change package portability recheck (2026-07-19)
+
+After the package exporter portability fix at Knowhere revision
+`99d8ca4b53666674776917782d9d9a3d0fdf7ed5`, the original synthetic handoff
+packet was left untouched and a new local/private verification output was
+generated from the same native source. The new packet contains `2` rendered
+pages and `18` structured blocks. Its single image asset now uses the
+package-root locator
+`assets/c0fe4015d52e08dcc84cb5e0bad1feb22564800020e0e5fdd53e489644d04888.jpg`
+while preserving the producer path under `source_relative_path` as
+`images/c0fe4015d52e08dcc84cb5e0bad1feb22564800020e0e5fdd53e489644d04888.jpg`.
+
+All `26/26` manifest-declared artifacts were present with matching size and
+SHA-256. This confirms the exporter now produces a portable package-root image
+locator for the tested synthetic packet; it does not establish parser meaning,
+native/semantic gold, source sufficiency, owner adjudication, retrieval
+quality, host egress control, or RA acceptance. Offline verification remains
+`false`, normalized-PDF mapping remains `unmapped`, and the qualification
+disposition remains `deferred`; no active edge, provider, private-data,
+database, or release-promotion status changed.
