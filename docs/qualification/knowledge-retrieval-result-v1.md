@@ -2024,3 +2024,14 @@ native render directory contains `2` pages. `offline_verified` remains
 adjudicated. The packet remains `pending_human_adjudication` /
 `unverified` with qualification `deferred`; no locator, artifact, database,
 provider, private-data, implementation, or runtime-edge state changed.
+
+## Current canonical schema SHA recheck
+
+The current `schemas/knowledge-retrieval-result-v1.schema.json` is
+byte-identical to the RA compatibility profile's frozen SHA-256
+`54307e0c42ebf737af897b691badda18fd6c673f64aef3cf7eb961dab0123c4a` at
+`71ff7fc1128743a9135f65b110d49504768c08b3`, and that commit is an ancestor of
+the current qualification head. This confirms contract-byte continuity only;
+the source-owner qualification, runtime/edge promotion, native/semantic gold,
+RA acceptance, and release provenance gates remain open. No schema, source,
+runtime, provider, private-data, or qualification status changed.
