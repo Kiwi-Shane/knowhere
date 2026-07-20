@@ -1,5 +1,6 @@
 import os
 from typing import Optional
+from urllib.parse import urlparse
 
 import requests
 from app.services.document_parser.providers.mineru.client import (
@@ -22,6 +23,7 @@ from shared.core.exceptions.domain_exceptions import (
     StorageServiceException,
     UnavailableException,
 )
+from shared.services.http.url_security import validate_http_url_and_resolve_ip
 from shared.services.storage.job_file_storage import JobFileStorage
 from app.services.common.file_loading import is_remote
 
@@ -222,10 +224,51 @@ def _request_upload_target(pdf_url: str, filename: str) -> tuple[str, str, str]:
     return batch_id, upload_url, lease.token_id
 
 
+def _validate_mineru_upload_url(upload_url: str) -> str:
+    """Validate a provider-returned upload URL before sending file bytes."""
+    value = upload_url.strip()
+    try:
+        parsed = urlparse(value)
+        hostname = parsed.hostname
+        _ = parsed.port
+    except ValueError as exc:
+        raise MinerUServiceException(
+            internal_message=f"Invalid MinerU returned upload URL: {exc}"
+        ) from exc
+
+    if parsed.scheme != "https":
+        raise MinerUServiceException(
+            internal_message="MinerU returned upload URL must use https"
+        )
+    if not hostname:
+        raise MinerUServiceException(
+            internal_message="MinerU returned upload URL must include a hostname"
+        )
+    if parsed.username or parsed.password:
+        raise MinerUServiceException(
+            internal_message="MinerU returned upload URL must not contain credentials"
+        )
+    if parsed.fragment:
+        raise MinerUServiceException(
+            internal_message="MinerU returned upload URL must not contain a fragment"
+        )
+
+    validation = validate_http_url_and_resolve_ip(value)
+    if not validation.is_valid or not validation.validated_ip:
+        raise MinerUServiceException(
+            internal_message=(
+                "MinerU returned upload URL failed public URL preflight: "
+                f"{validation.error_message or 'no public address was validated'}"
+            )
+        )
+    return value
+
+
 def _upload_file_to_mineru(
     pdf_url: str, filename: str, upload_url: str, token_id: str
 ) -> None:
     settings.require_mineru_external_calls_enabled()
+    validated_upload_url = _validate_mineru_upload_url(upload_url)
     upload_logger = mineru_logger(
         "file_upload",
         operation="file_upload",
@@ -258,9 +301,10 @@ def _upload_file_to_mineru(
             )
             with open(temp_path, "rb") as file_obj:
                 upload_response = get_mineru_session().put(
-                    upload_url,
+                    validated_upload_url,
                     data=file_obj,
                     timeout=MINERU_UPLOAD_TIMEOUT,
+                    allow_redirects=False,
                 )
 
             os.unlink(temp_path)
@@ -277,9 +321,10 @@ def _upload_file_to_mineru(
             with open(pdf_url, "rb") as file_obj:
                 try:
                     upload_response = get_mineru_session().put(
-                        upload_url,
+                        validated_upload_url,
                         data=file_obj,
                         timeout=MINERU_UPLOAD_TIMEOUT,
+                        allow_redirects=False,
                     )
                 except requests.RequestException as exc:
                     upload_logger.bind(error_message=str(exc)).error(
