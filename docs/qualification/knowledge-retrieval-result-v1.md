@@ -1271,6 +1271,20 @@ or qualification. The qualification disposition remains `deferred`; the
 temporary probe file was removed and no implementation or edge status
 changed.
 
+## Current local launcher boundary recheck (2026-07-19)
+
+Knowhere revision `1763610b73a6f1ae92d5eaef2d5bcaf14f1a9b0a` updates the
+existing `deploy/local-dev/start-dev.sh` summary so its documented API start
+command uses `127.0.0.1` rather than `0.0.0.0`, and it no longer prints the
+development PostgreSQL credential. The launcher contract now passes alongside
+the Compose boundary checks. The script was not executed against the running
+local stack, and no container was restarted or stopped.
+
+This is guidance/configuration hardening only; it does not establish runtime
+network state, host firewall policy, secret rotation, or production
+qualification. D2 remains `blocked`, with no provider, private-data,
+active-edge, source-sufficiency, or RA status change.
+
 ## Worker process, artifact, and webhook safety contract recheck
 
 On 2026-07-19, the existing worker contract selection
