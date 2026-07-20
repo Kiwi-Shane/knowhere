@@ -15,13 +15,22 @@ os.environ.setdefault("S3_SECRET_ACCESS_KEY", "test")
 os.environ.setdefault("S3_TEMP_PATH", "/tmp")
 
 from app.services.document_parser.providers.mineru import pdf_service
-from shared.core.exceptions.domain_exceptions import MinerUServiceException
+from shared.core.exceptions.domain_exceptions import (
+    MinerUServiceException,
+    SystemSettingMissingException,
+)
 
 
 def test_returned_mineru_upload_url_requires_https_and_public_preflight(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     calls: list[str] = []
+    monkeypatch.setattr(
+        pdf_service.settings,
+        "MINERU_RETURNED_UPLOAD_ALLOWED_HOSTS",
+        "objects.example",
+        raising=False,
+    )
 
     def valid_public_url(url: str) -> SimpleNamespace:
         calls.append(url)
@@ -55,6 +64,12 @@ def test_returned_mineru_upload_url_fails_closed_on_private_or_unresolved_result
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
+        pdf_service.settings,
+        "MINERU_RETURNED_UPLOAD_ALLOWED_HOSTS",
+        "objects.example",
+        raising=False,
+    )
+    monkeypatch.setattr(
         pdf_service,
         "validate_http_url_and_resolve_ip",
         lambda _url: SimpleNamespace(
@@ -69,6 +84,57 @@ def test_returned_mineru_upload_url_fails_closed_on_private_or_unresolved_result
         pdf_service._validate_mineru_upload_url(
             "https://objects.example/upload?signature=abc"
         )
+
+
+def test_returned_mineru_upload_url_requires_destination_approval_before_dns(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[str] = []
+    monkeypatch.setattr(
+        pdf_service.settings,
+        "MINERU_RETURNED_UPLOAD_ALLOWED_HOSTS",
+        "",
+        raising=False,
+    )
+    monkeypatch.setattr(
+        pdf_service,
+        "validate_http_url_and_resolve_ip",
+        lambda url: calls.append(url),
+        raising=False,
+    )
+
+    with pytest.raises(
+        SystemSettingMissingException,
+        match="MINERU_RETURNED_UPLOAD_ALLOWED_HOSTS",
+    ):
+        pdf_service._validate_mineru_upload_url(
+            "https://objects.example/upload?signature=abc"
+        )
+    assert calls == []
+
+
+def test_returned_mineru_upload_url_rejects_unapproved_destination_before_dns(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[str] = []
+    monkeypatch.setattr(
+        pdf_service.settings,
+        "MINERU_RETURNED_UPLOAD_ALLOWED_HOSTS",
+        "approved.example",
+        raising=False,
+    )
+    monkeypatch.setattr(
+        pdf_service,
+        "validate_http_url_and_resolve_ip",
+        lambda url: calls.append(url),
+        raising=False,
+    )
+
+    with pytest.raises(MinerUServiceException, match="approved destination"):
+        pdf_service._validate_mineru_upload_url(
+            "https://objects.example/upload?signature=abc"
+        )
+    assert calls == []
 
 
 def test_mineru_upload_call_keeps_returned_url_validation_and_redirect_block_visible() -> None:

@@ -211,6 +211,32 @@ def test_mineru_endpoint_identity_requires_https_and_an_allowed_host() -> None:
     )
 
 
+def test_mineru_returned_upload_destination_requires_explicit_exact_host_allowlist() -> None:
+    default_config = MineruConfig()
+
+    with pytest.raises(
+        SystemSettingMissingException,
+        match="MINERU_RETURNED_UPLOAD_ALLOWED_HOSTS",
+    ):
+        default_config.validate_mineru_returned_upload_host("objects.example")
+
+    configured = MineruConfig(
+        MINERU_RETURNED_UPLOAD_ALLOWED_HOSTS="objects.example, uploads.example"
+    )
+    assert configured.validate_mineru_returned_upload_host("objects.example") == (
+        "objects.example"
+    )
+    assert configured.validate_mineru_returned_upload_host("UPLOADS.EXAMPLE.") == (
+        "uploads.example"
+    )
+
+    with pytest.raises(
+        SystemSettingInvalidException,
+        match="MINERU_RETURNED_UPLOAD_ALLOWED_HOSTS",
+    ):
+        configured.validate_mineru_returned_upload_host("attacker.example")
+
+
 def test_iloveapi_endpoint_identity_requires_https_and_an_allowed_host() -> None:
     default_config = AIConfig()
     assert default_config.validate_iloveapi_base_url() == (

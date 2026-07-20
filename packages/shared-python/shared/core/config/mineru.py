@@ -33,6 +33,13 @@ class MineruConfig(BaseModel):
             "MinerU endpoint"
         ),
     )
+    MINERU_RETURNED_UPLOAD_ALLOWED_HOSTS: str = Field(
+        default="",
+        description=(
+            "Comma-separated exact HTTPS hostnames explicitly approved for "
+            "provider-returned upload destinations; empty means deny"
+        ),
+    )
     MINERU_API_KEYS: str = Field(
         default="",
         description="MinerU API key pool. Supports JSON array or comma/newline-separated values; entries may use token_id=api_key format.",
@@ -181,3 +188,30 @@ class MineruConfig(BaseModel):
                 internal_message="MINERU_URL must not contain embedded credentials"
             )
         return value
+
+    def validate_mineru_returned_upload_host(self, hostname: str) -> str:
+        """Require an exact operator-approved host for provider upload URLs."""
+        allowed_hosts = {
+            item.strip().lower().rstrip(".")
+            for item in self.MINERU_RETURNED_UPLOAD_ALLOWED_HOSTS.split(",")
+            if item.strip()
+        }
+        if not allowed_hosts:
+            raise SystemSettingMissingException(
+                internal_message=(
+                    "MinerU returned upload destinations are not authorized; set "
+                    "MINERU_RETURNED_UPLOAD_ALLOWED_HOSTS to one or more exact "
+                    "approved hostnames"
+                )
+            )
+
+        normalized_hostname = hostname.strip().lower().rstrip(".")
+        if not normalized_hostname or normalized_hostname not in allowed_hosts:
+            raise SystemSettingInvalidException(
+                internal_message=(
+                    "MinerU returned upload host "
+                    f"{normalized_hostname or '<missing>'!r} is not in "
+                    "MINERU_RETURNED_UPLOAD_ALLOWED_HOSTS"
+                )
+            )
+        return normalized_hostname

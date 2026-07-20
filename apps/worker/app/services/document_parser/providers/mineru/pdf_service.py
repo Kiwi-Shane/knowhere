@@ -20,6 +20,8 @@ from shared.core.constants import APIConstants
 from shared.core.exceptions.domain_exceptions import (
     MinerUServiceException,
     StorageServiceException,
+    SystemSettingInvalidException,
+    SystemSettingMissingException,
     UnavailableException,
 )
 from shared.services.http import upload_pinned_outbound_file
@@ -247,6 +249,19 @@ def _validate_mineru_upload_url(upload_url: str) -> tuple[str, str]:
         raise MinerUServiceException(
             internal_message="MinerU returned upload URL must not contain a fragment"
         )
+
+    try:
+        settings.validate_mineru_returned_upload_host(hostname)
+    except SystemSettingMissingException:
+        raise
+    except SystemSettingInvalidException as exc:
+        raise MinerUServiceException(
+            internal_message=(
+                "MinerU returned upload URL has an unapproved destination: "
+                f"{exc}"
+            ),
+            original_exception=exc,
+        ) from exc
 
     validation = validate_http_url_and_resolve_ip(value)
     if not validation.is_valid or not validation.validated_ip:
