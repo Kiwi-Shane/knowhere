@@ -15,6 +15,7 @@ from cryptography.hazmat.primitives.asymmetric.rsa import (
     generate_private_key,
 )
 from httpx import AsyncClient
+from jwt.algorithms import RSAAlgorithm
 from pytest import MonkeyPatch
 
 DashboardPermission = Literal["read_only", "full_access"]
@@ -70,7 +71,7 @@ def create_dashboard_rsa_jwk(
 ) -> dict[str, object]:
     jwk = cast(
         dict[str, object],
-        jwt.algorithms.RSAAlgorithm.to_jwk(private_key.public_key(), as_dict=True),
+        RSAAlgorithm.to_jwk(private_key.public_key(), as_dict=True),
     )
     return {
         **jwk,
@@ -130,7 +131,7 @@ def serve_dashboard_jwks() -> Iterator[LocalJWKSServer]:
     server = ThreadingHTTPServer(("127.0.0.1", 0), _create_jwks_handler(state))
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
-    host, port = server.server_address
+    host, port = cast(tuple[str, int], server.server_address)
 
     try:
         yield LocalJWKSServer(endpoint=f"http://{host}:{port}", state=state)
