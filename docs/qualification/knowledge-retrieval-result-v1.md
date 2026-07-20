@@ -1990,3 +1990,19 @@ critical-cell gold, retrieval top-N meaning, source sufficiency, host egress,
 deletion, or RA acceptance. The qualification disposition remains `deferred`;
 no implementation, database, active edge, provider, or private-data status
 changed.
+
+## Fixture-batch reproducibility boundary
+
+On 2026-07-19, a read-only search of the tracked Knowhere/worker test and
+fixture tree found the recorded `EXT-WP03` batch identifiers only in
+qualification prose. No checked-in complete batch command manifest, runner, or
+fixture/hash bundle was found for independently reproducing the 12-input
+fixture-family handoff; temporary generated outputs from that run had already
+been removed. Existing individual synthetic fixture generators remain useful
+inputs, but they do not prove exact-batch reproducibility.
+
+This is a traceability/reproducibility gap, not permission to add new shared
+machinery during the implementation pause. The prior batch remains bounded
+historical mechanical evidence; native/semantic gold, active retrieval,
+source sufficiency, and qualification remain deferred. No implementation,
+database, provider, private-data, active-edge, or runtime status changed.
