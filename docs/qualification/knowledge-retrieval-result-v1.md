@@ -1977,3 +1977,16 @@ firewall, Docker, source, provider, telemetry, private-data, or database state
 was changed. D2 remains `blocked`, and the qualification disposition remains
 `deferred`; no runtime promotion, active edge, provider execution, or RA
 acceptance is inferred.
+
+## Current-head parser-adjacent contract recheck
+
+On 2026-07-19, the existing offline Knowhere contract selections for
+cross-page table merging, table caption/footnote export, block normalization,
+and DOCX duplicate-image summary handling passed `45` tests in `3.93` seconds.
+These tests provide mechanical coverage for preserving explicit caption,
+footnote, table-continuation, and duplicate-asset metadata at the application
+boundary. They do not prove MinerU parser meaning, native-source fidelity,
+critical-cell gold, retrieval top-N meaning, source sufficiency, host egress,
+deletion, or RA acceptance. The qualification disposition remains `deferred`;
+no implementation, database, active edge, provider, or private-data status
+changed.
