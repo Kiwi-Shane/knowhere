@@ -2071,3 +2071,20 @@ quality, host egress control, or RA acceptance. Offline verification remains
 `false`, normalized-PDF mapping remains `unmapped`, and the qualification
 disposition remains `deferred`; no active edge, provider, private-data,
 database, or release-promotion status changed.
+
+## Current local-private telemetry configuration hardening (2026-07-19)
+
+Knowhere revision `4feb9c61b2e6b8f7163f23b69f9b82c7f1a3fd31` changes the existing
+`apps/api/.env.example` local-copy sample to declare
+`TELEMETRY_ENABLED=false` explicitly. A new contract assertion fixes that
+sample boundary, and the existing self-hosted telemetry contract suite passed
+`24` tests. The application `BaseConfig` fallback and ADR-0004 telemetry
+schema/default-on policy were not changed; this is a local configuration
+hardening measure, not proof that every deployment loads the sample file.
+
+The change reduces accidental outbound telemetry when a private/local operator
+starts from the repository's API example, but it does not prove host-level
+egress denial, firewall policy, external sink retention, or full D2 runtime
+qualification. The D2 evidence disposition remains
+`blocked`/`partial_mechanical_only`, and no provider, private-data, active-edge,
+source-sufficiency, or RA status changed.
