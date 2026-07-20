@@ -2189,3 +2189,27 @@ does not establish source-owner review, native or semantic gold, source
 sufficiency, retrieval quality, host egress denial, runtime-edge qualification,
 provider approval, or RA acceptance. D5/source-owner qualification remains
 deferred; the default exporter path remains unchanged.
+
+## Current paired local MinerU seam recheck (2026-07-19)
+
+At Knowhere revision `73acff28893ca9135a5cf1d7045ca037156b4d94`, the bounded
+local MinerU runtime, capacity, provider, artifact, process, and integration
+selection passed `54` tests with `2` expected skips. The skips were the Windows
+symlink-creation privilege check and the opt-in real seam when it was excluded
+from the contract selection. The paired MinerU producer revision was
+`de329b20325a801c7771f9a142748502402312e6`; its manifest and Knowhere adapter
+contract selection passed `18` tests.
+
+The explicit public-fixture local seam then passed `1` test in `37.41` seconds.
+It exercised the standard PDF provider boundary, produced `full.md` and the
+sanitized log, made zero cloud-sentinel calls, and left no local temporary-run
+directory. The run used the existing local/offline configuration and did not
+transmit private data or start an external provider.
+
+This expands current paired mechanical/runtime-seam evidence only. It does not
+qualify the MinerU parser profiles, establish native or semantic gold, prove
+host-level egress denial, promote the runtime edge, authorize provider or
+private-data execution, establish source sufficiency, or change RA disposition.
+D5/source-owner qualification and D2 runtime-edge qualification remain
+deferred/blocked as previously recorded; the default ingestion path remains
+unchanged.
