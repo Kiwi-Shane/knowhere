@@ -45,7 +45,9 @@ def test_returned_mineru_upload_url_requires_https_and_public_preflight(
     assert calls == []
 
     upload_url = "https://objects.example/upload?signature=abc"
-    assert pdf_service._validate_mineru_upload_url(upload_url) == upload_url
+    validated_url, validated_ip = pdf_service._validate_mineru_upload_url(upload_url)
+    assert validated_url == upload_url
+    assert validated_ip == "203.0.113.10"
     assert calls == [upload_url]
 
 
@@ -86,20 +88,53 @@ def test_mineru_upload_call_keeps_returned_url_validation_and_redirect_block_vis
         for node in ast.walk(function_node)
     )
 
-    put_calls = [
+    pinned_calls = [
         node
         for node in ast.walk(function_node)
         if isinstance(node, ast.Call)
-        and isinstance(node.func, ast.Attribute)
-        and node.func.attr == "put"
+        and isinstance(node.func, ast.Name)
+        and node.func.id == "upload_pinned_outbound_file"
     ]
-    assert put_calls
+    assert pinned_calls
     assert all(
-        any(
-            keyword.arg == "allow_redirects"
-            and isinstance(keyword.value, ast.Constant)
-            and keyword.value.value is False
-            for keyword in call.keywords
-        )
-        for call in put_calls
+        {keyword.arg for keyword in call.keywords}
+        >= {
+            "url",
+            "pinned_ip",
+            "file_path",
+            "connect_timeout_seconds",
+            "read_timeout_seconds",
+        }
+        for call in pinned_calls
+    )
+
+
+def test_mineru_upload_call_uses_validated_ip_pinned_transfer() -> None:
+    source_path = Path(pdf_service.__file__)
+    tree = ast.parse(source_path.read_text(encoding="utf-8"))
+    function_node = next(
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name == "_upload_file_to_mineru"
+    )
+
+    pinned_calls = [
+        node
+        for node in ast.walk(function_node)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id == "upload_pinned_outbound_file"
+    ]
+    assert pinned_calls
+    assert all(
+        {keyword.arg for keyword in call.keywords}
+        >= {
+            "url",
+            "pinned_ip",
+            "file_path",
+            "connect_timeout_seconds",
+            "read_timeout_seconds",
+        }
+        for call in pinned_calls
     )

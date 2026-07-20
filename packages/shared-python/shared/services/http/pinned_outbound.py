@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ipaddress
 import os
 import socket
 import tempfile
@@ -177,6 +178,87 @@ async def send_pinned_outbound_request(
             allow_redirects=False,
         ) as response:
             return PinnedOutboundResponse(status=response.status)
+
+
+def upload_pinned_outbound_file(
+    *,
+    url: str,
+    pinned_ip: str,
+    file_path: str,
+    connect_timeout_seconds: float,
+    read_timeout_seconds: float,
+    headers: Mapping[str, str] | None = None,
+    field: str = "upload_url",
+) -> PinnedOutboundResponse:
+    """PUT a file while pinning the destination hostname to a validated IP."""
+    validated_url = _validate_download_url(url, field)
+    parsed_url = urlsplit(validated_url)
+    try:
+        ipaddress.ip_address(pinned_ip)
+    except ValueError as exc:
+        raise ValidationException(
+            user_message="Invalid upload destination",
+            violations=[
+                {"field": field, "description": "Pinned destination must be an IP address"}
+            ],
+        ) from exc
+    if parsed_url.port is None:
+        port = 443 if parsed_url.scheme == "https" else 80
+    else:
+        port = parsed_url.port
+
+    try:
+        file_size = os.path.getsize(file_path)
+    except OSError as exc:
+        raise ValidationException(
+            user_message="Invalid upload file",
+            violations=[
+                {"field": field, "description": f"Unable to read upload file: {exc}"}
+            ],
+        ) from exc
+
+    request_path = parsed_url.path or "/"
+    if parsed_url.query:
+        request_path = f"{request_path}?{parsed_url.query}"
+
+    connection_pool: HTTPConnectionPool
+    if parsed_url.scheme == "https":
+        connection_pool = PinnedHTTPSConnectionPool(
+            parsed_url.hostname,
+            port,
+            pinned_ip=pinned_ip,
+            retries=Retry(total=0, redirect=False),
+        )
+    else:
+        connection_pool = PinnedHTTPConnectionPool(
+            parsed_url.hostname,
+            port,
+            pinned_ip=pinned_ip,
+            retries=Retry(total=0, redirect=False),
+        )
+
+    request_headers = dict(headers or {})
+    request_headers.setdefault("Content-Length", str(file_size))
+    request_headers["Host"] = _build_host_header(parsed_url)
+
+    with open(file_path, "rb") as file_obj:
+        response = connection_pool.urlopen(
+            "PUT",
+            request_path,
+            body=file_obj,
+            timeout=Timeout(
+                connect=connect_timeout_seconds,
+                read=read_timeout_seconds,
+            ),
+            preload_content=False,
+            redirect=False,
+            headers=request_headers,
+        )
+    try:
+        return PinnedOutboundResponse(status=response.status)
+    finally:
+        response.release_conn()
+        response.close()
 
 
 async def download_pinned_outbound_file_async(

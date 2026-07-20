@@ -2,7 +2,6 @@ import os
 from typing import Optional
 from urllib.parse import urlparse
 
-import requests
 from app.services.document_parser.providers.mineru.client import (
     get_mineru_headers,
     get_mineru_session,
@@ -23,14 +22,10 @@ from shared.core.exceptions.domain_exceptions import (
     StorageServiceException,
     UnavailableException,
 )
+from shared.services.http import upload_pinned_outbound_file
 from shared.services.http.url_security import validate_http_url_and_resolve_ip
 from shared.services.storage.job_file_storage import JobFileStorage
 from app.services.common.file_loading import is_remote
-
-MINERU_UPLOAD_TIMEOUT = (
-    settings.MINERU_UPLOAD_CONNECT_TIMEOUT,
-    settings.MINERU_UPLOAD_READ_TIMEOUT,
-)
 
 
 def _should_use_mineru_s3_url_mode(s3_key: Optional[str]) -> bool:
@@ -224,7 +219,7 @@ def _request_upload_target(pdf_url: str, filename: str) -> tuple[str, str, str]:
     return batch_id, upload_url, lease.token_id
 
 
-def _validate_mineru_upload_url(upload_url: str) -> str:
+def _validate_mineru_upload_url(upload_url: str) -> tuple[str, str]:
     """Validate a provider-returned upload URL before sending file bytes."""
     value = upload_url.strip()
     try:
@@ -261,14 +256,14 @@ def _validate_mineru_upload_url(upload_url: str) -> str:
                 f"{validation.error_message or 'no public address was validated'}"
             )
         )
-    return value
+    return value, validation.validated_ip
 
 
 def _upload_file_to_mineru(
     pdf_url: str, filename: str, upload_url: str, token_id: str
 ) -> None:
     settings.require_mineru_external_calls_enabled()
-    validated_upload_url = _validate_mineru_upload_url(upload_url)
+    validated_upload_url, validated_upload_ip = _validate_mineru_upload_url(upload_url)
     upload_logger = mineru_logger(
         "file_upload",
         operation="file_upload",
@@ -280,6 +275,7 @@ def _upload_file_to_mineru(
     if is_remote(pdf_url):
         import tempfile
 
+        temp_path: str | None = None
         upload_logger.info("Downloading remote source file before MinerU upload")
         try:
             download_response = get_mineru_session().get(
@@ -299,41 +295,34 @@ def _upload_file_to_mineru(
             upload_logger.bind(temp_file_path=temp_path).info(
                 "Uploading staged file to MinerU"
             )
-            with open(temp_path, "rb") as file_obj:
-                upload_response = get_mineru_session().put(
-                    validated_upload_url,
-                    data=file_obj,
-                    timeout=MINERU_UPLOAD_TIMEOUT,
-                    allow_redirects=False,
-                )
-
-            os.unlink(temp_path)
-        except requests.RequestException as exc:
+            upload_response = upload_pinned_outbound_file(
+                url=validated_upload_url,
+                pinned_ip=validated_upload_ip,
+                file_path=temp_path,
+                connect_timeout_seconds=settings.MINERU_UPLOAD_CONNECT_TIMEOUT,
+                read_timeout_seconds=settings.MINERU_UPLOAD_READ_TIMEOUT,
+            )
+        except Exception as exc:
             upload_logger.bind(error_message=str(exc)).error(
                 "Failed to stage remote source file for MinerU"
             )
             raise StorageServiceException(
-                internal_message=f"Failed to download remote file: {exc}"
-            )
+                internal_message=f"Failed to stage remote file: {exc}",
+                original_exception=exc,
+            ) from exc
+        finally:
+            if temp_path and os.path.exists(temp_path):
+                os.unlink(temp_path)
     else:
         upload_logger.bind(local_path=pdf_url).info("Uploading local file to MinerU")
         try:
-            with open(pdf_url, "rb") as file_obj:
-                try:
-                    upload_response = get_mineru_session().put(
-                        validated_upload_url,
-                        data=file_obj,
-                        timeout=MINERU_UPLOAD_TIMEOUT,
-                        allow_redirects=False,
-                    )
-                except requests.RequestException as exc:
-                    upload_logger.bind(error_message=str(exc)).error(
-                        "Failed to upload local file to MinerU"
-                    )
-                    raise MinerUServiceException(
-                        internal_message=f"Failed to upload file to MinerU: {exc}",
-                        original_exception=exc,
-                    ) from exc
+            upload_response = upload_pinned_outbound_file(
+                url=validated_upload_url,
+                pinned_ip=validated_upload_ip,
+                file_path=pdf_url,
+                connect_timeout_seconds=settings.MINERU_UPLOAD_CONNECT_TIMEOUT,
+                read_timeout_seconds=settings.MINERU_UPLOAD_READ_TIMEOUT,
+            )
         except OSError as exc:
             upload_logger.bind(error_message=str(exc)).error(
                 "Failed to read local file for MinerU upload"
@@ -342,14 +331,25 @@ def _upload_file_to_mineru(
                 internal_message=f"Failed to read local file: {exc}",
                 original_exception=exc,
             ) from exc
+        except Exception as exc:
+            upload_logger.bind(error_message=str(exc)).error(
+                "Failed to upload local file to MinerU"
+            )
+            raise MinerUServiceException(
+                internal_message=f"Failed to upload file to MinerU: {exc}",
+                original_exception=exc,
+            ) from exc
 
-    if upload_response.status_code != 200:
-        upload_logger.bind(status_code=upload_response.status_code).error(
+    if upload_response.status != 200:
+        upload_logger.bind(status_code=upload_response.status).error(
             "MinerU file upload failed"
         )
         raise MinerUServiceException(
-            internal_message=f"Failed to upload file to MinerU: {upload_response.text}",
-            status_code=upload_response.status_code,
+            internal_message=(
+                "Failed to upload file to MinerU: "
+                f"HTTP status {upload_response.status}"
+            ),
+            status_code=upload_response.status,
         )
 
     upload_logger.info("MinerU file upload completed, switching to polling")

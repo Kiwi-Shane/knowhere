@@ -23,6 +23,7 @@ if TYPE_CHECKING:
         download_pinned_outbound_file,
         download_pinned_outbound_file_async,
         send_pinned_outbound_request,
+        upload_pinned_outbound_file,
     )
     from shared.services.http.url_file_type import (
         CONTENT_TYPE_TO_EXTENSION,
@@ -70,6 +71,7 @@ __all__ = [
     "resolve_file_extension_async",
     "resolve_file_extension_sync",
     "send_pinned_outbound_request",
+    "upload_pinned_outbound_file",
     "validate_http_url_and_resolve_ip",
     "validate_http_url_and_resolve_ip_async",
 ]
@@ -101,6 +103,7 @@ _EXPORT_MODULES: dict[str, str] = {
     "resolve_file_extension_async": "shared.services.http.url_file_type",
     "resolve_file_extension_sync": "shared.services.http.url_file_type",
     "send_pinned_outbound_request": "shared.services.http.pinned_outbound",
+    "upload_pinned_outbound_file": "shared.services.http.pinned_outbound",
     "validate_http_url_and_resolve_ip": "shared.services.http.url_security",
     "validate_http_url_and_resolve_ip_async": "shared.services.http.url_security",
 }
