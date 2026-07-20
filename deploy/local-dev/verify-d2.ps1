@@ -116,6 +116,12 @@ try {
                 "$containerName does not expose the expected heartbeat path"
         }
         $null = Invoke-D2DockerText @("exec", $containerName, "sh", "-c", "test -s /run/secrets/postgres_password")
+        if ($serviceName -eq "api") {
+            $null = Invoke-D2DockerText @(
+                "exec", $containerName, "sh", "-c",
+                "test ! -e /data/secrets/telemetry-installation-id"
+            )
+        }
     }
     Write-Output "D2 stage: application runtime environment checks completed."
 

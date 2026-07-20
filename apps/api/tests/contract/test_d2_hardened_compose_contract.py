@@ -205,3 +205,10 @@ def test_d2_verifier_checks_telemetry_destination_configuration() -> None:
     assert "TELEMETRY_POSTHOG_PROJECT_KEY" in script
     assert "LOGFIRE_TOKEN" in script
     assert "http://127.0.0.1:9" in script
+
+
+def test_d2_verifier_checks_disabled_telemetry_does_not_create_identity_file() -> None:
+    script = D2_VERIFIER_PATH.read_text(encoding="utf-8")
+
+    assert "telemetry-installation-id" in script
+    assert "test ! -e /data/secrets/telemetry-installation-id" in script
