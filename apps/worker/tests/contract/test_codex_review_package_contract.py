@@ -260,6 +260,52 @@ def test_successful_pdf_package_contains_portable_review_inventory(
     assert result.page_count == 2
 
 
+def test_image_asset_references_resolve_from_package_root(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = _source(tmp_path, ".pdf")
+    bundle = _bundle(tmp_path, source)
+    image_name = "figure-1.png"
+    (bundle.images_dir / image_name).write_bytes(b"synthetic-figure")
+    pages = json.loads(bundle.content_list_v2_path.read_text(encoding="utf-8"))
+    pages[1].append(
+        {
+            "type": "image",
+            "content": {
+                "image_source": {"path": f"images/{image_name}"},
+                "image_caption": [{"type": "text", "content": "Figure 1"}],
+                "content": "Machine description for navigation",
+            },
+        }
+    )
+    bundle.content_list_v2_path.write_text(
+        json.dumps(pages, ensure_ascii=False), encoding="utf-8"
+    )
+    _install_fake_runner(monkeypatch, bundle)
+    _install_fake_page_renderer(monkeypatch)
+
+    result = build_codex_review_package(
+        _request(tmp_path, source, requested_pages=(1,))
+    )
+
+    blocks = [
+        json.loads(line)
+        for line in (result.package_root / "structured" / "blocks.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    ]
+    image_asset = next(
+        asset
+        for block in blocks
+        for asset in block["assets"]
+        if asset.get("asset_type") == "image"
+    )
+    assert image_asset["source_relative_path"] == f"images/{image_name}"
+    assert image_asset["relative_path"] == f"assets/{image_name}"
+    assert (result.package_root / image_asset["relative_path"]).is_file()
+
+
 def test_docx_without_libreoffice_completes_structured_package_when_no_pages_requested(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

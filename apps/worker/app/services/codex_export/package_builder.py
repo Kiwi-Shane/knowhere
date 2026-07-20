@@ -11,7 +11,7 @@ import tempfile
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
 import pymupdf
@@ -159,6 +159,45 @@ def _copy_mineru_artifacts(
     if bundle.images_dir.is_dir():
         shutil.copytree(bundle.images_dir, raw_images, dirs_exist_ok=True)
         shutil.copytree(bundle.images_dir, assets, dirs_exist_ok=True)
+
+
+def _bind_package_asset_paths(
+    blocks: list[Any],
+    package_root: Path,
+) -> None:
+    """Bind parser image references to the package's portable asset root."""
+    raw_images = (package_root / "raw" / "mineru" / "images").resolve()
+    asset_root = (package_root / "assets").resolve()
+    package_root = package_root.resolve()
+    for block in blocks:
+        for asset in block.assets:
+            if asset.get("asset_type") not in {"image", "chart"}:
+                continue
+            source_value = asset.get("source_relative_path")
+            if not isinstance(source_value, str) or not source_value:
+                continue
+            portable = PurePosixPath(source_value.replace("\\", "/"))
+            if (
+                portable.is_absolute()
+                or PureWindowsPath(source_value).is_absolute()
+                or ".." in portable.parts
+            ):
+                continue
+            parts = tuple(portable.parts)
+            if parts and parts[0].lower() == "images":
+                parts = parts[1:]
+            if not parts:
+                continue
+            source_path = (raw_images.joinpath(*parts)).resolve()
+            package_path = (asset_root.joinpath(*parts)).resolve()
+            try:
+                source_path.relative_to(raw_images)
+                package_path.relative_to(asset_root)
+                relative_path = package_path.relative_to(package_root)
+            except ValueError:
+                continue
+            if source_path.is_file() and package_path.is_file():
+                asset["relative_path"] = relative_path.as_posix()
 
 
 def _copy_mineru_log(work_root: Path, package_root: Path) -> None:
@@ -329,6 +368,7 @@ def build_codex_review_package(
             artifact_bundle=bundle,
             document_id=document_id,
         )
+        _bind_package_asset_paths(blocks, temporary_package)
         tree = build_document_tree(blocks)
         table_results = export_tables(
             blocks=blocks,

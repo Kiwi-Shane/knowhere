@@ -76,8 +76,16 @@ LibreOffice version, operating system, and printer settings.
 - `raw/mineru/`: validated MinerU artifacts and original manifest.
 - `tables/`: preserved HTML, metadata, source image when available, and
   best-effort CSV derivatives.
+- `assets/`: package-root copies of image and chart assets referenced by
+  `structured/blocks.jsonl`; these portable references use `assets/...`, while
+  `source_relative_path` preserves the producer's original `images/...` path.
 - `pages/`: selected lossless PNG page renders.
 - `CODEX_REVIEW_INSTRUCTIONS.md`: evidence boundaries for the reviewer.
+
+Image and chart references are rebound to `assets/...` only when the copied
+source and package asset both resolve safely inside the package. Absolute,
+traversal, or missing asset paths remain unbound and must be treated as an
+export warning rather than silently rewritten.
 
 Table HTML is the preserved structural derivative. CSV is explicitly
 best-effort: merged cells, row/column spans, nesting, multiple tables, or parser
