@@ -2214,6 +2214,23 @@ D5/source-owner qualification and D2 runtime-edge qualification remain
 deferred/blocked as previously recorded; the default ingestion path remains
 unchanged.
 
+## Current-head retrieval/document contract recheck (2026-07-20)
+
+At the current qualification checkout revision
+`02f8a0cc85a0fba0d893f2958cff9fe03520dc08`, the offline contract selection
+`apps/api/tests/contract/test_retrieval_contract.py` and
+`apps/api/tests/contract/test_documents_contract.py` passed `32` tests
+(`15` retrieval and `17` document tests) in `152.96` seconds. The run
+used the local locked environment and `TELEMETRY_ENABLED=false`; the only
+reported findings were `12` existing deprecation warnings in the retrieval
+route.
+
+This is current-head synthetic contract evidence for API/storage/retrieval
+mechanics only. It does not establish native or semantic gold, top-N
+qualification, hard deletion, host-level egress denial, source sufficiency,
+runtime-edge promotion, provider approval, private-data processing, or RA
+acceptance. The retrieval qualification disposition remains `deferred`.
+
 ## Current public synthetic local MinerU E2E recheck (2026-07-20)
 
 At Knowhere revision `087154660d37f83ac33399306d1a60fc4c7c8e13`, paired with
