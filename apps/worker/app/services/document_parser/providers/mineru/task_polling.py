@@ -48,6 +48,7 @@ def poll_mineru_task(
     get_status: Callable[[dict[str, Any]], Optional[dict[str, Any]]],
     preferred_token_id: Optional[str] = None,
 ) -> None:
+    settings.require_mineru_external_calls_enabled()
     quota_manager = get_mineru_quota_manager()
     polling_logger = mineru_logger(
         "poll_status",

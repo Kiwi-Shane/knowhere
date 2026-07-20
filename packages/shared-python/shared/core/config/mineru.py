@@ -6,6 +6,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from shared.core.exceptions.domain_exceptions import SystemSettingMissingException
+
 
 class MineruConfig(BaseModel):
     """MinerU PDF parsing service configuration"""
@@ -13,6 +15,12 @@ class MineruConfig(BaseModel):
     MINERU_URL: str = Field(
         default="https://mineru.net/api/v4",
         description="Base MinerU API URL without endpoint path.",
+    )
+    MINERU_EXTERNAL_CALLS_ENABLED: bool = Field(
+        default=False,
+        description=(
+            "Explicit operator opt-in for outbound MinerU provider requests"
+        ),
     )
     MINERU_API_KEYS: str = Field(
         default="",
@@ -113,3 +121,16 @@ class MineruConfig(BaseModel):
         ge=1,
         description="Maximum concurrent local MinerU PDF shard parses.",
     )
+
+    def require_mineru_external_calls_enabled(self) -> None:
+        """Fail closed until outbound MinerU provider calls are explicitly enabled."""
+        if self.MINERU_EXTERNAL_CALLS_ENABLED:
+            return
+
+        raise SystemSettingMissingException(
+            internal_message=(
+                "MinerU provider calls are not explicitly enabled; set "
+                "MINERU_EXTERNAL_CALLS_ENABLED=true to authorize outbound "
+                "provider operations"
+            )
+        )
