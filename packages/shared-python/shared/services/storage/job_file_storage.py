@@ -269,6 +269,7 @@ class JobFileStorage:
         file_url: str,
         *,
         temp_dir: str | None = None,
+        timeout_seconds: float = 300,
     ) -> str:
         temp_file_path = ""
         try:
@@ -284,7 +285,7 @@ class JobFileStorage:
             download_result = download_pinned_outbound_file(
                 url=validation.url,
                 pinned_ip=validation.validated_ip,
-                timeout_seconds=300,
+                timeout_seconds=timeout_seconds,
                 user_agent="Knowhere-FileDownloader/1.0",
                 temp_dir=effective_temp_dir,
             )
