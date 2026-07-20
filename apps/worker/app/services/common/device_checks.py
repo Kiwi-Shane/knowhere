@@ -7,20 +7,25 @@ import requests
 from loguru import logger
 
 
-def check_internet(url: str = "http://www.baidu.com") -> bool:
+def check_internet(url: str | None = None) -> bool:
     """
     Check internet connectivity.
 
     Args:
-        url: URL to probe.
+        url: Explicit URL to probe. No network request is made when omitted.
 
     Returns:
         Whether the probe succeeded.
     """
+    probe_url = url.strip() if url else ""
+    if not probe_url:
+        logger.debug("Network connectivity check skipped: no explicit probe URL")
+        return False
+
     try:
         from shared.core.constants import APIConstants
 
-        response = requests.get(url, timeout=APIConstants.REQUEST_TIMEOUT)
+        response = requests.get(probe_url, timeout=APIConstants.REQUEST_TIMEOUT)
         response.raise_for_status()
         return True
     except requests.RequestException as e:
