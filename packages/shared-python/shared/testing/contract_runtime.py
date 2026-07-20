@@ -347,6 +347,7 @@ def configure_contract_environment(
         "STRIPE_WEBHOOK_SECRET": "whsec_contract_test_secret",
         "DS_KEY": "test-deepseek-key",
         "DS_URL": "https://example.com/v1",
+        "QSTASH_WEBHOOK_ENABLED": "true",
         "QSTASH_CURRENT_SIGNING_KEY": "qstash-current-test-key",
         "QSTASH_NEXT_SIGNING_KEY": "qstash-next-test-key",
         "QSTASH_CALLBACK_BASE_URL": "http://localhost:5005/api/v1",

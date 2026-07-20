@@ -10,6 +10,13 @@ from pydantic import BaseModel, Field
 class QStashConfig(BaseModel):
     """QStash configuration for webhook delivery."""
 
+    QSTASH_WEBHOOK_ENABLED: bool = Field(
+        default=False,
+        description=(
+            "Explicit operator opt-in for outbound QStash webhook publication"
+        ),
+    )
+
     # QStash API credentials (from Upstash console)
     QSTASH_TOKEN: Optional[str] = Field(default=None, description="QStash API token")
     QSTASH_BASE_URL: Optional[str] = Field(

@@ -29,6 +29,8 @@ class QStashClientAdapter:
 
     def get_client(self) -> Any:
         """Lazily initialize the QStash client."""
+        self._require_explicit_enablement(operation="initialize_client")
+
         if self._client is None:
             try:
                 from qstash import QStash
@@ -61,6 +63,8 @@ class QStashClientAdapter:
         event_id: str,
     ) -> Optional[str]:
         """Call the QStash publish API."""
+        self._require_explicit_enablement(operation="publish_webhook")
+
         headers = {
             "Content-Type": "application/json",
             "X-Knowhere-Signature": signature,
@@ -99,6 +103,19 @@ class QStashClientAdapter:
             message_id = response.get("messageId") or response.get("message_id")
 
         return message_id
+
+    @staticmethod
+    def _require_explicit_enablement(*, operation: str) -> None:
+        if app_config.QSTASH_WEBHOOK_ENABLED:
+            return
+
+        raise QStashServiceException(
+            internal_message=(
+                "QStash webhook delivery is not explicitly enabled; set "
+                "QSTASH_WEBHOOK_ENABLED=true to authorize outbound publication"
+            ),
+            operation=operation,
+        )
 
     def get_terminal_delivery_status(
         self,
