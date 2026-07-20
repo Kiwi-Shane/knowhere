@@ -2330,3 +2330,33 @@ ranked top-N meaning preservation, source sufficiency, hard deletion, D2
 egress control, runtime-edge promotion, provider/private-data authorization,
 or RA acceptance. Retrieval qualification remains `deferred`; no edge or
 runtime status changed.
+
+## Opt-in D2 hardened dependency-boundary characterization (2026-07-20)
+
+Knowhere revision `62f436b3` adds an opt-in Compose override and repeatable
+PowerShell verifier for the synthetic D2 dependency boundary. The override
+uses pinned image digests, distinct D2 container/volume names, an internal
+Docker network, no host-published ports, read-only root filesystems,
+resource ceilings, dropped capabilities with only entrypoint-required
+capabilities restored, `no-new-privileges`, a file-backed synthetic
+PostgreSQL secret, and no LocalStack Docker socket, host gateway, Lambda
+service, or automatic extension/download path. The default host-integrated
+development project was not removed or modified at runtime.
+
+The D2 contract selection passed `7` tests; the combined D2/local-development
+Compose selection passed `11` tests, and the targeted Ruff check passed. The
+running opt-in project reached `3/3` healthy services. Direct synthetic probes
+returned Redis `PONG`, PostgreSQL accepting connections, and a healthy
+LocalStack endpoint; `docker port` reported no published host ports for all
+three containers; the Docker network reported `internal=true`; the secret
+mount was non-empty without printing its value; and an external HTTPS probe
+failed with exit `6`. A synthetic PostgreSQL backup/restore sentinel also
+round-tripped successfully. The repeatable verifier completed successfully.
+
+This is a bounded dependency-boundary implementation and characterization
+slice, not a D2 qualification pass. API/worker container behavior, deployed
+application telemetry negative tests, host-level firewall policy, cross-case
+isolation, deletion, rollback, full backup/restore coverage, source-owner/gold,
+provider/private-data processing, active-edge promotion, and RA acceptance
+remain open or deferred. No private data, provider, or upstream synchronization
+was used; D2 remains `blocked`.
