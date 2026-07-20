@@ -2360,3 +2360,35 @@ isolation, deletion, rollback, full backup/restore coverage, source-owner/gold,
 provider/private-data processing, active-edge promotion, and RA acceptance
 remain open or deferred. No private data, provider, or upstream synchronization
 was used; D2 remains `blocked`.
+
+## Opt-in D2 application-runtime characterization (2026-07-20)
+
+The opt-in harness was extended at Knowhere runtime source revision
+`c564a363`, with the revision binding recorded in `f1d759d6`. The API and
+worker were built from the current checkout and joined the same internal-only
+Compose network as the three characterized dependencies. The application
+containers use no host-published ports, read-only root filesystems, dropped
+capabilities, `no-new-privileges`, memory/CPU/PID ceilings, and the same
+file-backed synthetic PostgreSQL secret. The public database URL remains
+passwordless; the runtime connection URL is assembled in memory from the
+mounted secret file for async, sync, and migration paths.
+
+The D2 contract selection passed `11` tests, the targeted Ruff check passed,
+the effective Compose configuration parsed successfully, and the repeatable
+verifier passed after image rebuild and container recreation. Runtime evidence
+was `5/5` healthy services: API migration and connection-pool prewarming
+completed, `GET /health` returned healthy, the worker heartbeat and worker
+health probe passed, Redis and PostgreSQL probes passed, and LocalStack health
+passed. Runtime inspection confirmed telemetry was disabled and the API log
+reported self-hosted telemetry disabled. External HTTPS probes from
+LocalStack, API, and worker all failed as expected; no host port was
+published. A synthetic PostgreSQL backup/restore sentinel round-tripped
+successfully, with cleanup completed by the verifier.
+
+This is a bounded synthetic application-runtime characterization, not a D2
+qualification pass. It does not prove host-level firewall enforcement, a
+real external telemetry-sink negative test, full backup/restore coverage,
+deletion, cross-case isolation, rollback, source-owner or semantic-gold
+evidence, reviewer qualification, provider approval, private-data execution,
+active-edge promotion, or RA acceptance. No private data, provider, or
+upstream synchronization was used; D2 remains `blocked`.
