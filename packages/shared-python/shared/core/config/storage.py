@@ -27,6 +27,12 @@ class StorageConfig(BaseModel):
         default="s3",
         description="Storage backend: s3, oss, minio, or filesystem",
     )
+    OBJECT_STORAGE_EXTERNAL_CALLS_ENABLED: bool = Field(
+        default=False,
+        description=(
+            "Explicit operator opt-in for S3, MinIO, and OSS storage calls"
+        ),
+    )
 
     # Shared S3-style configuration used by S3, OSS, and MinIO.
     S3_BUCKET_NAME: str = Field(..., description="Bucket name")
@@ -113,6 +119,8 @@ class StorageConfig(BaseModel):
 
     def get_s3_client(self) -> BaseClient:
         """Return an S3 client for S3-compatible backends."""
+        self._require_external_storage_enablement(backend="S3-compatible")
+
         # Build the client config.
         config_kwargs: dict[str, object] = {}
 
@@ -152,6 +160,8 @@ class StorageConfig(BaseModel):
 
     def get_oss_bucket(self):
         """Return an OSS Bucket object."""
+        self._require_external_storage_enablement(backend="OSS")
+
         # Import oss2 lazily so non-OSS environments do not require it.
         try:
             import oss2
@@ -169,6 +179,18 @@ class StorageConfig(BaseModel):
         auth = oss2.Auth(self.S3_ACCESS_KEY_ID, self.S3_SECRET_ACCESS_KEY)
         bucket = oss2.Bucket(auth, self.OSS_ENDPOINT, self.S3_BUCKET_NAME)
         return bucket
+
+    def _require_external_storage_enablement(self, *, backend: str) -> None:
+        if self.OBJECT_STORAGE_EXTERNAL_CALLS_ENABLED:
+            return
+
+        raise SystemSettingMissingException(
+            internal_message=(
+                f"{backend} storage calls are not explicitly enabled; set "
+                "OBJECT_STORAGE_EXTERNAL_CALLS_ENABLED=true to authorize "
+                "outbound storage operations"
+            )
+        )
 
     def get_storage_adapter(self):
         """
