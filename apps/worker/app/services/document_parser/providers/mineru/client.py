@@ -14,6 +14,7 @@ from shared.core.exceptions.domain_exceptions import UnavailableException
 
 def build_mineru_session() -> requests.Session:
     session = requests.Session()
+    session.max_redirects = 0
     retry_strategy = Retry(
         total=settings.MINERU_UPLOAD_RETRY_TOTAL,
         backoff_factor=settings.MINERU_UPLOAD_RETRY_BACKOFF_FACTOR,

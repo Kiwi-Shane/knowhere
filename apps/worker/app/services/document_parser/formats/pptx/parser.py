@@ -153,7 +153,10 @@ def _pptx_bytes_to_pdf_bytes(pptx_bytes: bytes, filename: str) -> bytes:
                 file_size_kb=round(len(pptx_bytes) / 1024, 1),
             ).info(f"[iLoveAPI] Starting officepdf task for: {filename}")
             res = requests.get(
-                f"{base_url}/start/officepdf", headers=headers, timeout=timeout
+                f"{base_url}/start/officepdf",
+                headers=headers,
+                timeout=timeout,
+                allow_redirects=False,
             )
             if res.status_code == 429:
                 retry_after = int(res.headers.get("Retry-After", 60))
@@ -180,6 +183,7 @@ def _pptx_bytes_to_pdf_bytes(pptx_bytes: bytes, filename: str) -> bytes:
                 data={"task": upstream_task_id},
                 files={"file": (filename, io.BytesIO(pptx_bytes))},
                 timeout=timeout,
+                allow_redirects=False,
             )
             if upload_res.status_code == 429:
                 retry_after = int(upload_res.headers.get("Retry-After", 60))
@@ -208,6 +212,7 @@ def _pptx_bytes_to_pdf_bytes(pptx_bytes: bytes, filename: str) -> bytes:
                     ],
                 },
                 timeout=timeout,
+                allow_redirects=False,
             )
             if process_res.status_code == 429:
                 retry_after = int(process_res.headers.get("Retry-After", 60))
@@ -228,6 +233,7 @@ def _pptx_bytes_to_pdf_bytes(pptx_bytes: bytes, filename: str) -> bytes:
                 f"{server_url}/download/{upstream_task_id}",
                 headers=headers,
                 timeout=timeout,
+                allow_redirects=False,
             )
             if download_res.status_code == 429:
                 retry_after = int(download_res.headers.get("Retry-After", 60))
