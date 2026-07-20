@@ -35,7 +35,7 @@ def get_sync_client() -> httpx.Client:
                 _sync_client = httpx.Client(
                     limits=_DEFAULT_LIMITS,
                     timeout=_DEFAULT_TIMEOUT,
-                    follow_redirects=True,
+                    follow_redirects=False,
                 )
     return _sync_client
 
@@ -62,7 +62,7 @@ def get_async_client() -> httpx.AsyncClient:
                 _async_client = httpx.AsyncClient(
                     limits=_DEFAULT_LIMITS,
                     timeout=_DEFAULT_TIMEOUT,
-                    follow_redirects=True,
+                    follow_redirects=False,
                 )
     return _async_client
 
