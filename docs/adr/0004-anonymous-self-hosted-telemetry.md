@@ -20,12 +20,13 @@ and official clients depend on new events.
 
 ## Decision
 
-### Purpose and opt-out
+### Purpose and opt-in
 
 Anonymous self-hosted telemetry exists for Ontos operators measuring OSS /
-self-hosted adoption. It is **default-on**. Operators opt out with
-`TELEMETRY_ENABLED=false`. Transport remains PostHog; Logfire/OTEL are out of
-scope.
+self-hosted adoption. It is **default-off**. Operators opt in with
+`TELEMETRY_ENABLED=true` and an explicit `TELEMETRY_POSTHOG_PROJECT_KEY`.
+No PostHog project token is embedded in the self-hosted defaults. Transport
+remains PostHog; Logfire/OTEL are out of scope.
 
 ### Privacy bounds
 

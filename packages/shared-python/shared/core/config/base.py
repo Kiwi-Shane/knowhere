@@ -8,7 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 DEFAULT_TELEMETRY_POSTHOG_PROJECT_KEY = (
-    "phc_nWXdQnhvJFcjcvVNjQ8J8LhDYa9uvHfYhiuovf4Fzq64"
+    ""
 )
 
 
@@ -39,8 +39,11 @@ class BaseConfig(BaseSettings):
         default="", description="Logfire API token for distributed tracing"
     )
     TELEMETRY_ENABLED: bool = Field(
-        default=True,
-        description="Enable anonymous product telemetry for self-hosted deployments",
+        default=False,
+        description=(
+            "Enable anonymous product telemetry for self-hosted deployments "
+            "when explicitly opted in"
+        ),
     )
     TELEMETRY_POSTHOG_HOST: str = Field(
         default="https://us.i.posthog.com",
