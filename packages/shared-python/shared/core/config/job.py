@@ -11,7 +11,11 @@ class JobConfig(BaseSettings):
 
     JOB_WAITING_EXPIRE_SECONDS: int = Field(
         default=7200,
-        description="Max seconds a job can stay in pending or waiting-file before auto-failing (default: 2 hours). Also controls presigned S3 URL lifetime.",
+        description=(
+            "Max seconds a job can stay in pending or waiting-file before "
+            "auto-failing (default: 2 hours). The resulting presigned upload "
+            "URL lifetime is bounded by OBJECT_STORAGE_MAX_PRESIGN_SECONDS."
+        ),
     )
     JOB_PROCESSING_EXPIRE_SECONDS: int = Field(
         default=14400,

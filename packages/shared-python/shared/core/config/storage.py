@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 
 from shared.core.exceptions.domain_exceptions import (
     DependencyMissingException,
+    SystemSettingInvalidException,
     SystemSettingMissingException,
 )
 
@@ -31,6 +32,15 @@ class StorageConfig(BaseModel):
         default=False,
         description=(
             "Explicit operator opt-in for S3, MinIO, and OSS storage calls"
+        ),
+    )
+    OBJECT_STORAGE_MAX_PRESIGN_SECONDS: int = Field(
+        default=604800,
+        ge=1,
+        le=604800,
+        description=(
+            "Maximum lifetime for generated presigned object-storage URLs "
+            "(default: 7 days; bounded by the S3-compatible signing limit)"
         ),
     )
 
@@ -191,6 +201,24 @@ class StorageConfig(BaseModel):
                 "outbound storage operations"
             )
         )
+
+    def validate_presign_expiration(self, expiration: int) -> int:
+        """Validate a presigned URL lifetime before an adapter signs it."""
+        max_seconds = self.OBJECT_STORAGE_MAX_PRESIGN_SECONDS
+        if (
+            isinstance(expiration, bool)
+            or not isinstance(expiration, int)
+            or expiration < 1
+            or expiration > max_seconds
+        ):
+            raise SystemSettingInvalidException(
+                internal_message=(
+                    "Presigned URL expiration must be an integer between 1 and "
+                    f"{max_seconds} seconds; configure callers within "
+                    "OBJECT_STORAGE_MAX_PRESIGN_SECONDS"
+                )
+            )
+        return expiration
 
     def get_storage_adapter(self):
         """

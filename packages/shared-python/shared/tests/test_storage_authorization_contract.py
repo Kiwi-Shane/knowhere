@@ -16,8 +16,12 @@ os.environ.setdefault("S3_SECRET_ACCESS_KEY", "test")
 os.environ.setdefault("S3_TEMP_PATH", "/tmp")
 
 from shared.core.config.storage import StorageConfig
-from shared.core.exceptions.domain_exceptions import SystemSettingMissingException
+from shared.core.exceptions.domain_exceptions import (
+    SystemSettingInvalidException,
+    SystemSettingMissingException,
+)
 from shared.services.storage.adapters import FileSystemStorageAdapter, S3StorageAdapter
+from shared.services.storage.job_file_storage import JobFileStorage
 
 
 def _storage_config(
@@ -103,3 +107,119 @@ def test_s3_factory_can_construct_an_adapter_only_after_explicit_opt_in(
 
     assert isinstance(adapter, S3StorageAdapter)
     assert adapter.s3_client is fake_client
+
+
+def test_storage_config_rejects_unbounded_presigned_url_expiration() -> None:
+    config = _storage_config(external_calls_enabled=True)
+
+    with pytest.raises(
+        SystemSettingInvalidException,
+        match="OBJECT_STORAGE_MAX_PRESIGN_SECONDS",
+    ):
+        config.validate_presign_expiration(0)
+
+    with pytest.raises(
+        SystemSettingInvalidException,
+        match="OBJECT_STORAGE_MAX_PRESIGN_SECONDS",
+    ):
+        config.validate_presign_expiration(604801)
+
+
+def test_job_file_storage_rejects_overlong_download_url_before_adapter_call() -> None:
+    class RecordingStorageAdapter:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, object]] = []
+
+        def generate_presigned_url(
+            self,
+            key: str,
+            **kwargs: object,
+        ) -> str:
+            kwargs["key"] = key
+            self.calls.append(kwargs)
+            return "signed://contract"
+
+    adapter = RecordingStorageAdapter()
+    storage = JobFileStorage(storage_adapter=adapter)  # type: ignore[arg-type]
+
+    with pytest.raises(
+        SystemSettingInvalidException,
+        match="OBJECT_STORAGE_MAX_PRESIGN_SECONDS",
+    ):
+        storage.generate_download_url(
+            "results/job-1/report.pdf",
+            bucket="contract-results",
+            expires_in=604801,
+        )
+
+    assert adapter.calls == []
+
+
+def test_job_file_storage_passes_bounded_download_url_lifetime_to_adapter() -> None:
+    class RecordingStorageAdapter:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, object]] = []
+
+        def generate_presigned_url(
+            self,
+            key: str,
+            **kwargs: object,
+        ) -> str:
+            kwargs["key"] = key
+            self.calls.append(kwargs)
+            return "signed://contract"
+
+    adapter = RecordingStorageAdapter()
+    storage = JobFileStorage(storage_adapter=adapter)  # type: ignore[arg-type]
+
+    result = storage.generate_download_url(
+        "results/job-1/report.pdf",
+        bucket="contract-results",
+        expires_in=604800,
+    )
+
+    assert result == {
+        "download_url": "signed://contract",
+        "expires_in": 604800,
+    }
+    assert adapter.calls == [
+        {
+            "expiration": 604800,
+            "bucket": "contract-results",
+            "method": "GET",
+            "key": "results/job-1/report.pdf",
+        }
+    ]
+
+
+def test_job_file_storage_validates_configured_upload_url_lifetime_before_signing(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    class RecordingStorageAdapter:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, object]] = []
+
+        def generate_presigned_url(
+            self,
+            key: str,
+            **kwargs: object,
+        ) -> str:
+            kwargs["key"] = key
+            self.calls.append(kwargs)
+            return "signed://contract"
+
+    monkeypatch.setattr(
+        "shared.core.config.settings.JOB_WAITING_EXPIRE_SECONDS",
+        604801,
+        raising=False,
+    )
+    adapter = RecordingStorageAdapter()
+    storage = JobFileStorage(storage_adapter=adapter)  # type: ignore[arg-type]
+
+    with pytest.raises(
+        SystemSettingInvalidException,
+        match="OBJECT_STORAGE_MAX_PRESIGN_SECONDS",
+    ):
+        storage.generate_upload_url(job_id="job-1", file_extension=".pdf")
+
+    assert adapter.calls == []

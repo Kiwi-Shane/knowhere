@@ -59,9 +59,12 @@ class JobFileStorage:
             file_extension=file_extension,
         )
         content_type = self.get_content_type(file_extension)
+        expiration = settings.validate_presign_expiration(
+            settings.JOB_WAITING_EXPIRE_SECONDS
+        )
         upload_url = self.storage_adapter.generate_presigned_url(
             storage_key,
-            expiration=settings.JOB_WAITING_EXPIRE_SECONDS,
+            expiration=expiration,
             bucket=self.uploads_bucket,
             method="PUT",
             headers={"Content-Type": content_type},
@@ -69,7 +72,7 @@ class JobFileStorage:
         return {
             "upload_url": upload_url,
             "s3_key": storage_key,
-            "expires_in": settings.JOB_WAITING_EXPIRE_SECONDS,
+            "expires_in": expiration,
             "upload_headers": {"Content-Type": content_type},
         }
 
@@ -80,13 +83,14 @@ class JobFileStorage:
         bucket: str,
         expires_in: int = 3600,
     ) -> dict[str, Any]:
+        expiration = settings.validate_presign_expiration(expires_in)
         download_url = self.storage_adapter.generate_presigned_url(
             storage_key,
-            expiration=expires_in,
+            expiration=expiration,
             bucket=bucket,
             method="GET",
         )
-        return {"download_url": download_url, "expires_in": expires_in}
+        return {"download_url": download_url, "expires_in": expiration}
 
     def generate_upload_download_url(
         self,
