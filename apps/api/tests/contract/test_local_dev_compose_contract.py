@@ -40,3 +40,12 @@ def test_local_dev_services_declare_resource_limits() -> None:
         assert isinstance(service.get("mem_limit"), str), service_name
         assert float(service["cpus"]) > 0, service_name
         assert int(service["pids_limit"]) > 0, service_name
+
+
+def test_local_dev_network_is_internal() -> None:
+    networks = _compose_config()["networks"]
+    assert isinstance(networks, dict)
+
+    for network_name, network in networks.items():
+        assert isinstance(network, dict), network_name
+        assert network.get("internal") is True, network_name

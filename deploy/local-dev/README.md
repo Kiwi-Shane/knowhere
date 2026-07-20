@@ -50,10 +50,10 @@ cd deploy/local-dev
 - Redis: `127.0.0.1:6379`
 - LocalStack: `http://127.0.0.1:4566`
 
-The local stack binds published ports to loopback only and declares per-service
-CPU, memory, and PID ceilings. These are local-development containment
-controls; they do not establish host-level egress denial or production
-deployment qualification.
+The local stack binds published ports to loopback only, uses an internal
+Compose network, and declares per-service CPU, memory, and PID ceilings. These
+are local-development containment controls; they do not establish host-level
+egress denial or production deployment qualification.
 
 ## Notes
 

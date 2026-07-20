@@ -92,3 +92,4 @@ volumes:
 networks:
   knowhere_network:
     driver: bridge
+    internal: true
