@@ -93,7 +93,7 @@ local-development project and its volumes are separate.
 This harness is a D2 dependency/application-runtime implementation slice. It
 is not an active/private pilot or reviewer qualification. The verifier now
 checks API health, worker heartbeat, file-backed database-secret wiring,
-telemetry-disabled startup configuration, application-container egress
+telemetry-disabled startup configuration and API startup log, application-container egress
 denial, synthetic cross-user/namespace lifecycle isolation, archive exclusion,
 archived graph-residue cleanup, transaction rollback, a synthetic dependency
 backup/restore sentinel, and a deployed hard-delete control. The hard-delete

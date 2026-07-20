@@ -112,6 +112,20 @@ try {
     }
     Write-Output "D2 stage: application runtime environment checks completed."
 
+    $apiInspect = (Invoke-D2DockerText @("inspect", "knowhere_d2_api") | ConvertFrom-Json)[0]
+    $apiStartedAt = [DateTimeOffset]::Parse($apiInspect.State.StartedAt).UtcDateTime.ToString("o")
+    $d2PreviousErrorActionPreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $apiStartupLogs = Invoke-D2DockerText @("logs", "--since", $apiStartedAt, "knowhere_d2_api")
+    }
+    finally {
+        $ErrorActionPreference = $d2PreviousErrorActionPreference
+    }
+    Assert-D2 ($apiStartupLogs -match "anonymous self-hosted telemetry disabled") `
+        "knowhere_d2_api did not report telemetry-disabled startup"
+    Write-Output "D2 stage: application telemetry-disabled startup log check completed."
+
     $apiHealth = Invoke-D2DockerText @("exec", "knowhere_d2_api", "curl", "-fsS", "http://127.0.0.1:5005/health") |
         ConvertFrom-Json
     Assert-D2 ($apiHealth.status -eq "healthy") "API health endpoint did not report healthy"

@@ -183,3 +183,13 @@ def test_d2_verifier_is_repeatable_and_does_not_teardown_the_harness() -> None:
     assert "retrieval non-visibility" in script
     assert "-eq 5" in script
     assert " down" not in script
+
+
+def test_d2_verifier_checks_application_telemetry_disabled_startup_log() -> None:
+    script = D2_VERIFIER_PATH.read_text(encoding="utf-8")
+
+    assert '"logs"' in script
+    assert "--since" in script
+    assert "anonymous self-hosted telemetry disabled" in script
+    assert "$d2PreviousErrorActionPreference = $ErrorActionPreference" in script
+    assert '$ErrorActionPreference = "Continue"' in script
