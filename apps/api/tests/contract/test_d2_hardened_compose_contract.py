@@ -125,6 +125,9 @@ def test_d2_application_services_are_internal_telemetry_off_and_secret_file_back
         environment = service["environment"]
         assert isinstance(environment, dict), service_name
         assert environment["TELEMETRY_ENABLED"] == "false", service_name
+        assert environment["TELEMETRY_POSTHOG_HOST"] == "http://127.0.0.1:9", service_name
+        assert environment["TELEMETRY_POSTHOG_PROJECT_KEY"] == "", service_name
+        assert environment["LOGFIRE_TOKEN"] == "", service_name
         assert environment["DATABASE_PASSWORD_FILE"] == (
             "/run/secrets/postgres_password"
         ), service_name
@@ -193,3 +196,12 @@ def test_d2_verifier_checks_application_telemetry_disabled_startup_log() -> None
     assert "anonymous self-hosted telemetry disabled" in script
     assert "$d2PreviousErrorActionPreference = $ErrorActionPreference" in script
     assert '$ErrorActionPreference = "Continue"' in script
+
+
+def test_d2_verifier_checks_telemetry_destination_configuration() -> None:
+    script = D2_VERIFIER_PATH.read_text(encoding="utf-8")
+
+    assert "TELEMETRY_POSTHOG_HOST" in script
+    assert "TELEMETRY_POSTHOG_PROJECT_KEY" in script
+    assert "LOGFIRE_TOKEN" in script
+    assert "http://127.0.0.1:9" in script

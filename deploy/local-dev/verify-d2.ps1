@@ -92,12 +92,19 @@ try {
     Write-Output "D2 stage: dependency health and secret checks completed."
 
     $expectedDatabaseUrl = "DATABASE_URL=postgresql+asyncpg://root@postgres:5432/Knowhere"
+    $expectedTelemetryHost = "TELEMETRY_POSTHOG_HOST=http://127.0.0.1:9"
     foreach ($serviceName in @("api", "worker")) {
         $containerName = "knowhere_d2_$serviceName"
         $inspect = (Invoke-D2DockerText @("inspect", $containerName) | ConvertFrom-Json)[0]
         $environment = @($inspect.Config.Env)
         Assert-D2 ($environment -contains "TELEMETRY_ENABLED=false") `
             "$containerName does not have telemetry disabled at runtime"
+        Assert-D2 ($environment -contains $expectedTelemetryHost) `
+            "$containerName does not bind the telemetry host to the local sink placeholder"
+        Assert-D2 ($environment -contains "TELEMETRY_POSTHOG_PROJECT_KEY=") `
+            "$containerName exposes a telemetry project key"
+        Assert-D2 ($environment -contains "LOGFIRE_TOKEN=") `
+            "$containerName exposes a Logfire token"
         Assert-D2 ($environment -contains "DATABASE_PASSWORD_FILE=/run/secrets/postgres_password") `
             "$containerName does not use the file-backed database password"
         Assert-D2 ($environment -contains $expectedDatabaseUrl) `
