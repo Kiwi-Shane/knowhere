@@ -90,10 +90,14 @@ the file-backed secret without printing it, expects external HTTPS to fail,
 and runs a synthetic PostgreSQL backup/restore round-trip. The default
 local-development project and its volumes are separate.
 
-This harness is a D2 dependency-boundary implementation slice. It is not an
-active/private pilot and does not prove API/worker behavior, telemetry
-negative tests, backup/restore, deletion, cross-case isolation, or reviewer
-qualification.
+This harness is a D2 dependency/application-runtime implementation slice. It
+is not an active/private pilot or reviewer qualification. The verifier now
+checks API health, worker heartbeat, file-backed database-secret wiring,
+telemetry-disabled startup configuration, application-container egress
+denial, and a synthetic dependency backup/restore sentinel. Full backup and
+restore coverage, deletion, cross-case isolation, rollback, host-level
+firewall enforcement, source-owner/gold evidence, provider/private-data
+processing, and RA acceptance remain outside this slice.
 
 ## Notes
 

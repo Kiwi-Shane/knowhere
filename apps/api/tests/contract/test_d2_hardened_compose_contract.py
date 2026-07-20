@@ -43,9 +43,10 @@ def test_d2_services_remove_host_published_ingress_and_use_internal_network() ->
     config = _d2_config()
     services = config["services"]
     assert isinstance(services, dict)
-    assert set(services) == {"redis", "postgres", "localstack"}
+    assert set(services) == {"redis", "postgres", "localstack", "api", "worker"}
 
-    for service_name, service in services.items():
+    for service_name in ("redis", "postgres", "localstack", "api", "worker"):
+        service = services[service_name]
         assert isinstance(service, dict), service_name
         assert service["ports"] == [], service_name
         assert str(service["container_name"]).startswith("knowhere_d2_"), service_name
@@ -87,9 +88,53 @@ def test_d2_images_are_pinned_to_the_characterized_digests() -> None:
     services = _d2_config()["services"]
     assert isinstance(services, dict)
 
-    for service_name, service in services.items():
+    for service_name in ("redis", "postgres", "localstack"):
+        service = services[service_name]
         assert isinstance(service, dict), service_name
         assert "@sha256:" in str(service["image"]), service_name
+
+
+def test_d2_application_images_bind_to_the_current_source_revision() -> None:
+    services = _d2_config()["services"]
+    assert isinstance(services, dict)
+
+    for service_name, dockerfile in (("api", "deploy/docker/Dockerfile.api"), ("worker", "deploy/docker/Dockerfile.worker")):
+        service = services[service_name]
+        assert service["build"]["context"] == "../..", service_name
+        assert service["build"]["dockerfile"] == dockerfile, service_name
+        assert service["build"]["args"]["GIT_COMMIT"] == "f79b3f1e", service_name
+
+
+def test_d2_application_services_are_internal_telemetry_off_and_secret_file_backed() -> None:
+    services = _d2_config()["services"]
+    assert isinstance(services, dict)
+    assert {"api", "worker"}.issubset(services)
+
+    for service_name in ("api", "worker"):
+        service = services[service_name]
+        assert isinstance(service, dict), service_name
+        assert service["ports"] == [], service_name
+        assert service["read_only"] is True, service_name
+        assert "ALL" in service["cap_drop"], service_name
+        assert "no-new-privileges:true" in service["security_opt"], service_name
+        assert service["mem_limit"], service_name
+        assert float(service["cpus"]) > 0, service_name
+        assert int(service["pids_limit"]) > 0, service_name
+        assert service["secrets"] == ["postgres_password"], service_name
+
+        environment = service["environment"]
+        assert isinstance(environment, dict), service_name
+        assert environment["TELEMETRY_ENABLED"] == "false", service_name
+        assert environment["DATABASE_PASSWORD_FILE"] == (
+            "/run/secrets/postgres_password"
+        ), service_name
+        assert "DATABASE_URL" in environment, service_name
+        assert "d2-synthetic" not in str(environment["DATABASE_URL"]), service_name
+
+    assert services["api"]["expose"] == ["5005"]
+    assert services["worker"]["environment"]["WORKER_HEARTBEAT_FILE"] == (
+        "/tmp/knowhere-worker-heartbeat.json"
+    )
 
 
 def test_d2_postgres_uses_a_file_backed_secret() -> None:
@@ -122,5 +167,12 @@ def test_d2_verifier_is_repeatable_and_does_not_teardown_the_harness() -> None:
     assert '"compose"' in script
     assert "docker port" in script
     assert "_localstack/health" in script
+    assert "knowhere_d2_api" in script
+    assert "knowhere_d2_worker" in script
+    assert "5005/health" in script
+    assert "WORKER_HEARTBEAT_FILE" in script
+    assert "TELEMETRY_ENABLED" in script
+    assert "DATABASE_PASSWORD_FILE" in script
     assert "d2_backup_smoke" in script
+    assert "-eq 5" in script
     assert " down" not in script

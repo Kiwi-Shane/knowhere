@@ -53,7 +53,7 @@ else:
     )
 
 engine = create_async_engine(
-    settings.DATABASE_URL,
+    settings.get_runtime_database_url(),
     **engine_options,
 )
 # Create the async session factory.

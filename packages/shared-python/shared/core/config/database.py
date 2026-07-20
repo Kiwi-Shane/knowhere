@@ -1,10 +1,11 @@
 """Database configuration."""
 
+from pathlib import Path
 from typing import Optional
 
 from loguru import logger
 from pydantic import BaseModel, Field
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, make_url
 
 
 class DatabaseConfig(BaseModel):
@@ -12,6 +13,13 @@ class DatabaseConfig(BaseModel):
 
     # Core database settings.
     DATABASE_URL: str = Field(..., description="Database connection URL")
+    DATABASE_PASSWORD_FILE: str = Field(
+        default="",
+        description=(
+            "Optional local file containing the database password. The public "
+            "DATABASE_URL must omit its password when this is set."
+        ),
+    )
 
     # SSL configuration.
     DB_SSL_MODE: str = Field(
@@ -44,6 +52,29 @@ class DatabaseConfig(BaseModel):
     WORKER_CONCURRENCY: int = Field(
         default=50, description="Celery gevent worker concurrency"
     )
+
+    def get_runtime_database_url(self) -> str:
+        """Return a connection URL with an optional file-backed password."""
+        secret_path = self.DATABASE_PASSWORD_FILE.strip()
+        if not secret_path:
+            return self.DATABASE_URL
+
+        try:
+            password = Path(secret_path).read_text(encoding="utf-8").strip()
+        except OSError as exc:
+            raise ValueError("DATABASE_PASSWORD_FILE could not be read") from exc
+
+        if not password:
+            raise ValueError("DATABASE_PASSWORD_FILE is empty")
+
+        database_url = make_url(self.DATABASE_URL)
+        if database_url.password is not None:
+            raise ValueError(
+                "DATABASE_URL must omit its password when DATABASE_PASSWORD_FILE is set"
+            )
+        return database_url.set(password=password).render_as_string(
+            hide_password=False
+        )
 
     def get_ssl_connect_args(self) -> dict:
         """Return SSL connect args for psycopg2."""
@@ -109,7 +140,9 @@ class DatabaseConfig(BaseModel):
         """Validate the database configuration by opening a connection."""
         try:
             # Reuse the synchronous URL path for a direct validation check.
-            sync_url = self.DATABASE_URL.replace("asyncpg", "psycopg2")
+            sync_url = self.get_runtime_database_url().replace(
+                "asyncpg", "psycopg2"
+            )
             ssl_args = self.get_ssl_connect_args()
             engine = create_engine(sync_url, connect_args=ssl_args)
             engine.connect()

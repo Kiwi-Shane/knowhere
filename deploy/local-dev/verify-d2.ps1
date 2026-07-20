@@ -58,7 +58,7 @@ try {
     Assert-D2 ($effective.networks.knowhere_network.internal -eq $true) `
         "effective D2 network is not internal"
 
-    $serviceNames = @("redis", "postgres", "localstack")
+    $serviceNames = @("redis", "postgres", "localstack", "api", "worker")
     foreach ($serviceName in $serviceNames) {
         $containerName = "knowhere_d2_$serviceName"
         $inspect = (Invoke-D2DockerText @("inspect", $containerName) | ConvertFrom-Json)[0]
@@ -80,16 +80,51 @@ try {
 
     $network = (Invoke-D2DockerText @("network", "inspect", "knowhere_d2_internal") | ConvertFrom-Json)[0]
     Assert-D2 ($network.Internal -eq $true) "Docker network is not internal"
-    Assert-D2 (@($network.Containers.PSObject.Properties).Count -eq 3) "D2 network does not contain three dependencies"
+    Assert-D2 (@($network.Containers.PSObject.Properties).Count -eq 5) `
+        "D2 network does not contain three dependencies and two application services"
 
     $null = Invoke-D2DockerText @("exec", "knowhere_d2_redis", "redis-cli", "ping")
     $null = Invoke-D2DockerText @("exec", "knowhere_d2_postgres", "pg_isready", "-U", "root", "-d", "Knowhere")
     $null = Invoke-D2DockerText @("exec", "knowhere_d2_localstack", "curl", "-fsS", "--max-time", "5", "http://127.0.0.1:4566/_localstack/health")
     $null = Invoke-D2DockerText @("exec", "knowhere_d2_postgres", "sh", "-c", "test -s /run/secrets/postgres_password")
 
-    & docker exec knowhere_d2_localstack sh -c "curl -fsS --connect-timeout 2 --max-time 4 https://example.com >/dev/null 2>&1"
-    $egressExitCode = $LASTEXITCODE
-    Assert-D2 ($egressExitCode -ne 0) "external HTTPS unexpectedly succeeded"
+    $expectedDatabaseUrl = "DATABASE_URL=postgresql+asyncpg://root@postgres:5432/Knowhere"
+    foreach ($serviceName in @("api", "worker")) {
+        $containerName = "knowhere_d2_$serviceName"
+        $inspect = (Invoke-D2DockerText @("inspect", $containerName) | ConvertFrom-Json)[0]
+        $environment = @($inspect.Config.Env)
+        Assert-D2 ($environment -contains "TELEMETRY_ENABLED=false") `
+            "$containerName does not have telemetry disabled at runtime"
+        Assert-D2 ($environment -contains "DATABASE_PASSWORD_FILE=/run/secrets/postgres_password") `
+            "$containerName does not use the file-backed database password"
+        Assert-D2 ($environment -contains $expectedDatabaseUrl) `
+            "$containerName exposes a database URL with an embedded password or unexpected host"
+        Assert-D2 ($environment -contains "GIT_COMMIT=f79b3f1e") `
+            "$containerName is not bound to the characterized source revision"
+        if ($serviceName -eq "worker") {
+            Assert-D2 ($environment -contains "WORKER_HEARTBEAT_FILE=/tmp/knowhere-worker-heartbeat.json") `
+                "$containerName does not expose the expected heartbeat path"
+        }
+        $null = Invoke-D2DockerText @("exec", $containerName, "sh", "-c", "test -s /run/secrets/postgres_password")
+    }
+
+    $apiHealth = Invoke-D2DockerText @("exec", "knowhere_d2_api", "curl", "-fsS", "http://127.0.0.1:5005/health") |
+        ConvertFrom-Json
+    Assert-D2 ($apiHealth.status -eq "healthy") "API health endpoint did not report healthy"
+    $null = Invoke-D2DockerText @(
+        "exec", "knowhere_d2_worker", "python", "-c",
+        "from shared.services.worker_health import assert_worker_healthy; assert_worker_healthy()"
+    )
+    $null = Invoke-D2DockerText @(
+        "exec", "knowhere_d2_worker", "sh", "-c",
+        "test -s /tmp/knowhere-worker-heartbeat.json"
+    )
+
+    foreach ($containerName in @("knowhere_d2_localstack", "knowhere_d2_api", "knowhere_d2_worker")) {
+        & docker exec $containerName sh -c "curl -fsS --connect-timeout 2 --max-time 4 https://example.com >/dev/null 2>&1"
+        $egressExitCode = $LASTEXITCODE
+        Assert-D2 ($egressExitCode -ne 0) "$containerName external HTTPS unexpectedly succeeded"
+    }
 
     $restoreDatabase = "d2_restore_smoke"
     try {
@@ -110,7 +145,7 @@ try {
         $null = Invoke-D2DockerText @("exec", "knowhere_d2_postgres", "rm", "-f", "/tmp/d2-backup.dump")
     }
 
-    Write-Output "D2 dependency harness verification passed: health, isolation, runtime controls, no external HTTPS, and backup/restore smoke."
+    Write-Output "D2 hardened harness verification passed: dependency/application health, isolation, runtime controls, file-backed secret, telemetry disabled, no external HTTPS, and backup/restore smoke."
 }
 catch {
     Write-Error ("D2 dependency harness verification failed: " + $_.Exception.Message)
