@@ -2292,3 +2292,22 @@ gold, ranked top-N meaning preservation, source sufficiency, hard deletion,
 host-level egress denial, runtime-edge promotion, provider approval,
 private-data processing, or RA acceptance. The retrieval qualification
 disposition remains `deferred`; no edge or runtime status changed.
+
+## Current-head page-memory parse-track/navigation contract recheck (2026-07-20)
+
+At Knowhere revision `bd4fabd831254c588dc0257dd3dd5ef9ee59a7e3`, the existing
+page-memory parse-track and navigation contract selections passed `20` tests
+(`18` parse-track and `2` navigation) under locked offline execution with
+`TELEMETRY_ENABLED=false`. The selections covered v1/v2 parse-track routing,
+fail-closed public selectors and unknown fields, route/OpenAPI registration,
+guest route policy, system-rule precedence, path-based leaf summaries, page
+counts, and chunk-path navigation. The targeted Ruff check passed. One
+existing FastAPI duplicate-operation-ID warning was reported during the
+OpenAPI test.
+
+This remains worker/API contract evidence only. It does not establish
+producer-owned canonical-result emission, native or semantic gold, ranked
+top-N meaning preservation, source sufficiency, deletion, D2 egress control,
+runtime-edge promotion, provider/private-data authorization, or RA
+acceptance. Retrieval qualification remains `deferred` and no edge status
+changed.
