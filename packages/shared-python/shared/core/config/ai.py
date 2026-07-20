@@ -1,8 +1,13 @@
 """AI model configuration."""
 
+from urllib.parse import urlparse
+
 from pydantic import BaseModel, Field
 
-from shared.core.exceptions.domain_exceptions import SystemSettingMissingException
+from shared.core.exceptions.domain_exceptions import (
+    SystemSettingInvalidException,
+    SystemSettingMissingException,
+)
 
 
 class AIConfig(BaseModel):
@@ -182,6 +187,13 @@ class AIConfig(BaseModel):
             "Explicit operator opt-in for outbound iLoveAPI conversion requests"
         ),
     )
+    ILOVEAPI_ALLOWED_HOSTS: str = Field(
+        default="api.ilovepdf.com",
+        description=(
+            "Comma-separated exact HTTPS hostnames allowed for the configured "
+            "iLoveAPI base endpoint"
+        ),
+    )
     ILOVEAPI_TIMEOUT: int = Field(
         default=120, description="iLoveAPI request timeout in seconds"
     )
@@ -214,6 +226,42 @@ class AIConfig(BaseModel):
                 "provider operations"
             )
         )
+
+    def validate_iloveapi_base_url(self, endpoint: str | None = None) -> str:
+        """Validate the configured iLoveAPI base endpoint without contacting it."""
+        value = (endpoint or self.ILOVEAPI_BASE_URL).strip().rstrip("/")
+        allowed_hosts = {
+            item.strip().lower().rstrip(".")
+            for item in self.ILOVEAPI_ALLOWED_HOSTS.split(",")
+            if item.strip()
+        }
+
+        try:
+            parsed = urlparse(value)
+            hostname = (parsed.hostname or "").lower().rstrip(".")
+        except ValueError as exc:
+            raise SystemSettingInvalidException(
+                internal_message=f"Invalid ILOVEAPI_BASE_URL endpoint: {exc}"
+            ) from exc
+
+        if parsed.scheme != "https":
+            raise SystemSettingInvalidException(
+                internal_message=(
+                    "ILOVEAPI_BASE_URL must use https for configured provider calls"
+                )
+            )
+        if not hostname or hostname not in allowed_hosts:
+            raise SystemSettingInvalidException(
+                internal_message=(
+                    f"ILOVEAPI_BASE_URL host {hostname or '<missing>'!r} is not in "
+                    "ILOVEAPI_ALLOWED_HOSTS"
+                )
+            )
+        if parsed.username or parsed.password:
+            raise SystemSettingInvalidException(
+                internal_message="ILOVEAPI_BASE_URL must not contain embedded credentials"
+            )
+        return value
     SPLIT_CHAR: str = Field(default="/", description="Path separator")
     ALL_DF_COLS: str = Field(
         default="content,path,type,length,keywords,summary,know_id,tokens,connectto,addtime,page_nums,entities,asset_title",

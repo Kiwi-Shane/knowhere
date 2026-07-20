@@ -125,6 +125,7 @@ def _pptx_bytes_to_pdf_bytes(pptx_bytes: bytes, filename: str) -> bytes:
     the Redis-backed reservation actually succeeded.
     """
     settings.require_iloveapi_external_calls_enabled()
+    base_url = settings.validate_iloveapi_base_url()
     from shared.services.ai.iloveapi_quota_manager import get_iloveapi_quota_manager
 
     quota_manager = get_iloveapi_quota_manager()
@@ -153,7 +154,6 @@ def _pptx_bytes_to_pdf_bytes(pptx_bytes: bytes, filename: str) -> bytes:
     try:
         token, lease = _get_iloveapi_token_lease()
         headers = {"Authorization": f"Bearer {token}"}
-        base_url = settings.ILOVEAPI_BASE_URL
         timeout = settings.ILOVEAPI_TIMEOUT
 
         try:

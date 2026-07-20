@@ -19,7 +19,10 @@ from app.services.document_parser.providers.mineru import client as mineru_clien
 from app.services.document_parser.providers.mineru import task_polling
 from shared.core.config.ai import AIConfig
 from shared.core.config.mineru import MineruConfig
-from shared.core.exceptions.domain_exceptions import SystemSettingMissingException
+from shared.core.exceptions.domain_exceptions import (
+    SystemSettingInvalidException,
+    SystemSettingMissingException,
+)
 
 
 def _requests_calls(source_path: Path) -> list[ast.Call]:
@@ -178,6 +181,109 @@ def test_iloveapi_request_function_keeps_the_opt_in_guard_visible() -> None:
         and isinstance(node.func, ast.Attribute)
         and node.func.attr == "require_iloveapi_external_calls_enabled"
         for node in ast.walk(function_node)
+    )
+
+
+def test_mineru_endpoint_identity_requires_https_and_an_allowed_host() -> None:
+    default_config = MineruConfig()
+    assert default_config.validate_mineru_endpoint() == (
+        "https://mineru.net/api/v4"
+    )
+
+    with pytest.raises(
+        SystemSettingInvalidException,
+        match="MINERU_ALLOWED_HOSTS",
+    ):
+        MineruConfig(MINERU_URL="https://attacker.example/api/v4").validate_mineru_endpoint()
+
+    with pytest.raises(
+        SystemSettingInvalidException,
+        match="https",
+    ):
+        MineruConfig(MINERU_URL="http://mineru.net/api/v4").validate_mineru_endpoint()
+
+    configured = MineruConfig(
+        MINERU_URL="https://proxy.example/mineru/api/v4",
+        MINERU_ALLOWED_HOSTS="proxy.example",
+    )
+    assert configured.validate_mineru_endpoint() == (
+        "https://proxy.example/mineru/api/v4"
+    )
+
+
+def test_iloveapi_endpoint_identity_requires_https_and_an_allowed_host() -> None:
+    default_config = AIConfig()
+    assert default_config.validate_iloveapi_base_url() == (
+        "https://api.ilovepdf.com/v1"
+    )
+
+    with pytest.raises(
+        SystemSettingInvalidException,
+        match="ILOVEAPI_ALLOWED_HOSTS",
+    ):
+        AIConfig(ILOVEAPI_BASE_URL="https://attacker.example/v1").validate_iloveapi_base_url()
+
+    with pytest.raises(
+        SystemSettingInvalidException,
+        match="https",
+    ):
+        AIConfig(ILOVEAPI_BASE_URL="http://api.ilovepdf.com/v1").validate_iloveapi_base_url()
+
+    configured = AIConfig(
+        ILOVEAPI_BASE_URL="https://proxy.example/ilove/v1",
+        ILOVEAPI_ALLOWED_HOSTS="proxy.example",
+    )
+    assert configured.validate_iloveapi_base_url() == (
+        "https://proxy.example/ilove/v1"
+    )
+
+
+def test_configured_provider_request_functions_keep_endpoint_validation_visible() -> None:
+    pdf_tree = ast.parse(Path(pdf_service.__file__).read_text(encoding="utf-8"))
+    for function_name in {
+        "_request_upload_target",
+        "_submit_url_task",
+        "parse_via_full",
+    }:
+        function_node = next(
+            node
+            for node in ast.walk(pdf_tree)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and node.name == function_name
+        )
+        assert any(
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "validate_mineru_endpoint"
+            for node in ast.walk(function_node)
+        ), f"{function_name} must validate the configured MinerU endpoint"
+
+    polling_tree = ast.parse(Path(task_polling.__file__).read_text(encoding="utf-8"))
+    polling_function = next(
+        node
+        for node in ast.walk(polling_tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name == "poll_mineru_task"
+    )
+    assert any(
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "validate_mineru_endpoint"
+        for node in ast.walk(polling_function)
+    )
+
+    pptx_tree = ast.parse(Path(pptx_parser.__file__).read_text(encoding="utf-8"))
+    pptx_function = next(
+        node
+        for node in ast.walk(pptx_tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name == "_pptx_bytes_to_pdf_bytes"
+    )
+    assert any(
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "validate_iloveapi_base_url"
+        for node in ast.walk(pptx_function)
     )
 
 

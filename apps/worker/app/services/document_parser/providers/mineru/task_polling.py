@@ -49,6 +49,7 @@ def poll_mineru_task(
     preferred_token_id: Optional[str] = None,
 ) -> None:
     settings.require_mineru_external_calls_enabled()
+    settings.validate_mineru_endpoint(status_url)
     quota_manager = get_mineru_quota_manager()
     polling_logger = mineru_logger(
         "poll_status",

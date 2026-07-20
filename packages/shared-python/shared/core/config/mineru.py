@@ -3,10 +3,14 @@ MinerU service configuration
 """
 
 from typing import Literal
+from urllib.parse import urlparse
 
 from pydantic import BaseModel, Field
 
-from shared.core.exceptions.domain_exceptions import SystemSettingMissingException
+from shared.core.exceptions.domain_exceptions import (
+    SystemSettingInvalidException,
+    SystemSettingMissingException,
+)
 
 
 class MineruConfig(BaseModel):
@@ -20,6 +24,13 @@ class MineruConfig(BaseModel):
         default=False,
         description=(
             "Explicit operator opt-in for outbound MinerU provider requests"
+        ),
+    )
+    MINERU_ALLOWED_HOSTS: str = Field(
+        default="mineru.net",
+        description=(
+            "Comma-separated exact HTTPS hostnames allowed for the configured "
+            "MinerU endpoint"
         ),
     )
     MINERU_API_KEYS: str = Field(
@@ -134,3 +145,39 @@ class MineruConfig(BaseModel):
                 "provider operations"
             )
         )
+
+    def validate_mineru_endpoint(self, endpoint: str | None = None) -> str:
+        """Validate the configured MinerU endpoint without resolving or contacting it."""
+        value = (endpoint or self.MINERU_URL).strip().rstrip("/")
+        allowed_hosts = {
+            item.strip().lower().rstrip(".")
+            for item in self.MINERU_ALLOWED_HOSTS.split(",")
+            if item.strip()
+        }
+
+        try:
+            parsed = urlparse(value)
+            hostname = (parsed.hostname or "").lower().rstrip(".")
+        except ValueError as exc:
+            raise SystemSettingInvalidException(
+                internal_message=f"Invalid MINERU_URL endpoint: {exc}"
+            ) from exc
+
+        if parsed.scheme != "https":
+            raise SystemSettingInvalidException(
+                internal_message=(
+                    "MINERU_URL must use https for configured provider calls"
+                )
+            )
+        if not hostname or hostname not in allowed_hosts:
+            raise SystemSettingInvalidException(
+                internal_message=(
+                    f"MINERU_URL host {hostname or '<missing>'!r} is not in "
+                    "MINERU_ALLOWED_HOSTS"
+                )
+            )
+        if parsed.username or parsed.password:
+            raise SystemSettingInvalidException(
+                internal_message="MINERU_URL must not contain embedded credentials"
+            )
+        return value

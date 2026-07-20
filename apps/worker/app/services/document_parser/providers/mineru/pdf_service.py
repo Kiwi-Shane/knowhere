@@ -141,7 +141,7 @@ def resolve_mineru_source_s3_key(
 
 def _request_upload_target(pdf_url: str, filename: str) -> tuple[str, str, str]:
     settings.require_mineru_external_calls_enabled()
-    base_url = settings.MINERU_URL
+    base_url = settings.validate_mineru_endpoint()
     quota_manager = get_mineru_quota_manager()
     upload_logger = mineru_logger(
         "upload_url",
@@ -319,7 +319,7 @@ def _submit_url_task(presigned_url: str, filename: str) -> tuple[str, str]:
     Returns (batch_id, token_id).
     """
     settings.require_mineru_external_calls_enabled()
-    base_url = settings.MINERU_URL
+    base_url = settings.validate_mineru_endpoint()
     quota_manager = get_mineru_quota_manager()
     submit_logger = mineru_logger(
         "submit_url_task",
@@ -396,6 +396,7 @@ def parse_via_full(
     s3_key: Optional[str] = None,
 ) -> None:
     settings.require_mineru_external_calls_enabled()
+    settings.validate_mineru_endpoint()
     batch_id: str | None = None
     token_id: str | None = None
     resolved_s3_key = resolve_mineru_source_s3_key(
