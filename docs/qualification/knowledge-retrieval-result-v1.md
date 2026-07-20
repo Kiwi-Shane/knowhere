@@ -2272,3 +2272,23 @@ delivery, default-deny egress, secret isolation, runtime enforcement, or
 production deployment control was proven. D2 remains `blocked`; no provider,
 private-data, active-edge, source-sufficiency, qualification, or RA acceptance
 status changed.
+
+## Current-head page-memory retrieval contract recheck (2026-07-20)
+
+At the current qualification checkout revision
+`dd09cc5c36f47c022b43c9c97cd09c04fb0f34b4`, the existing
+`apps/worker/tests/contract/test_page_memory_retrieval_contract.py` selection
+passed `12` tests in `1.93` seconds under locked offline execution with
+`TELEMETRY_ENABLED=false`. The selection covered page-node search text,
+summary-based page and table result assembly, page-number URL generation,
+page-citation asset precedence over lazy PDF cropping, safe artifact-reference
+allowlisting, referenced-artifact upload filtering, cache reuse, missing-source
+handling, and referenced-chunk page asset hydration. The targeted Ruff check
+also passed.
+
+This is current-head worker retrieval/hydration contract evidence only. It does
+not establish producer-owned canonical-result emission, native or semantic
+gold, ranked top-N meaning preservation, source sufficiency, hard deletion,
+host-level egress denial, runtime-edge promotion, provider approval,
+private-data processing, or RA acceptance. The retrieval qualification
+disposition remains `deferred`; no edge or runtime status changed.
