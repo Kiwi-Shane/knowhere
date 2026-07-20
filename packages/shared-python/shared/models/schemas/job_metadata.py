@@ -4,8 +4,13 @@ from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from shared.core.exceptions.domain_exceptions import PermissionDeniedException
 from shared.models.schemas.page_memory_config import PageMemoryConfig
 from shared.models.schemas.retrieval_namespace import normalize_retrieval_namespace
+
+_EXTERNAL_CALL_TEST_DATA_CLASSIFICATIONS = frozenset(
+    {"synthetic", "megaforce_test", "fda_test"}
+)
 
 
 class JobMetadataBase(BaseModel):
@@ -238,6 +243,78 @@ class JobMetadataHelper:
     def get_webhook(metadata: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
         """Return the webhook configuration from metadata."""
         return JobMetadataHelper.get_field(metadata, "webhook")
+
+    @staticmethod
+    def require_external_call_authorization(
+        metadata: Optional[Dict[str, Any]],
+        *,
+        provider: str,
+    ) -> Dict[str, Any]:
+        """Require traceable, test-scoped authorization for one provider."""
+        provider_key = provider.strip().lower()
+        authorizations = JobMetadataHelper.get_field(
+            metadata,
+            "external_call_authorizations",
+            {},
+        )
+        authorization = (
+            authorizations.get(provider_key)
+            if isinstance(authorizations, dict)
+            else None
+        )
+
+        if not isinstance(authorization, dict):
+            return JobMetadataHelper._raise_external_call_not_authorized(
+                provider_key,
+                "missing provider authorization record",
+            )
+
+        if authorization.get("approved") is not True:
+            return JobMetadataHelper._raise_external_call_not_authorized(
+                provider_key,
+                "approved must be true",
+            )
+        if authorization.get("provider") != provider_key:
+            return JobMetadataHelper._raise_external_call_not_authorized(
+                provider_key,
+                "provider identity does not match the authorization key",
+            )
+
+        data_classification = authorization.get("data_classification")
+        if (
+            not isinstance(data_classification, str)
+            or data_classification.strip().lower()
+            not in _EXTERNAL_CALL_TEST_DATA_CLASSIFICATIONS
+        ):
+            return JobMetadataHelper._raise_external_call_not_authorized(
+                provider_key,
+                "data classification is not an approved test classification",
+            )
+
+        for field in ("source_scope", "authorization_id", "approved_by"):
+            field_value = authorization.get(field)
+            if not isinstance(field_value, str) or not field_value.strip():
+                return JobMetadataHelper._raise_external_call_not_authorized(
+                    provider_key,
+                    f"{field} is missing or empty",
+                )
+
+        return dict(authorization)
+
+    @staticmethod
+    def _raise_external_call_not_authorized(
+        provider: str,
+        reason: str,
+    ) -> Dict[str, Any]:
+        """Raise a safe permission error for invalid provider authorization."""
+        raise PermissionDeniedException(
+            user_message="External provider processing is not authorized for this job.",
+            required_permission=f"external_call:{provider}",
+            internal_message=(
+                f"External call authorization for provider={provider!r} is invalid: "
+                f"{reason}"
+            ),
+        )
 
 
 def _dump_public_request(request) -> Dict[str, Any]:

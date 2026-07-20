@@ -12,6 +12,7 @@ from app.services.document_parser.support.stage_profiler import (
 )
 from loguru import logger
 
+from shared.core.config import settings
 from shared.models.schemas.job_metadata import JobMetadataHelper
 from shared.services.ai.token_tracking import (
     init_token_tracker,
@@ -67,6 +68,14 @@ def execute_document_parse(
                     output_dir=output_dir,
                 )
             else:
+                if (
+                    settings.MINERU_PROVIDER == "cloud"
+                    and prepared_source.file_extension.lower() in {".pdf", ".pptx"}
+                ):
+                    JobMetadataHelper.require_external_call_authorization(
+                        job_context.job_metadata,
+                        provider="mineru",
+                    )
                 parse_output = parse_service.checkerboard_parse_output(
                     file_full_path=prepared_source.local_file_path,
                     filename=prepared_source.source_file_name,
