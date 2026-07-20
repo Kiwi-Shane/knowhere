@@ -27,7 +27,7 @@ active retrieval routes and does not change the edge status.
 | Table/image linkage and citation export | Existing package/table/page contract tests cover derivative asset references; the opt-in serializer carries explicitly supplied table/image IDs and native citation text without deriving them from chunk IDs. | `partial_mechanical_only` |
 | Source allowlist and namespace isolation | Existing worker/API contract suites cover namespace-scoped document and retrieval behavior. | `partial_mechanical_only` |
 | Duplicate handling and source-version replacement | Existing lifecycle and ingestion tests cover related document identity/version behavior; no canonical result gold set is attached. | `partial_mechanical_only` |
-| Stale invalidation and deletion/purge | Existing lifecycle tests cover invalidation/purge paths; end-to-end canonical result non-retrievability evidence is not recorded. | `not_yet_qualified` |
+| Stale invalidation and deletion/purge | Current-head API contracts cover user-scoped hard deletion, active-ingestion refusal, object-storage cleanup, database/graph cleanup, cache invalidation, and retrieval non-visibility for a synthetic document; vector/memory-provider deletion and source-owner qualification remain untested. | `partial_mechanical_only` |
 | Backup/restore | Synthetic PostgreSQL 15.18 custom-format dump/restore smokes matched both a generic fixture and an Alembic-migrated application-schema fixture; LocalStack S3 service and existing Knowhere S3 adapter round-trips also matched; production backup, retention, and recovery controls remain untested. | `partial_mechanical_only` |
 | External telemetry and LLM/VLM egress | Local/offline contract tests cover application flags and provider boundaries; a read-only host firewall audit showed profiles enabled but default outbound `Allow`, so host-level default-deny network isolation remains unverified. | `partial_mechanical_only` |
 | Result provenance and native locator | The opt-in serializer requires source/version, explicit block IDs, page range, native citation, and emits the fixed `unverified` native-source status; no active retrieval route or gold result set is wired. | `partial_mechanical_only` |
@@ -2446,3 +2446,32 @@ source-owner or semantic-gold sufficiency, provider approval, private-data
 processing, active-edge promotion, or RA acceptance. No private data, provider,
 or upstream synchronization was used; D2 and retrieval qualification remain
 blocked/deferred.
+
+## Current-head hard-delete and deletion-negative retrieval control (2026-07-20)
+
+Knowhere revision `e0502809` adds a user-scoped `DELETE
+/api/v1/documents/{document_id}` lifecycle behind the existing full-access
+permission dependency. The service refuses deletion while any associated job
+is in `waiting-file`, `pending`, `running`, or `converting`; it also refuses
+unexpected upload-key metadata rather than deleting an unbounded storage path.
+For terminal jobs, it removes the upload object, the result ZIP, every raw
+result object under the job prefix, document-owned graph nodes and edges,
+job/result rows, document derivatives, and the document itself, then
+invalidates the affected retrieval namespace cache.
+
+The current API contract evidence passed `18` document tests, `15` retrieval
+tests, and `2` dashboard-token permission tests. The focused deletion controls
+also passed the terminal hard-delete case and the active-ingestion fail-closed
+case. The terminal case used generated document/job IDs and a unique marker;
+it confirmed HTTP 404 after deletion, no deleted document ID in the retrieval
+response, absence of upload/raw/ZIP objects, zero remaining document/section/
+chunk/graph/retrieval-stat/job-result/job rows, and preservation of a peer
+document. The permission case confirmed a read-only dashboard token receives
+HTTP 403 for hard deletion. Ruff and Python compile checks passed.
+
+The object-storage evidence is filesystem-backed contract runtime evidence;
+it does not qualify a remote provider, vector index, memory snapshot store,
+all alternate retrieval routes, backup/restore recovery, source-owner gold,
+semantic meaning preservation, private-data processing, D2, active-edge
+promotion, or RA acceptance. The qualification disposition remains `deferred`,
+and no provider, private data, or upstream synchronization was used.
