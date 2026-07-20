@@ -1934,3 +1934,29 @@ critical-token meaning, source sufficiency, canonical MinerU manifest lineage,
 active edge use, RA acceptance, or D2/D3/D4 qualification. The qualification
 disposition remains `deferred`; no implementation, database, active edge,
 private-data, provider, or runtime promotion occurred.
+
+## Current source provider and telemetry boundary audit
+
+On 2026-07-19, a read-only source/configuration audit was performed against
+the current Knowhere qualification worktree revision
+`43b8d788694056444f907fc9ce1965e298feb8b5`. The repository carries Apache 2.0
+`LICENSE` (SHA-256
+`1eb85fc97224598dad1852b5d6483bbcf0aa8608790dcc657a5a2a761ae9c8c6`) and a
+`NOTICE` file (SHA-256
+`b2c977015e2346a143dc69839905d0d30d884c0513e8639575c7d4522b897f03`).
+
+The source README and environment examples identify external dependency
+surfaces: DeepSeek, Qwen-VL, OpenAI, DashScope, Zhipu, and Volcengine provider
+keys/URLs; `MINERU_API_KEYS` and a vision-capable provider for image/OCR paths;
+S3-compatible storage; and QStash/webhook endpoints. The API environment
+example sets `TELEMETRY_ENABLED=true` by default and documents a PostHog host,
+project key, installation ID, and aggregate/heartbeat telemetry settings. The
+README describes the telemetry as anonymous and allowlisted, but source
+configuration facts are not host-level egress or retention evidence.
+
+This audit did not load credentials, contact a provider, send telemetry, read
+private source data, or change configuration/runtime state. It identifies the
+outbound and model-provider surfaces that must remain explicitly controlled for
+a private-local profile; D2 host-level egress and telemetry qualification,
+provider authorization, private shadow-pilot acceptance, native/semantic gold,
+source sufficiency, RA acceptance, and D4/D5/D6 promotion remain deferred.
