@@ -2103,3 +2103,19 @@ host-level egress policy, and production deployment controls remain open and
 were not represented as passed. D2 remains `blocked`; no runtime promotion,
 provider execution, private-data processing, source-sufficiency conclusion, or
 RA acceptance changed.
+
+## Current local Compose internal-network hardening (2026-07-19)
+
+Knowhere revision `c9311c24c4d680125b4ea9e89ddc03dd3dd6f805` extends the
+existing local-development Compose contract by marking `knowhere_network` as
+`internal: true`. The boundary contract now passes for loopback-only published
+ports, the declared resource ceilings, and the internal-network flag; the
+Compose configuration parser also passes.
+
+This declaration has not been applied to the already-running containers in
+the local Docker Engine, which were intentionally left untouched. It is
+therefore configuration evidence only, not host-level egress proof. The
+development credential, LocalStack Docker-socket, current runtime network,
+firewall, and production deployment controls remain open; D2 stays `blocked`
+and no runtime edge, provider, private-data, source-sufficiency, or RA status
+changed.
