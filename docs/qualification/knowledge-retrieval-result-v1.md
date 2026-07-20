@@ -2213,3 +2213,20 @@ private-data execution, establish source sufficiency, or change RA disposition.
 D5/source-owner qualification and D2 runtime-edge qualification remain
 deferred/blocked as previously recorded; the default ingestion path remains
 unchanged.
+
+## Current public synthetic local MinerU E2E recheck (2026-07-20)
+
+At Knowhere revision `087154660d37f83ac33399306d1a60fc4c7c8e13`, paired with
+MinerU revision `9bd964e03e638ebdd533b9c8fdc24325552b4251`, the explicit
+offline local MinerU selection passed `3` tests in `55.76` seconds. It covered
+the standard PDF provider seam and the Codex PDF review-package export using
+the public synthetic fixture/generated PDF; the provider test observed no
+cloud fallback calls, and the package assertions preserved offline execution
+and omitted a server URL. The targeted Knowhere and MinerU Ruff checks also
+passed.
+
+This is current public synthetic mechanical/runtime-seam evidence only. It does
+not qualify MinerU parser profiles, native or semantic gold, source-owner
+review, host-level egress denial, D2/runtime edge promotion, source sufficiency,
+provider approval, private-data execution, or RA acceptance. The standard
+Knowhere ingestion path and the qualification gates remain unchanged.
