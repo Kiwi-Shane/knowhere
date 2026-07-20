@@ -102,7 +102,7 @@ def test_d2_application_images_bind_to_the_current_source_revision() -> None:
         service = services[service_name]
         assert service["build"]["context"] == "../..", service_name
         assert service["build"]["dockerfile"] == dockerfile, service_name
-        assert service["build"]["args"]["GIT_COMMIT"] == "c564a363", service_name
+        assert service["build"]["args"]["GIT_COMMIT"] == "e0502809", service_name
 
 
 def test_d2_application_services_are_internal_telemetry_off_and_secret_file_backed() -> None:
@@ -178,5 +178,8 @@ def test_d2_verifier_is_repeatable_and_does_not_teardown_the_harness() -> None:
     assert "D2 synthetic application lifecycle probe passed" in script
     assert "cross-scope" in script
     assert "archived graph residue" in script
+    assert "hard-delete" in script
+    assert "source.pdf" in script
+    assert "retrieval non-visibility" in script
     assert "-eq 5" in script
     assert " down" not in script

@@ -77,16 +77,19 @@ try {
         Assert-D2 ($portExitCode -eq 0 -and [string]::IsNullOrWhiteSpace($publishedPorts)) `
             "$containerName has a published host port: $publishedPorts"
     }
+    Write-Output "D2 stage: container restrictions and host-port checks completed."
 
     $network = (Invoke-D2DockerText @("network", "inspect", "knowhere_d2_internal") | ConvertFrom-Json)[0]
     Assert-D2 ($network.Internal -eq $true) "Docker network is not internal"
     Assert-D2 (@($network.Containers.PSObject.Properties).Count -eq 5) `
         "D2 network does not contain three dependencies and two application services"
+    Write-Output "D2 stage: internal network checks completed."
 
     $null = Invoke-D2DockerText @("exec", "knowhere_d2_redis", "redis-cli", "ping")
     $null = Invoke-D2DockerText @("exec", "knowhere_d2_postgres", "pg_isready", "-U", "root", "-d", "Knowhere")
     $null = Invoke-D2DockerText @("exec", "knowhere_d2_localstack", "curl", "-fsS", "--max-time", "5", "http://127.0.0.1:4566/_localstack/health")
     $null = Invoke-D2DockerText @("exec", "knowhere_d2_postgres", "sh", "-c", "test -s /run/secrets/postgres_password")
+    Write-Output "D2 stage: dependency health and secret checks completed."
 
     $expectedDatabaseUrl = "DATABASE_URL=postgresql+asyncpg://root@postgres:5432/Knowhere"
     foreach ($serviceName in @("api", "worker")) {
@@ -99,7 +102,7 @@ try {
             "$containerName does not use the file-backed database password"
         Assert-D2 ($environment -contains $expectedDatabaseUrl) `
             "$containerName exposes a database URL with an embedded password or unexpected host"
-        Assert-D2 ($environment -contains "GIT_COMMIT=c564a363") `
+        Assert-D2 ($environment -contains "GIT_COMMIT=e0502809") `
             "$containerName is not bound to the characterized source revision"
         if ($serviceName -eq "worker") {
             Assert-D2 ($environment -contains "WORKER_HEARTBEAT_FILE=/tmp/knowhere-worker-heartbeat.json") `
@@ -107,6 +110,7 @@ try {
         }
         $null = Invoke-D2DockerText @("exec", $containerName, "sh", "-c", "test -s /run/secrets/postgres_password")
     }
+    Write-Output "D2 stage: application runtime environment checks completed."
 
     $apiHealth = Invoke-D2DockerText @("exec", "knowhere_d2_api", "curl", "-fsS", "http://127.0.0.1:5005/health") |
         ConvertFrom-Json
@@ -119,6 +123,7 @@ try {
         "exec", "knowhere_d2_worker", "sh", "-c",
         "test -s /tmp/knowhere-worker-heartbeat.json"
     )
+    Write-Output "D2 stage: API and worker health checks completed."
 
     $lifecycleProbe = @'
 import asyncio
@@ -128,10 +133,14 @@ from sqlalchemy import delete, select
 
 from app.services.documents.lifecycle_service import DocumentService
 from shared.core.database import AsyncSessionFactory
-from shared.models.database.document import Document, GraphEdge, GraphNode
+from shared.models.database.document import Document, DocumentChunk, GraphEdge, GraphNode
 from shared.models.database.job import Job
 from shared.models.database.job_result import JobResult
+from shared.services.retrieval.app_service import run_retrieval_query
+from shared.services.storage.job_file_storage import JobFileStorage
+from shared.services.storage.result_storage import JobResultStorage
 from shared.models.database.user import User
+from pathlib import Path
 
 
 def _document_id() -> str:
@@ -185,6 +194,8 @@ async def _lifecycle_probe() -> None:
     document_ids: list[str] = []
     job_ids: list[str] = []
     result_ids: list[str] = []
+    chunk_ids: list[str] = []
+    retrieval_marker = f"d2-hard-delete-marker-{uuid4().hex}"
     documents: list[Document] = []
     jobs: list[Job] = []
     results: list[JobResult] = []
@@ -197,6 +208,8 @@ async def _lifecycle_probe() -> None:
         document_ids.append(document_id)
         job_ids.append(job_id)
         result_ids.append(result_id)
+        upload_key = f"uploads/{job_id}.pdf" if label == "target" else None
+        result_key = f"results/{job_id}.zip" if label == "target" else None
         jobs.append(
             Job(
                 job_id=job_id,
@@ -205,6 +218,7 @@ async def _lifecycle_probe() -> None:
                 status="done",
                 source_type="direct_upload",
                 file_path=f"/synthetic/{label}.pdf",
+                s3_key=upload_key,
             )
         )
         results.append(
@@ -213,6 +227,7 @@ async def _lifecycle_probe() -> None:
                 job_id=job_id,
                 delivery_mode="inline",
                 inline_payload={"synthetic": label},
+                result_s3_key=result_key,
             )
         )
         documents.append(
@@ -269,9 +284,75 @@ async def _lifecycle_probe() -> None:
                     is_directed=False,
                 )
             )
+            chunk_id = f"dchk_{uuid4().hex[:12]}"
+            chunk_ids.append(chunk_id)
+            db.add(
+                DocumentChunk(
+                    id=chunk_id,
+                    chunk_id=f"d2-hard-delete-chunk-{uuid4().hex[:8]}",
+                    user_id=user_a_id,
+                    namespace=namespace_a,
+                    document_id=target_id,
+                    job_result_id=results[0].id,
+                    chunk_type="text",
+                    content=retrieval_marker,
+                    content_lexical_text=retrieval_marker,
+                    content_search_text=retrieval_marker,
+                    term_search_text=retrieval_marker,
+                    source_chunk_path="D2/Hard Delete",
+                    chunk_metadata={"synthetic": True},
+                    sort_order=0,
+                )
+            )
             await db.commit()
 
             service = DocumentService()
+            file_storage = JobFileStorage()
+            result_storage = JobResultStorage(
+                results_bucket=file_storage.results_bucket,
+                storage_adapter=file_storage.storage_adapter,
+            )
+            target_job = jobs[0]
+            assert target_job.s3_key is not None
+            upload_key = target_job.s3_key
+            result_zip_key = result_storage.build_zip_key(job_id=target_job.job_id)
+            local_fixture = Path(f"/tmp/d2-hard-delete-{target_job.job_id}.pdf")
+            local_fixture.write_bytes(b"d2 synthetic hard-delete artifact")
+            try:
+                file_storage.upload_local_file(
+                    str(local_fixture),
+                    upload_key,
+                    bucket=file_storage.uploads_bucket,
+                )
+                file_storage.upload_local_file(
+                    str(local_fixture),
+                    result_zip_key,
+                    bucket=result_storage.results_bucket,
+                )
+                result_storage.upload_raw_file(
+                    job_id=target_job.job_id,
+                    relative_path="source.pdf",
+                    local_file_path=str(local_fixture),
+                )
+            finally:
+                local_fixture.unlink(missing_ok=True)
+
+            retrieval_before = await run_retrieval_query(
+                db=db,
+                user_id=user_a_id,
+                namespace=namespace_a,
+                query=retrieval_marker,
+                top_k=10,
+                exclude_document_ids=[],
+                exclude_sections=[],
+                channels=["content"],
+                use_agentic=False,
+            )
+            retrieval_before_ids = {
+                item["source"]["document_id"]
+                for item in retrieval_before["results"]
+            }
+            assert target_id in retrieval_before_ids
 
             async def visible(user_id: str, namespace: str) -> set[str]:
                 response = await service.list_documents(
@@ -339,6 +420,60 @@ async def _lifecycle_probe() -> None:
             assert peer_node is not None
             assert other_user_node is not None
             assert other_namespace_node is not None
+
+            deleted = await service.delete_document(
+                db,
+                user_id=user_a_id,
+                document_id=target_id,
+            )
+            assert deleted == {"document_id": target_id, "deleted": True}
+            assert (
+                await service.get_document(
+                    db,
+                    user_id=user_a_id,
+                    document_id=target_id,
+                )
+                is None
+            )
+            assert await visible(user_a_id, namespace_a) == {peer_id}
+            assert (
+                await db.scalar(select(Job).where(Job.job_id == target_job.job_id))
+                is None
+            )
+            assert (
+                await db.scalar(
+                    select(JobResult).where(JobResult.id == results[0].id)
+                )
+                is None
+            )
+            assert not file_storage.verify_exists(
+                upload_key,
+                bucket=file_storage.uploads_bucket,
+            )["exists"]
+            assert not file_storage.verify_exists(
+                result_zip_key,
+                bucket=result_storage.results_bucket,
+            )["exists"]
+            assert not result_storage.verify_raw_exists(
+                job_id=target_job.job_id,
+                relative_path="source.pdf",
+            )
+            retrieval_after = await run_retrieval_query(
+                db=db,
+                user_id=user_a_id,
+                namespace=namespace_a,
+                query=retrieval_marker,
+                top_k=10,
+                exclude_document_ids=[],
+                exclude_sections=[],
+                channels=["content"],
+                use_agentic=False,
+            )
+            retrieval_after_ids = {
+                item["source"]["document_id"]
+                for item in retrieval_after["results"]
+            }
+            assert target_id not in retrieval_after_ids
         finally:
             await db.rollback()
             await db.execute(
@@ -350,6 +485,7 @@ async def _lifecycle_probe() -> None:
             await db.execute(
                 delete(Document).where(Document.document_id.in_(document_ids))
             )
+            await db.execute(delete(DocumentChunk).where(DocumentChunk.id.in_(chunk_ids)))
             await db.execute(delete(JobResult).where(JobResult.id.in_(result_ids)))
             await db.execute(delete(Job).where(Job.job_id.in_(job_ids)))
             await db.execute(delete(User).where(User.id.in_([user_a_id, user_b_id])))
@@ -361,23 +497,38 @@ async def main() -> None:
     await _lifecycle_probe()
     print(
         "D2 synthetic application lifecycle probe passed: cross-scope isolation, "
-        "archive exclusion, and archived graph residue cleanup."
+        "archive exclusion, archived graph residue cleanup, hard-delete storage "
+        "cleanup, and retrieval non-visibility."
     )
 
 
 asyncio.run(main())
 '@
-    $lifecycleOutput = ($lifecycleProbe | & docker exec -i knowhere_d2_api python - 2>&1 | Out-String).Trim()
-    $lifecycleExitCode = $LASTEXITCODE
+    Write-Output "D2 stage: lifecycle probe starting."
+    $lifecyclePreference = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $lifecycleOutput = ($lifecycleProbe | & docker exec -i knowhere_d2_api env PYTHONWARNINGS=ignore python - 2>&1 | Out-String).Trim()
+        $lifecycleExitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $lifecyclePreference
+    }
+    if ($lifecycleExitCode -ne 0 -or $lifecycleOutput -notlike "*D2 synthetic application lifecycle probe passed*") {
+        Write-Output "D2 lifecycle probe diagnostic (exit=$lifecycleExitCode):"
+        Write-Output $lifecycleOutput
+    }
     Assert-D2 ($lifecycleExitCode -eq 0) "D2 synthetic application lifecycle probe failed: $lifecycleOutput"
     Assert-D2 ($lifecycleOutput -like "*D2 synthetic application lifecycle probe passed*") `
         "D2 synthetic application lifecycle probe did not report success: $lifecycleOutput"
+    Write-Output "D2 synthetic application lifecycle probe completed."
 
     foreach ($containerName in @("knowhere_d2_localstack", "knowhere_d2_api", "knowhere_d2_worker")) {
         & docker exec $containerName sh -c "curl -fsS --connect-timeout 2 --max-time 4 https://example.com >/dev/null 2>&1"
         $egressExitCode = $LASTEXITCODE
         Assert-D2 ($egressExitCode -ne 0) "$containerName external HTTPS unexpectedly succeeded"
     }
+    Write-Output "D2 external HTTPS negative checks completed."
 
     $restoreDatabase = "d2_restore_smoke"
     try {
@@ -401,6 +552,7 @@ asyncio.run(main())
             "-c", "BEGIN; INSERT INTO d2_rollback_smoke VALUES (1, 'rolled-back'); ROLLBACK; SELECT count(*) FROM d2_rollback_smoke;"
         )
         Assert-D2 ($rollbackResult -eq "0") "transaction rollback sentinel left committed data: $rollbackResult"
+        Write-Output "D2 backup/restore and rollback checks completed."
     }
     finally {
         $null = Invoke-D2DockerText @("exec", "knowhere_d2_postgres", "psql", "-q", "-v", "ON_ERROR_STOP=1", "-U", "root", "-d", "Knowhere", "-c", "SET client_min_messages=warning; DROP TABLE IF EXISTS d2_backup_smoke; DROP TABLE IF EXISTS d2_rollback_smoke")
@@ -411,6 +563,7 @@ asyncio.run(main())
     Write-Output "D2 hardened harness verification passed: dependency/application health, cross-scope lifecycle isolation, runtime controls, file-backed secret, telemetry disabled, no external HTTPS, backup/restore, and rollback smoke."
 }
 catch {
-    Write-Error ("D2 dependency harness verification failed: " + $_.Exception.Message)
+    $failureMessage = ($_.Exception.Message -replace "\s+", " ").Trim()
+    Write-Error ("D2 dependency harness verification failed: " + $failureMessage)
     exit 1
 }
