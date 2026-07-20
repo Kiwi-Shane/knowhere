@@ -1,9 +1,10 @@
 """Sync file-loading helpers for worker parsing paths."""
 
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from urllib.parse import ParseResult
 
-import httpx
+from shared.services.storage.job_file_storage import JobFileStorage
 
 
 def is_remote(path: object) -> bool:
@@ -27,9 +28,13 @@ def load_file_bytes(
         if file_url:
             url_to_use = file_url
 
-        with httpx.Client(timeout=timeout, follow_redirects=True) as client:
-            response = client.get(url_to_use)
-            response.raise_for_status()
-            return response.content
+        effective_timeout = 300.0 if timeout is None else timeout
+        with TemporaryDirectory(prefix="knowhere-remote-file-") as temp_dir:
+            downloaded_path = JobFileStorage().download_file_from_url(
+                url_to_use,
+                temp_dir=temp_dir,
+                timeout_seconds=effective_timeout,
+            )
+            return Path(downloaded_path).read_bytes()
 
     return Path(file_path).read_bytes()

@@ -240,6 +240,8 @@ def download_pinned_outbound_file(
     timeout_seconds: float,
     user_agent: str,
     temp_dir: str | None = None,
+    headers: Mapping[str, str] | None = None,
+    chunk_size: int = 65536,
     field: str = "source_url",
 ) -> PinnedDownloadResult:
     """
@@ -275,13 +277,16 @@ def download_pinned_outbound_file(
                 retries=Retry(total=0, redirect=False),
             )
 
+        request_headers = dict(headers or {})
+        request_headers["User-Agent"] = request_headers.get("User-Agent", user_agent)
+        request_headers["Host"] = _build_host_header(parsed_url)
         response = connection_pool.urlopen(
             "GET",
             request_path,
             timeout=Timeout.from_float(timeout_seconds),
             preload_content=False,
             redirect=False,
-            headers={"User-Agent": user_agent, "Host": _build_host_header(parsed_url)},
+            headers=request_headers,
         )
         try:
             if not 200 <= response.status < 300:
@@ -296,7 +301,7 @@ def download_pinned_outbound_file(
                 )
 
             with open(temp_file_path, "wb") as output_file:
-                for chunk in response.stream(65536):
+                for chunk in response.stream(chunk_size):
                     if chunk:
                         output_file.write(chunk)
         finally:
