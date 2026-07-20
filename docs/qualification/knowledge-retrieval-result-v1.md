@@ -1960,3 +1960,20 @@ outbound and model-provider surfaces that must remain explicitly controlled for
 a private-local profile; D2 host-level egress and telemetry qualification,
 provider authorization, private shadow-pilot acceptance, native/semantic gold,
 source sufficiency, RA acceptance, and D4/D5/D6 promotion remain deferred.
+
+## Current Docker and host-boundary recheck
+
+On 2026-07-19, a read-only check of the local qualification runtime confirmed
+Docker Engine client/server `29.6.1` and healthy containers for the MinerU API,
+PostgreSQL, Redis, and LocalStack services. Host-wide published bindings remain
+present for the service ports, and both active Compose networks remain
+non-internal bridge networks. The inspected containers retain writable roots,
+unbounded memory/CPU/pids settings, and LocalStack retains a read-write Docker
+socket mount.
+
+All enabled Windows firewall profiles still report `NotConfigured` default
+inbound and outbound actions. This is host/runtime-boundary evidence only; no
+firewall, Docker, source, provider, telemetry, private-data, or database state
+was changed. D2 remains `blocked`, and the qualification disposition remains
+`deferred`; no runtime promotion, active edge, provider execution, or RA
+acceptance is inferred.
