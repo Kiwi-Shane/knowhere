@@ -2311,3 +2311,22 @@ top-N meaning preservation, source sufficiency, deletion, D2 egress control,
 runtime-edge promotion, provider/private-data authorization, or RA
 acceptance. Retrieval qualification remains `deferred` and no edge status
 changed.
+
+## Current-head page-memory hierarchy/asset contract recheck (2026-07-20)
+
+At Knowhere revision `b05c0d979098f3cfa628948885250c1cc1a6c43d`, the existing
+page-memory asset, single-child-collapse, cross-page-table, fine-hierarchy,
+node-assembler, and page-tagger contract selection passed `49` tests in
+`2.02` seconds under locked offline execution with `TELEMETRY_ENABLED=false`.
+The selection covered page-asset detection and bounded debug output, hierarchy
+collapse/idempotence/order, cross-page table merge behavior, exclusive page
+boundaries, node/page ownership, OCR/VLM failure propagation, rendered-page
+citation assets, asset-row linking, and concurrent page tagging. The targeted
+Ruff check passed.
+
+This is current-head page-memory mechanical contract evidence only. It does not
+establish extraction or retrieval semantic gold, native-source adjudication,
+ranked top-N meaning preservation, source sufficiency, hard deletion, D2
+egress control, runtime-edge promotion, provider/private-data authorization,
+or RA acceptance. Retrieval qualification remains `deferred`; no edge or
+runtime status changed.
