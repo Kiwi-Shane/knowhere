@@ -2088,3 +2088,18 @@ egress denial, firewall policy, external sink retention, or full D2 runtime
 qualification. The D2 evidence disposition remains
 `blocked`/`partial_mechanical_only`, and no provider, private-data, active-edge,
 source-sufficiency, or RA status changed.
+
+## Current local Compose boundary hardening (2026-07-19)
+
+Knowhere revision `f96c874d6f9f74e8a5df2f8d0e41bd0f9b4d16f3` updates the existing
+local-development Compose file so PostgreSQL, Redis, and LocalStack published
+ports bind to loopback only. The same three services now declare explicit
+CPU, memory, and PID ceilings. Two new Compose contract tests passed, and
+`docker compose config --quiet` parsed the file successfully.
+
+This is deployment-configuration hardening only. The local bridge network,
+development PostgreSQL credential handling, LocalStack Docker-socket mount,
+host-level egress policy, and production deployment controls remain open and
+were not represented as passed. D2 remains `blocked`; no runtime promotion,
+provider execution, private-data processing, source-sufficiency conclusion, or
+RA acceptance changed.
