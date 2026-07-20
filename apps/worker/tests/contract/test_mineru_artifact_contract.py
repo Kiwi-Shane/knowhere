@@ -7,7 +7,9 @@ from pathlib import Path
 import pytest
 
 from app.services.document_parser.providers.mineru.artifact_contract import (
+    CanonicalManifestRequest,
     MinerUArtifactContractError,
+    validate_canonical_manifest,
     validate_mineru_artifact_bundle,
 )
 
@@ -107,6 +109,86 @@ def test_valid_manifest_returns_typed_artifact_bundle(tmp_path: Path) -> None:
     assert bundle.middle_json_path.name == "report_middle.json"
     assert bundle.content_list_v2_path.name == "report_content_list_v2.json"
     assert bundle.images_dir.is_dir()
+
+
+def test_canonical_manifest_consumption_binds_source_identity_and_artifact_hash(
+    tmp_path: Path,
+) -> None:
+    source, output_root, _manifest_path, manifest = _write_valid_bundle(tmp_path)
+    content_path = output_root / manifest["artifacts"]["content_list_v2"]["path"]
+    canonical_path = output_root / "document-extraction-manifest-v1.json"
+    canonical_path.write_text(
+        json.dumps(
+            {
+                "contract_version": "document-extraction-manifest-v1",
+                "extraction_run_id": "EXT-SYNTHETIC-001",
+                "source_id": "SRC-SYNTHETIC-001",
+                "source_version_id": "SRC-SYNTHETIC-001-V001",
+                "input_sha256": _sha256(source),
+                "status": "completed",
+                "outputs": [
+                    {
+                        "artifact_id": "content_list_v2:report/auto/report_content_list_v2.json",
+                        "artifact_type": "content_list_v2",
+                        "relative_path": content_path.relative_to(
+                            output_root
+                        ).as_posix(),
+                        "sha256": _sha256(content_path),
+                    }
+                ],
+                "derivative_not_native_source_evidence": True,
+                "does_not_establish_source_sufficiency": True,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = validate_canonical_manifest(
+        manifest_path=canonical_path,
+        output_root=output_root,
+        source_path=source,
+        request=CanonicalManifestRequest(
+            source_id="SRC-SYNTHETIC-001",
+            source_version_id="SRC-SYNTHETIC-001-V001",
+            extraction_run_id="EXT-SYNTHETIC-001",
+        ),
+    )
+
+    assert result.raw["input_sha256"] == _sha256(source)
+    assert result.raw["outputs"][0]["sha256"] == _sha256(content_path)
+
+
+def test_canonical_manifest_rejects_source_hash_mismatch(tmp_path: Path) -> None:
+    source, output_root, _manifest_path, _manifest = _write_valid_bundle(tmp_path)
+    canonical_path = output_root / "document-extraction-manifest-v1.json"
+    canonical_path.write_text(
+        json.dumps(
+            {
+                "contract_version": "document-extraction-manifest-v1",
+                "extraction_run_id": "EXT-SYNTHETIC-001",
+                "source_id": "SRC-SYNTHETIC-001",
+                "source_version_id": "SRC-SYNTHETIC-001-V001",
+                "input_sha256": "0" * 64,
+                "status": "completed",
+                "outputs": [],
+                "derivative_not_native_source_evidence": True,
+                "does_not_establish_source_sufficiency": True,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(MinerUArtifactContractError, match="source SHA-256"):
+        validate_canonical_manifest(
+            manifest_path=canonical_path,
+            output_root=output_root,
+            source_path=source,
+            request=CanonicalManifestRequest(
+                source_id="SRC-SYNTHETIC-001",
+                source_version_id="SRC-SYNTHETIC-001-V001",
+                extraction_run_id="EXT-SYNTHETIC-001",
+            ),
+        )
 
 
 def test_malformed_manifest_json_fails(tmp_path: Path) -> None:

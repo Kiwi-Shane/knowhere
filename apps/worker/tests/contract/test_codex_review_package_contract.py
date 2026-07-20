@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+from dataclasses import replace
 from pathlib import Path
 
 import pymupdf
@@ -22,6 +23,8 @@ from app.services.codex_export.package_builder import (  # noqa: E402
 )
 from app.services.codex_export.page_selection import RenderedPage  # noqa: E402
 from app.services.document_parser.providers.mineru.artifact_contract import (  # noqa: E402
+    CanonicalManifestRequest,
+    CanonicalMinerUManifest,
     MinerUArtifactBundle,
     MinerUArtifactManifest,
 )
@@ -72,9 +75,7 @@ def _bundle(tmp_path: Path, source: Path) -> MinerUArtifactBundle:
                     {
                         "type": "title",
                         "content": {
-                            "title_content": [
-                                {"type": "text", "content": "1. Scope"}
-                            ],
+                            "title_content": [{"type": "text", "content": "1. Scope"}],
                             "level": 1,
                         },
                     },
@@ -95,9 +96,7 @@ def _bundle(tmp_path: Path, source: Path) -> MinerUArtifactBundle:
                         "type": "table",
                         "content": {
                             "image_source": {"path": "images/table-1.png"},
-                            "table_caption": [
-                                {"type": "text", "content": "Table 1"}
-                            ],
+                            "table_caption": [{"type": "text", "content": "Table 1"}],
                             "table_footnote": [],
                             "html": (
                                 "<table><tr><td>Metric</td><td>Value</td></tr>"
@@ -429,8 +428,87 @@ def test_manifest_is_portable_and_package_does_not_leak_environment_secrets(
 
     assert str(tmp_path) not in manifest_text
     for path in result.package_root.rglob("*"):
-        if path.is_file() and path.suffix.lower() in {".json", ".jsonl", ".md", ".log", ".csv", ".html"}:
+        if path.is_file() and path.suffix.lower() in {
+            ".json",
+            ".jsonl",
+            ".md",
+            ".log",
+            ".csv",
+            ".html",
+        }:
             assert secret not in path.read_text(encoding="utf-8-sig")
+
+
+def test_package_preserves_opt_in_canonical_manifest_lineage(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = _source(tmp_path, ".pdf")
+    bundle = _bundle(tmp_path, source)
+    canonical_path = bundle.output_root / "document-extraction-manifest-v1.json"
+    canonical_payload = {
+        "contract_version": "document-extraction-manifest-v1",
+        "extraction_run_id": "EXT-SYNTHETIC-001",
+        "source_id": "SRC-SYNTHETIC-001",
+        "source_version_id": "SRC-SYNTHETIC-001-V001",
+        "input_sha256": _sha256(source),
+        "status": "completed",
+        "outputs": [],
+        "derivative_not_native_source_evidence": True,
+        "does_not_establish_source_sufficiency": True,
+    }
+    canonical_path.write_text(json.dumps(canonical_payload), encoding="utf-8")
+    bundle = replace(
+        bundle,
+        canonical_manifest_path=canonical_path,
+        canonical_manifest=CanonicalMinerUManifest(
+            path=canonical_path,
+            raw=canonical_payload,
+        ),
+    )
+    _install_fake_runner(monkeypatch, bundle)
+    _install_fake_page_renderer(monkeypatch)
+    request = replace(
+        _request(tmp_path, source),
+        canonical_manifest=CanonicalManifestRequest(
+            source_id="SRC-SYNTHETIC-001",
+            source_version_id="SRC-SYNTHETIC-001-V001",
+            extraction_run_id="EXT-SYNTHETIC-001",
+        ),
+    )
+
+    result = build_codex_review_package(request)
+
+    copied = (
+        result.package_root / "raw" / "mineru" / "document-extraction-manifest-v1.json"
+    )
+    assert copied.is_file()
+    package_manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
+    assert package_manifest["mineru"]["canonical_manifest"]["source_id"] == (
+        "SRC-SYNTHETIC-001"
+    )
+    assert package_manifest["mineru"]["canonical_manifest"]["path"] == (
+        "raw/mineru/document-extraction-manifest-v1.json"
+    )
+
+
+def test_package_fails_closed_when_requested_canonical_manifest_is_missing(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source = _source(tmp_path, ".pdf")
+    _install_fake_runner(monkeypatch, _bundle(tmp_path, source))
+    request = replace(
+        _request(tmp_path, source),
+        canonical_manifest=CanonicalManifestRequest(
+            source_id="SRC-SYNTHETIC-001",
+            source_version_id="SRC-SYNTHETIC-001-V001",
+            extraction_run_id="EXT-SYNTHETIC-001",
+        ),
+    )
+
+    with pytest.raises(ReviewPackageError, match="did not return"):
+        build_codex_review_package(request)
 
 
 def test_package_gitignore_and_native_source_hash_match_manifest(

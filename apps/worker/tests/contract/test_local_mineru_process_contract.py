@@ -7,6 +7,8 @@ from typing import Any
 import pytest
 
 from app.services.document_parser.providers.mineru.artifact_contract import (
+    CanonicalManifestRequest,
+    CanonicalMinerUManifest,
     MinerUArtifactBundle,
     MinerUArtifactManifest,
 )
@@ -138,6 +140,78 @@ def test_runner_builds_argv_list_for_paths_with_spaces_and_uses_no_shell(
     assert seen["kwargs"]["shell"] is False
 
 
+def test_runner_passes_explicit_canonical_manifest_identity_and_validates_result(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    base_request = _request(tmp_path)
+    request = LocalMinerURequest(
+        source_path=base_request.source_path,
+        output_root=base_request.output_root,
+        backend=base_request.backend,
+        method=base_request.method,
+        language=base_request.language,
+        offline=base_request.offline,
+        canonical_manifest=CanonicalManifestRequest(
+            source_id="SRC-SYNTHETIC-001",
+            source_version_id="SRC-SYNTHETIC-001-V001",
+            extraction_run_id="EXT-SYNTHETIC-001",
+        ),
+    )
+    project_path = tmp_path / "MinerU project"
+    project_path.mkdir()
+    uv_path = tmp_path / "tools" / "uv.exe"
+    uv_path.parent.mkdir()
+    uv_path.touch()
+    process = _FakeProcess(stdout=str(request.output_root / "mineru_manifest.json"))
+    seen: dict[str, Any] = {}
+
+    def fake_popen(argv, **kwargs):
+        seen["argv"] = argv
+        seen["kwargs"] = kwargs
+        return process
+
+    expected_bundle = _bundle(request)
+    expected_canonical = CanonicalMinerUManifest(
+        path=request.output_root / "document-extraction-manifest-v1.json",
+        raw={},
+    )
+    from app.services.document_parser.providers.mineru import local_process
+
+    monkeypatch.setattr(local_process.subprocess, "Popen", fake_popen)
+    monkeypatch.setattr(
+        local_process,
+        "validate_mineru_artifact_bundle",
+        lambda **_kwargs: expected_bundle,
+    )
+    monkeypatch.setattr(
+        local_process,
+        "validate_canonical_manifest",
+        lambda **_kwargs: expected_canonical,
+    )
+    runner = local_process.LocalMinerURunner(
+        project_path=project_path,
+        uv_executable=str(uv_path),
+        timeout_seconds=30,
+        max_log_chars=1000,
+    )
+
+    result = runner.run(request)
+
+    assert result.canonical_manifest is expected_canonical
+    assert seen["argv"][-9:] == [
+        "--canonical-manifest",
+        "--source-id",
+        "SRC-SYNTHETIC-001",
+        "--source-version-id",
+        "SRC-SYNTHETIC-001-V001",
+        "--extraction-run-id",
+        "EXT-SYNTHETIC-001",
+        "--accelerator-profile",
+        "unknown",
+    ]
+
+
 def test_nonzero_exit_raises_typed_error_and_redacts_secrets(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -235,9 +309,7 @@ def test_runner_rejects_non_absolute_or_missing_project_path(tmp_path: Path) -> 
 def test_existing_cloud_mineru_entrypoint_remains_importable(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.setenv(
-        "DATABASE_URL", "postgresql+asyncpg://test:test@localhost/test"
-    )
+    monkeypatch.setenv("DATABASE_URL", "postgresql+asyncpg://test:test@localhost/test")
     monkeypatch.setenv("TMP_PATH", "/tmp/knowhere-test")
     monkeypatch.setenv("S3_BUCKET_NAME", "test-uploads")
     monkeypatch.setenv("S3_ACCESS_KEY_ID", "test")

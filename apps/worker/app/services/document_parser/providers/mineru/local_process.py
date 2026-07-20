@@ -7,11 +7,14 @@ import re
 import shutil
 import signal
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from app.services.document_parser.providers.mineru.artifact_contract import (
+    CanonicalManifestRequest,
     MinerUArtifactBundle,
+    validate_canonical_manifest,
+    validate_canonical_manifest_request,
     validate_mineru_artifact_bundle,
 )
 
@@ -39,6 +42,7 @@ class LocalMinerURequest:
     method: str
     language: str
     offline: bool
+    canonical_manifest: CanonicalManifestRequest | None = None
 
 
 class LocalMinerUError(RuntimeError):
@@ -152,6 +156,22 @@ class LocalMinerURunner:
             request.language,
             "--offline" if request.offline else "--no-offline",
         ]
+        if request.canonical_manifest is not None:
+            validate_canonical_manifest_request(request.canonical_manifest)
+            canonical = request.canonical_manifest
+            argv.extend(
+                [
+                    "--canonical-manifest",
+                    "--source-id",
+                    canonical.source_id.strip(),
+                    "--source-version-id",
+                    canonical.source_version_id.strip(),
+                    "--extraction-run-id",
+                    canonical.extraction_run_id.strip(),
+                    "--accelerator-profile",
+                    canonical.accelerator_profile.strip(),
+                ]
+            )
         return argv
 
     def run(self, request: LocalMinerURequest) -> MinerUArtifactBundle:
@@ -216,8 +236,22 @@ class LocalMinerURunner:
                 log_path=log_path,
             )
 
-        return validate_mineru_artifact_bundle(
+        bundle = validate_mineru_artifact_bundle(
             manifest_path=output_root / "mineru_manifest.json",
             output_root=output_root,
             source_path=source_path,
+        )
+        if request.canonical_manifest is None:
+            return bundle
+        canonical_path = output_root / "document-extraction-manifest-v1.json"
+        canonical = validate_canonical_manifest(
+            manifest_path=canonical_path,
+            output_root=output_root,
+            source_path=source_path,
+            request=request.canonical_manifest,
+        )
+        return replace(
+            bundle,
+            canonical_manifest_path=canonical.path,
+            canonical_manifest=canonical,
         )

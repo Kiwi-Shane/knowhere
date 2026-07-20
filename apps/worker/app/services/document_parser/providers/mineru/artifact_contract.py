@@ -25,6 +25,24 @@ class MinerUArtifactContractError(RuntimeError):
 
 
 @dataclass(frozen=True)
+class CanonicalManifestRequest:
+    """Explicit source identity used for an opt-in canonical manifest run."""
+
+    source_id: str
+    source_version_id: str
+    extraction_run_id: str
+    accelerator_profile: str = "unknown"
+
+
+@dataclass(frozen=True)
+class CanonicalMinerUManifest:
+    """Validated source-owned manifest metadata consumed by Knowhere."""
+
+    path: Path
+    raw: dict[str, Any]
+
+
+@dataclass(frozen=True)
 class MinerUArtifactManifest:
     schema_version: str
     status: str
@@ -47,6 +65,8 @@ class MinerUArtifactBundle:
     content_list_v2_path: Path
     images_dir: Path
     manifest: MinerUArtifactManifest
+    canonical_manifest_path: Path | None = None
+    canonical_manifest: CanonicalMinerUManifest | None = None
 
 
 def _sha256_file(path: Path) -> str:
@@ -132,8 +152,118 @@ def _load_manifest(path: Path) -> dict[str, Any]:
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
-        raise MinerUArtifactContractError("MinerU manifest is not valid JSON.") from error
+        raise MinerUArtifactContractError(
+            "MinerU manifest is not valid JSON."
+        ) from error
     return _require_mapping(payload, "manifest")
+
+
+def validate_canonical_manifest_request(request: CanonicalManifestRequest) -> None:
+    """Validate identity before an opt-in producer process is started."""
+    for field_name in ("source_id", "source_version_id", "extraction_run_id"):
+        value = getattr(request, field_name)
+        if not isinstance(value, str) or not value.strip():
+            raise MinerUArtifactContractError(
+                f"Canonical manifest requires a non-empty {field_name}."
+            )
+    if (
+        not isinstance(request.accelerator_profile, str)
+        or not request.accelerator_profile.strip()
+    ):
+        raise MinerUArtifactContractError(
+            "Canonical manifest requires a non-empty accelerator_profile."
+        )
+
+
+def validate_canonical_manifest(
+    *,
+    manifest_path: Path,
+    output_root: Path,
+    source_path: Path,
+    request: CanonicalManifestRequest,
+) -> CanonicalMinerUManifest:
+    """Validate producer lineage and hashes without re-owning the source schema."""
+    validate_canonical_manifest_request(request)
+    root = output_root.expanduser().resolve()
+    source = source_path.expanduser().resolve()
+    manifest_file = manifest_path.expanduser().resolve()
+    if not source.is_file():
+        raise MinerUArtifactContractError("Canonical source file is missing.")
+    try:
+        manifest_file.relative_to(root)
+    except ValueError as error:
+        raise MinerUArtifactContractError(
+            "Canonical manifest must be located under the output root."
+        ) from error
+
+    raw = _load_manifest(manifest_file)
+    if raw.get("contract_version") != "document-extraction-manifest-v1":
+        raise MinerUArtifactContractError(
+            "Unsupported canonical manifest contract version."
+        )
+    if raw.get("status") != "completed":
+        raise MinerUArtifactContractError(
+            "Canonical manifest status must be completed."
+        )
+    for field_name in ("source_id", "source_version_id", "extraction_run_id"):
+        if raw.get(field_name) != getattr(request, field_name).strip():
+            raise MinerUArtifactContractError(
+                f"Canonical manifest {field_name} does not match the request."
+            )
+    if raw.get("input_sha256") != _sha256_file(source):
+        raise MinerUArtifactContractError(
+            "Canonical manifest source SHA-256 does not match the input."
+        )
+    if raw.get("derivative_not_native_source_evidence") is not True:
+        raise MinerUArtifactContractError(
+            "Canonical manifest must identify derivatives as non-native evidence."
+        )
+    if raw.get("does_not_establish_source_sufficiency") is not True:
+        raise MinerUArtifactContractError(
+            "Canonical manifest must preserve its source-sufficiency boundary."
+        )
+
+    outputs = raw.get("outputs")
+    if not isinstance(outputs, list):
+        raise MinerUArtifactContractError(
+            "Canonical manifest outputs must be an array."
+        )
+    seen_paths: set[str] = set()
+    for index, output in enumerate(outputs):
+        declaration = _require_mapping(output, f"outputs[{index}]")
+        relative_path = declaration.get("relative_path")
+        if not isinstance(relative_path, str) or not relative_path.strip():
+            raise MinerUArtifactContractError(
+                f"Canonical output {index} must declare a relative path."
+            )
+        normalized_path = PurePosixPath(relative_path.replace("\\", "/")).as_posix()
+        if normalized_path in seen_paths:
+            raise MinerUArtifactContractError(
+                f"Canonical output path is duplicated: {relative_path}"
+            )
+        seen_paths.add(normalized_path)
+        output_path = _resolve_relative_artifact(
+            root,
+            relative_path,
+            f"canonical output {index}",
+        )
+        if not output_path.is_file():
+            raise MinerUArtifactContractError(
+                f"Canonical output is missing: {relative_path}"
+            )
+        expected_hash = declaration.get("sha256")
+        if not isinstance(expected_hash, str) or not _SHA256_PATTERN.fullmatch(
+            expected_hash
+        ):
+            raise MinerUArtifactContractError(
+                f"Canonical output has an invalid SHA-256: {relative_path}"
+            )
+        if _sha256_file(output_path) != expected_hash:
+            raise MinerUArtifactContractError(
+                f"Canonical output hash mismatch: {relative_path}"
+            )
+
+    return CanonicalMinerUManifest(path=manifest_file, raw=raw)
 
 
 def validate_mineru_artifact_bundle(
@@ -170,9 +300,7 @@ def validate_mineru_artifact_bundle(
     if not isinstance(expected_source_hash, str) or not _SHA256_PATTERN.fullmatch(
         expected_source_hash
     ):
-        raise MinerUArtifactContractError(
-            "MinerU manifest source SHA-256 is invalid."
-        )
+        raise MinerUArtifactContractError("MinerU manifest source SHA-256 is invalid.")
     if _sha256_file(source) != expected_source_hash:
         raise MinerUArtifactContractError("MinerU manifest source hash mismatch.")
 
@@ -238,4 +366,3 @@ def validate_mineru_artifact_bundle(
         images_dir=images_dir,
         manifest=manifest,
     )
-

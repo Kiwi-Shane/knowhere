@@ -32,6 +32,7 @@ from app.services.codex_export.schema import ExtractionFinding, deterministic_id
 from app.services.codex_export.table_exporter import export_tables
 from app.services.codex_export.tree_builder import build_document_tree
 from app.services.document_parser.providers.mineru.artifact_contract import (
+    CanonicalManifestRequest,
     MinerUArtifactBundle,
 )
 from app.services.document_parser.providers.mineru.local_process import (
@@ -64,6 +65,7 @@ class ReviewPackageRequest:
     offline: bool
     force: bool
     keep_work_dir: bool
+    canonical_manifest: CanonicalManifestRequest | None = None
 
 
 @dataclass(frozen=True)
@@ -137,7 +139,9 @@ def _validate_request(
     if output.exists() and not request.force:
         raise ReviewPackageError(f"Output already exists: {output.name}")
     if output == source or output in source.parents:
-        raise ReviewPackageError("Output path must not contain or replace the source file.")
+        raise ReviewPackageError(
+            "Output path must not contain or replace the source file."
+        )
     return source, output, project, source.suffix.lower()
 
 
@@ -154,6 +158,11 @@ def _copy_mineru_artifacts(
         bundle.manifest_path,
     ):
         shutil.copy2(source_path, raw_root / source_path.name)
+    if bundle.canonical_manifest_path is not None:
+        shutil.copy2(
+            bundle.canonical_manifest_path,
+            raw_root / bundle.canonical_manifest_path.name,
+        )
     raw_images = raw_root / "images"
     assets = package_root / "assets"
     if bundle.images_dir.is_dir():
@@ -334,9 +343,7 @@ def build_codex_review_package(
     retained_work: Path | None = None
     try:
         uv_executable = os.environ.get("MINERU_LOCAL_UV_EXECUTABLE", "uv")
-        timeout_seconds = float(
-            os.environ.get("MINERU_LOCAL_TIMEOUT_SECONDS", "1800")
-        )
+        timeout_seconds = float(os.environ.get("MINERU_LOCAL_TIMEOUT_SECONDS", "1800"))
         max_log_chars = int(os.environ.get("MINERU_LOCAL_MAX_LOG_CHARS", "8000"))
         runner = LocalMinerURunner(
             project_path=mineru_project,
@@ -352,8 +359,16 @@ def build_codex_review_package(
                 method=request.method,
                 language=request.language,
                 offline=request.offline,
+                canonical_manifest=request.canonical_manifest,
             )
         )
+        if request.canonical_manifest is not None and (
+            bundle.canonical_manifest is None or bundle.canonical_manifest_path is None
+        ):
+            raise ReviewPackageError(
+                "Canonical manifest was requested but the MinerU consumer did not "
+                "return a validated canonical manifest."
+            )
 
         native_path = temporary_package / "native" / f"source{suffix}"
         native_path.parent.mkdir(parents=True)
@@ -374,11 +389,7 @@ def build_codex_review_package(
             blocks=blocks,
             package_root=temporary_package,
         )
-        findings = [
-            finding
-            for block in blocks
-            for finding in block.findings
-        ]
+        findings = [finding for block in blocks for finding in block.findings]
         findings.extend(tree.findings)
         for table_result in table_results:
             findings.extend(table_result.findings)
@@ -484,6 +495,21 @@ def build_codex_review_package(
             limitations.append(
                 "DOCX logical pages are not mapped to normalized LibreOffice PDF pages."
             )
+        mineru_metadata: dict[str, Any] = {
+            "schema_version": bundle.manifest.schema_version,
+            "parser": bundle.manifest.parser,
+            "execution": bundle.manifest.execution,
+            "manifest_path": "raw/mineru/mineru_manifest.json",
+        }
+        if bundle.canonical_manifest is not None:
+            canonical_raw = bundle.canonical_manifest.raw
+            mineru_metadata["canonical_manifest"] = {
+                "contract_version": canonical_raw.get("contract_version"),
+                "source_id": canonical_raw.get("source_id"),
+                "source_version_id": canonical_raw.get("source_version_id"),
+                "extraction_run_id": canonical_raw.get("extraction_run_id"),
+                "path": (f"raw/mineru/{bundle.canonical_manifest_path.name}"),
+            }
         manifest = {
             "schema_version": PACKAGE_SCHEMA_VERSION,
             "status": "completed",
@@ -495,12 +521,7 @@ def build_codex_review_package(
                 "size_bytes": source.stat().st_size,
                 "native_path": native_path.relative_to(temporary_package).as_posix(),
             },
-            "mineru": {
-                "schema_version": bundle.manifest.schema_version,
-                "parser": bundle.manifest.parser,
-                "execution": bundle.manifest.execution,
-                "manifest_path": "raw/mineru/mineru_manifest.json",
-            },
+            "mineru": mineru_metadata,
             "exporter": {
                 "name": "Knowhere Codex review package exporter",
                 "version": "0.1.0",
@@ -556,4 +577,3 @@ def build_codex_review_package(
             if work_root.exists():
                 shutil.rmtree(work_root)
         raise
-

@@ -55,3 +55,30 @@ def test_cli_reports_local_mineru_failure_without_traceback(
         "codex-review-export: Local MinerU exited with return code 2.\n"
     )
     assert "Traceback" not in captured.err
+
+
+def test_cli_requires_identity_for_canonical_manifest_request(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    result = cli.main(
+        [
+            "--input",
+            str(tmp_path / "input.pdf"),
+            "--output",
+            str(tmp_path / "package"),
+            "--mineru-project",
+            str(tmp_path / "MinerU"),
+            "--lang",
+            "en",
+            "--canonical-manifest",
+        ]
+    )
+
+    captured = capsys.readouterr()
+    assert result == 2
+    assert captured.out == ""
+    assert captured.err == (
+        "codex-review-export: --canonical-manifest requires "
+        "--source-id, --source-version-id, --extraction-run-id\n"
+    )

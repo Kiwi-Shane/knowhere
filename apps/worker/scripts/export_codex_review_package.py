@@ -17,6 +17,9 @@ from app.services.codex_export.package_builder import (  # noqa: E402
     build_codex_review_package,
 )
 from app.services.document_parser.providers.mineru.artifact_contract import (  # noqa: E402
+    CanonicalManifestRequest,
+)
+from app.services.document_parser.providers.mineru.artifact_contract import (  # noqa: E402
     MinerUArtifactContractError,
 )
 from app.services.document_parser.providers.mineru.local_process import (  # noqa: E402
@@ -67,11 +70,44 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--keep-work-dir", action="store_true")
+    parser.add_argument(
+        "--canonical-manifest",
+        action="store_true",
+        help="Request and preserve the source-owned canonical manifest.",
+    )
+    parser.add_argument("--source-id")
+    parser.add_argument("--source-version-id")
+    parser.add_argument("--extraction-run-id")
+    parser.add_argument("--accelerator-profile", default="unknown")
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    canonical_manifest = None
+    if args.canonical_manifest:
+        missing = [
+            option
+            for option, value in (
+                ("--source-id", args.source_id),
+                ("--source-version-id", args.source_version_id),
+                ("--extraction-run-id", args.extraction_run_id),
+            )
+            if not value or not value.strip()
+        ]
+        if missing:
+            print(
+                "codex-review-export: --canonical-manifest requires "
+                + ", ".join(missing),
+                file=sys.stderr,
+            )
+            return 2
+        canonical_manifest = CanonicalManifestRequest(
+            source_id=args.source_id,
+            source_version_id=args.source_version_id,
+            extraction_run_id=args.extraction_run_id,
+            accelerator_profile=args.accelerator_profile,
+        )
     request = ReviewPackageRequest(
         source_path=args.input,
         output_root=args.output,
@@ -86,6 +122,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         offline=args.offline,
         force=args.force,
         keep_work_dir=args.keep_work_dir,
+        canonical_manifest=canonical_manifest,
     )
     try:
         result = build_codex_review_package(request)
