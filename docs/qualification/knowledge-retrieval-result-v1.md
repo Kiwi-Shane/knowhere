@@ -2247,3 +2247,28 @@ not qualify MinerU parser profiles, native or semantic gold, source-owner
 review, host-level egress denial, D2/runtime edge promotion, source sufficiency,
 provider approval, private-data execution, or RA acceptance. The standard
 Knowhere ingestion path and the qualification gates remain unchanged.
+
+## Current-head D2 runtime-control contract recheck (2026-07-20)
+
+At the current qualification checkout revision
+`30e67c5af5f68b4d9d1dab86b3ecc7b2cd741eda`, the existing local-development
+Compose and self-hosted telemetry contract selection passed `28` tests in
+`0.48` seconds. The selection covered loopback-only published ports, declared
+memory/CPU/PID ceilings, the intentional non-internal host-integrated bridge,
+the loopback/secret-free launcher boundary, telemetry sanitization, identity,
+startup/shutdown, disable/override behavior, and the local `.env.example`
+opt-out declaration.
+
+Static current-head inspection confirms that the local Compose file still binds
+PostgreSQL, Redis, and LocalStack to loopback and declares resource limits, but
+the default network remains a non-internal bridge so the host-run API/worker can
+reach its dependencies. `BaseConfig` still falls back to telemetry enabled when
+the environment does not explicitly set `TELEMETRY_ENABLED`; the existing
+startup path returns before identity/client construction when the flag is false.
+
+This is application/configuration contract evidence only. No Docker project was
+reconciled, no external sink or host firewall was contacted, and no telemetry
+delivery, default-deny egress, secret isolation, runtime enforcement, or
+production deployment control was proven. D2 remains `blocked`; no provider,
+private-data, active-edge, source-sufficiency, qualification, or RA acceptance
+status changed.
