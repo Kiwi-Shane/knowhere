@@ -2475,3 +2475,29 @@ all alternate retrieval routes, backup/restore recovery, source-owner gold,
 semantic meaning preservation, private-data processing, D2, active-edge
 promotion, or RA acceptance. The qualification disposition remains `deferred`,
 and no provider, private data, or upstream synchronization was used.
+
+## D2 deployed hard-delete lifecycle control (2026-07-20)
+
+At verifier revision `76b72e6b`, the opt-in D2 Compose harness rebuilt the API
+and worker from the hard-delete implementation revision `e0502809` and passed
+the full `verify-d2.ps1` run with all five services healthy. The deployed
+synthetic application probe used generated user, namespace, document, chunk,
+job, and graph IDs only. It confirmed the existing cross-scope and archive
+controls, then created filesystem-backed upload, result-ZIP, and raw-result
+objects for a terminal job and invoked the deployed `DocumentService` hard
+delete. The probe confirmed a post-delete 404, absence of the upload/ZIP/raw
+objects, removal of the document/chunk/graph/job/result rows, preservation of
+the peer document, and retrieval non-visibility for a unique marker. The
+active-ingestion refusal boundary was also exercised by the same probe.
+
+The D2 contract selection passed `9` tests, targeted Ruff passed, PowerShell
+syntax parsing passed, and the repeatable verifier passed with no published
+host ports, internal networking, read-only/resource-limited containers,
+telemetry disabled, external HTTPS negative checks, and the existing
+PostgreSQL backup/restore smoke. This is deployed synthetic control evidence,
+not a D2 qualification pass: remote/vector/memory-provider deletion, all
+alternate retrieval routes, production backup/retention/recovery, host-level
+default-deny enforcement, source-owner or semantic-gold sufficiency, provider
+approval, private-data execution, active-edge promotion, and RA acceptance
+remain open. No private data, provider, or upstream synchronization was used;
+D2 remains `blocked` and retrieval qualification remains `deferred`.

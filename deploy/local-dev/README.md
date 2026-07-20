@@ -95,13 +95,13 @@ is not an active/private pilot or reviewer qualification. The verifier now
 checks API health, worker heartbeat, file-backed database-secret wiring,
 telemetry-disabled startup configuration, application-container egress
 denial, synthetic cross-user/namespace lifecycle isolation, archive exclusion,
-archived graph-residue cleanup, transaction rollback, and a synthetic
-dependency backup/restore sentinel. The API now has a separate user-scoped,
-write-protected hard-delete lifecycle with storage and retrieval-negative
-contract coverage, but this D2 verifier does not exercise that route. Full
-backup and restore coverage, host-level firewall enforcement, source-owner/gold
-evidence, provider/private-data processing, and RA acceptance remain outside
-this slice.
+archived graph-residue cleanup, transaction rollback, a synthetic dependency
+backup/restore sentinel, and a deployed hard-delete control. The hard-delete
+control uses generated synthetic document/job IDs and verifies terminal-job
+refusal boundaries, upload/result/raw-object cleanup, database/graph cleanup,
+peer preservation, and retrieval non-visibility. Full backup and restore
+coverage, host-level firewall enforcement, source-owner/gold evidence,
+provider/private-data processing, and RA acceptance remain outside this slice.
 
 ## Notes
 
