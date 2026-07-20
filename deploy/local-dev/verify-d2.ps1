@@ -120,6 +120,259 @@ try {
         "test -s /tmp/knowhere-worker-heartbeat.json"
     )
 
+    $lifecycleProbe = @'
+import asyncio
+from uuid import uuid4
+
+from sqlalchemy import delete, select
+
+from app.services.documents.lifecycle_service import DocumentService
+from shared.core.database import AsyncSessionFactory
+from shared.models.database.document import Document, GraphEdge, GraphNode
+from shared.models.database.job import Job
+from shared.models.database.job_result import JobResult
+from shared.models.database.user import User
+
+
+def _document_id() -> str:
+    return f"doc_{uuid4().hex[:12]}"
+
+
+async def _rollback_probe() -> None:
+    sentinel_id = f"d2-rollback-{uuid4().hex[:8]}"
+    async with AsyncSessionFactory() as db:
+        try:
+            async with db.begin():
+                db.add(
+                    User(
+                        id=sentinel_id,
+                        name="D2 rollback sentinel",
+                        email=f"{sentinel_id}@example.invalid",
+                    )
+                )
+                await db.flush()
+                raise RuntimeError("synthetic rollback sentinel")
+        except RuntimeError:
+            pass
+
+        remaining = await db.scalar(select(User.id).where(User.id == sentinel_id))
+        assert remaining is None, "failed transaction left a user row behind"
+
+
+async def _lifecycle_probe() -> None:
+    user_a_id = f"d2-scope-a-{uuid4().hex[:8]}"
+    user_b_id = f"d2-scope-b-{uuid4().hex[:8]}"
+    namespace_a = f"d2-scope-a-{uuid4().hex[:8]}"
+    namespace_b = f"d2-scope-b-{uuid4().hex[:8]}"
+    users = [
+        User(
+            id=user_a_id,
+            name="D2 scope user A",
+            email=f"{user_a_id}@example.invalid",
+        ),
+        User(
+            id=user_b_id,
+            name="D2 scope user B",
+            email=f"{user_b_id}@example.invalid",
+        ),
+    ]
+    specs = [
+        (user_a_id, namespace_a, "target"),
+        (user_a_id, namespace_a, "peer"),
+        (user_b_id, namespace_a, "other-user"),
+        (user_a_id, namespace_b, "other-namespace"),
+    ]
+    document_ids: list[str] = []
+    job_ids: list[str] = []
+    result_ids: list[str] = []
+    documents: list[Document] = []
+    jobs: list[Job] = []
+    results: list[JobResult] = []
+    nodes: list[GraphNode] = []
+
+    for user_id, namespace, label in specs:
+        document_id = _document_id()
+        job_id = str(uuid4())
+        result_id = str(uuid4())
+        document_ids.append(document_id)
+        job_ids.append(job_id)
+        result_ids.append(result_id)
+        jobs.append(
+            Job(
+                job_id=job_id,
+                user_id=user_id,
+                job_type="document_ingestion",
+                status="done",
+                source_type="direct_upload",
+                file_path=f"/synthetic/{label}.pdf",
+            )
+        )
+        results.append(
+            JobResult(
+                id=result_id,
+                job_id=job_id,
+                delivery_mode="inline",
+                inline_payload={"synthetic": label},
+            )
+        )
+        documents.append(
+            Document(
+                document_id=document_id,
+                user_id=user_id,
+                namespace=namespace,
+                status="active",
+                current_job_result_id=result_id,
+                source_file_name=f"{label}.pdf",
+            )
+        )
+        nodes.append(
+            GraphNode(
+                node_id=f"doc:{document_id}",
+                user_id=user_id,
+                namespace=namespace,
+                node_kind="document",
+                owner_document_id=document_id,
+                job_result_id=result_id,
+                ref_document_id=document_id,
+                properties={"synthetic": True, "label": label},
+            )
+        )
+
+    target_id, peer_id, other_user_id, other_namespace_id = document_ids
+    edge_id = f"d2-edge-{uuid4().hex[:12]}"
+
+    async with AsyncSessionFactory() as db:
+        try:
+            db.add_all(users)
+            await db.flush()
+            db.add_all(jobs)
+            await db.flush()
+            db.add_all(results)
+            await db.flush()
+            db.add_all(documents)
+            await db.flush()
+            for result, document in zip(results, documents):
+                result.document_id = document.document_id
+            await db.flush()
+            db.add_all(nodes)
+            await db.flush()
+            db.add(
+                GraphEdge(
+                    edge_id=edge_id,
+                    user_id=user_a_id,
+                    namespace=namespace_a,
+                    edge_kind="related",
+                    source_node_id=f"doc:{target_id}",
+                    target_node_id=f"doc:{peer_id}",
+                    owner_document_id=target_id,
+                    job_result_id=results[0].id,
+                    is_directed=False,
+                )
+            )
+            await db.commit()
+
+            service = DocumentService()
+
+            async def visible(user_id: str, namespace: str) -> set[str]:
+                response = await service.list_documents(
+                    db,
+                    user_id=user_id,
+                    namespace=namespace,
+                    page=1,
+                    page_size=20,
+                )
+                return {item["document_id"] for item in response["documents"]}
+
+            assert await visible(user_a_id, namespace_a) == {target_id, peer_id}
+            assert await visible(user_b_id, namespace_a) == {other_user_id}
+            assert await visible(user_a_id, namespace_b) == {other_namespace_id}
+            assert (
+                await service.get_document(
+                    db,
+                    user_id=user_b_id,
+                    document_id=target_id,
+                )
+                is None
+            ), "cross-user document lookup bypassed ownership scope"
+
+            archived = await service.archive_document(
+                db,
+                user_id=user_a_id,
+                document_id=target_id,
+            )
+            assert archived is not None and archived["status"] == "archived"
+            assert await visible(user_a_id, namespace_a) == {peer_id}
+            assert await visible(user_b_id, namespace_a) == {other_user_id}
+            assert await visible(user_a_id, namespace_b) == {other_namespace_id}
+
+            archived_row = await db.scalar(
+                select(Document).where(Document.document_id == target_id)
+            )
+            assert archived_row is not None and archived_row.status == "archived"
+            target_nodes = (
+                await db.execute(
+                    select(GraphNode).where(GraphNode.owner_document_id == target_id)
+                )
+            ).scalars().all()
+            assert not target_nodes, "archived graph node residue remains"
+            target_edges = (
+                await db.execute(
+                    select(GraphEdge).where(
+                        (GraphEdge.owner_document_id == target_id)
+                        | (GraphEdge.source_node_id == f"doc:{target_id}")
+                        | (GraphEdge.target_node_id == f"doc:{target_id}")
+                    )
+                )
+            ).scalars().all()
+            assert not target_edges, "archived graph edge residue remains"
+            peer_node = await db.scalar(
+                select(GraphNode).where(GraphNode.owner_document_id == peer_id)
+            )
+            other_user_node = await db.scalar(
+                select(GraphNode).where(GraphNode.owner_document_id == other_user_id)
+            )
+            other_namespace_node = await db.scalar(
+                select(GraphNode).where(
+                    GraphNode.owner_document_id == other_namespace_id
+                )
+            )
+            assert peer_node is not None
+            assert other_user_node is not None
+            assert other_namespace_node is not None
+        finally:
+            await db.rollback()
+            await db.execute(
+                delete(GraphEdge).where(GraphEdge.owner_document_id.in_(document_ids))
+            )
+            await db.execute(
+                delete(GraphNode).where(GraphNode.owner_document_id.in_(document_ids))
+            )
+            await db.execute(
+                delete(Document).where(Document.document_id.in_(document_ids))
+            )
+            await db.execute(delete(JobResult).where(JobResult.id.in_(result_ids)))
+            await db.execute(delete(Job).where(Job.job_id.in_(job_ids)))
+            await db.execute(delete(User).where(User.id.in_([user_a_id, user_b_id])))
+            await db.commit()
+
+
+async def main() -> None:
+    await _rollback_probe()
+    await _lifecycle_probe()
+    print(
+        "D2 synthetic application lifecycle probe passed: cross-scope isolation, "
+        "archive exclusion, and archived graph residue cleanup."
+    )
+
+
+asyncio.run(main())
+'@
+    $lifecycleOutput = ($lifecycleProbe | & docker exec -i knowhere_d2_api python - 2>&1 | Out-String).Trim()
+    $lifecycleExitCode = $LASTEXITCODE
+    Assert-D2 ($lifecycleExitCode -eq 0) "D2 synthetic application lifecycle probe failed: $lifecycleOutput"
+    Assert-D2 ($lifecycleOutput -like "*D2 synthetic application lifecycle probe passed*") `
+        "D2 synthetic application lifecycle probe did not report success: $lifecycleOutput"
+
     foreach ($containerName in @("knowhere_d2_localstack", "knowhere_d2_api", "knowhere_d2_worker")) {
         & docker exec $containerName sh -c "curl -fsS --connect-timeout 2 --max-time 4 https://example.com >/dev/null 2>&1"
         $egressExitCode = $LASTEXITCODE
@@ -138,14 +391,24 @@ try {
         $null = Invoke-D2DockerText @("exec", "knowhere_d2_postgres", "pg_restore", "-U", "root", "--exit-on-error", "--dbname=$restoreDatabase", "/tmp/d2-backup.dump")
         $restored = Invoke-D2DockerText @("exec", "knowhere_d2_postgres", "psql", "-At", "-U", "root", "-d", $restoreDatabase, "-c", "SELECT payload FROM d2_backup_smoke WHERE id=1")
         Assert-D2 ($restored -eq "synthetic-d2-sentinel") "backup/restore sentinel did not round-trip"
+
+        $null = Invoke-D2DockerText @(
+            "exec", "knowhere_d2_postgres", "psql", "-q", "-v", "ON_ERROR_STOP=1", "-U", "root", "-d", "Knowhere",
+            "-c", "CREATE TABLE IF NOT EXISTS d2_rollback_smoke (id integer PRIMARY KEY, payload text NOT NULL); TRUNCATE d2_rollback_smoke;"
+        )
+        $rollbackResult = Invoke-D2DockerText @(
+            "exec", "knowhere_d2_postgres", "psql", "-qAt", "-v", "ON_ERROR_STOP=1", "-U", "root", "-d", "Knowhere",
+            "-c", "BEGIN; INSERT INTO d2_rollback_smoke VALUES (1, 'rolled-back'); ROLLBACK; SELECT count(*) FROM d2_rollback_smoke;"
+        )
+        Assert-D2 ($rollbackResult -eq "0") "transaction rollback sentinel left committed data: $rollbackResult"
     }
     finally {
-        $null = Invoke-D2DockerText @("exec", "knowhere_d2_postgres", "psql", "-q", "-v", "ON_ERROR_STOP=1", "-U", "root", "-d", "Knowhere", "-c", "SET client_min_messages=warning; DROP TABLE IF EXISTS d2_backup_smoke")
+        $null = Invoke-D2DockerText @("exec", "knowhere_d2_postgres", "psql", "-q", "-v", "ON_ERROR_STOP=1", "-U", "root", "-d", "Knowhere", "-c", "SET client_min_messages=warning; DROP TABLE IF EXISTS d2_backup_smoke; DROP TABLE IF EXISTS d2_rollback_smoke")
         $null = Invoke-D2DockerText @("exec", "knowhere_d2_postgres", "sh", "-c", "dropdb -U root --if-exists d2_restore_smoke 2>/dev/null")
         $null = Invoke-D2DockerText @("exec", "knowhere_d2_postgres", "rm", "-f", "/tmp/d2-backup.dump")
     }
 
-    Write-Output "D2 hardened harness verification passed: dependency/application health, isolation, runtime controls, file-backed secret, telemetry disabled, no external HTTPS, and backup/restore smoke."
+    Write-Output "D2 hardened harness verification passed: dependency/application health, cross-scope lifecycle isolation, runtime controls, file-backed secret, telemetry disabled, no external HTTPS, backup/restore, and rollback smoke."
 }
 catch {
     Write-Error ("D2 dependency harness verification failed: " + $_.Exception.Message)

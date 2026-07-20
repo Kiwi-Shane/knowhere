@@ -174,5 +174,9 @@ def test_d2_verifier_is_repeatable_and_does_not_teardown_the_harness() -> None:
     assert "TELEMETRY_ENABLED" in script
     assert "DATABASE_PASSWORD_FILE" in script
     assert "d2_backup_smoke" in script
+    assert "d2_rollback_smoke" in script
+    assert "D2 synthetic application lifecycle probe passed" in script
+    assert "cross-scope" in script
+    assert "archived graph residue" in script
     assert "-eq 5" in script
     assert " down" not in script

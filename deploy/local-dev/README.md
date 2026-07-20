@@ -94,10 +94,12 @@ This harness is a D2 dependency/application-runtime implementation slice. It
 is not an active/private pilot or reviewer qualification. The verifier now
 checks API health, worker heartbeat, file-backed database-secret wiring,
 telemetry-disabled startup configuration, application-container egress
-denial, and a synthetic dependency backup/restore sentinel. Full backup and
-restore coverage, deletion, cross-case isolation, rollback, host-level
-firewall enforcement, source-owner/gold evidence, provider/private-data
-processing, and RA acceptance remain outside this slice.
+denial, synthetic cross-user/namespace lifecycle isolation, archive exclusion,
+archived graph-residue cleanup, transaction rollback, and a synthetic
+dependency backup/restore sentinel. Full backup and restore coverage, hard
+deletion, host-level firewall enforcement, source-owner/gold evidence,
+provider/private-data processing, and RA acceptance remain outside this
+slice.
 
 ## Notes
 

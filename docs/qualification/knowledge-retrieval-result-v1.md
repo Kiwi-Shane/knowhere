@@ -2419,3 +2419,30 @@ enforcement, external telemetry-sink absence, D2 qualification, provider or
 private-data authorization, active-edge promotion, or RA acceptance. No
 private data, provider, or upstream synchronization was used; D2 remains
 `blocked`.
+
+## D2 synthetic cross-scope and rollback control extension (2026-07-20)
+
+At Knowhere revision `5a6ec155`, with the deployed application source bound to
+`c564a363`, the repeatable D2 verifier was extended with generated-ID-only
+application probes. The probe ran inside the deployed API container and
+covered same-user/same-namespace visibility, cross-user lookup denial,
+same-user cross-namespace isolation, archive exclusion, persistence of the
+archived document status, removal of the archived document's graph node and
+edge, and preservation of peer and out-of-scope graph nodes. A separate
+application-session transaction sentinel confirmed that a deliberately failed
+insert left no committed row. The probe cleaned all synthetic rows in a
+`finally` path.
+
+The D2 contract selection passed `9` tests, targeted Ruff passed, Compose
+configuration validation passed, and the full verifier passed with the
+existing `5/5` healthy services, no published ports, telemetry disabled,
+external HTTPS denial, and PostgreSQL backup/restore smoke.
+
+This is bounded synthetic lifecycle and transaction-control evidence only. It
+does not prove hard deletion of object-storage/vector artifacts, all-route
+isolation, rollback of a failed multi-service job, host-level default-deny
+egress, external telemetry-sink absence, production backup/retention/restore,
+source-owner or semantic-gold sufficiency, provider approval, private-data
+processing, active-edge promotion, or RA acceptance. No private data, provider,
+or upstream synchronization was used; D2 and retrieval qualification remain
+blocked/deferred.
