@@ -57,6 +57,44 @@ controls; they do not establish host-level egress denial or production
 deployment qualification. An internal network is reserved for an isolated D2
 runtime harness, not this host-integrated development stack.
 
+## Opt-in D2 dependency harness
+
+The hardened D2 dependency boundary is opt-in and must be run as a separate
+Compose project. It uses pinned image digests, an internal-only network, no
+published ports, read-only containers with dropped capabilities, resource
+ceilings inherited from the base file, and a file-backed synthetic PostgreSQL
+secret. LocalStack has no Docker socket, host gateway, Lambda service, or
+automatic extension/download path.
+
+Before the first run, create or replace the local-only file
+`deploy/local-dev/.d2-secrets/postgres_password`. It is ignored by Git and must
+never contain a client or production secret. From the repository root:
+
+```bash
+docker compose -p knowhere-d2-hardened \
+  -f deploy/local-dev/docker-compose.dev.yml \
+  -f deploy/local-dev/docker-compose.d2.yml up -d
+```
+
+Validate the effective boundary with `docker compose ... config`, inspect
+container health and limits, and run the repeatable verifier before
+considering the slice characterized:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File deploy/local-dev/verify-d2.ps1
+```
+
+The verifier performs positive health probes, checks that no host port is
+published, confirms the internal Docker network and runtime limits, validates
+the file-backed secret without printing it, expects external HTTPS to fail,
+and runs a synthetic PostgreSQL backup/restore round-trip. The default
+local-development project and its volumes are separate.
+
+This harness is a D2 dependency-boundary implementation slice. It is not an
+active/private pilot and does not prove API/worker behavior, telemetry
+negative tests, backup/restore, deletion, cross-case isolation, or reviewer
+qualification.
+
 ## Notes
 
 - The Compose file is `deploy/local-dev/docker-compose.dev.yml`.

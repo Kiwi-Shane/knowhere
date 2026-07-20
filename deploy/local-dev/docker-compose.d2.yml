@@ -1,0 +1,99 @@
+# Opt-in D2 dependency harness.
+#
+# Apply this file together with docker-compose.dev.yml.  It intentionally uses
+# distinct container and volume names so the host-integrated development stack
+# remains untouched.  This is a synthetic dependency-boundary harness; it does
+# not by itself qualify the API, worker, or an active/private deployment.
+
+services:
+  redis:
+    image: redis@sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99
+    container_name: knowhere_d2_redis
+    ports: !reset []
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    cap_add:
+      - SETUID
+      - SETGID
+    security_opt:
+      - no-new-privileges:true
+    restart: "no"
+
+  postgres:
+    image: postgres@sha256:3d0f7584ed7d04e27fa050d6683a74746608faf21f202be78460d679cc56461f
+    container_name: knowhere_d2_postgres
+    ports: !reset []
+    read_only: true
+    tmpfs:
+      - /run/postgresql
+      - /tmp
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    restart: "no"
+    environment: !override
+      POSTGRES_DB: Knowhere
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    secrets:
+      - postgres_password
+    volumes: !override
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+
+  localstack:
+    image: localstack/localstack@sha256:b279c01f4cfb8f985a482e4014cabc1e2697b9d7a6c8c8db2e40f4d9f93687c7
+    container_name: knowhere_d2_localstack
+    ports: !reset []
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /root/.cache
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    restart: "no"
+    extra_hosts: !reset []
+    environment: !override
+      SERVICES: s3,sns,sqs,iam,sts
+      DEBUG: "0"
+      PERSISTENCE: "1"
+      DATA_DIR: /var/lib/localstack/data
+      EXTENSION_AUTO_INSTALL: "0"
+      SKIP_INFRA_DOWNLOADS: "1"
+      HOSTNAME_EXTERNAL: localstack
+      EDGE_PORT: "4566"
+      SNS_ENDPOINT_STRATEGY: domain
+      DOCKER_HOST: ""
+    volumes: !override
+      - localstack_data:/var/lib/localstack
+      - ./localstack/init:/etc/localstack/init/ready.d:ro
+
+volumes:
+  redis_data:
+    name: knowhere_d2_redis_data
+  postgres_data:
+    name: knowhere_d2_postgres_data
+  localstack_data:
+    name: knowhere_d2_localstack_data
+
+secrets:
+  postgres_password:
+    file: ./.d2-secrets/postgres_password
+
+networks:
+  knowhere_network:
+    name: knowhere_d2_internal
+    internal: true
