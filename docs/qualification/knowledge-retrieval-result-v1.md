@@ -2006,3 +2006,21 @@ machinery during the implementation pause. The prior batch remains bounded
 historical mechanical evidence; native/semantic gold, active retrieval,
 source sufficiency, and qualification remain deferred. No implementation,
 database, provider, private-data, active-edge, or runtime status changed.
+
+## Current-state source-owner packet portability recheck (2026-07-19)
+
+An independent read-only recomputation of the private synthetic handoff packet
+confirmed `24/24` declared artifacts present with matching size and SHA-256.
+The only package file outside the artifact list was the self-describing
+`metadata/manifest.json`. The native source hash still matched the manifest.
+
+The structured block file contained `18` parseable lines. All `9` table
+references resolved from the package root, but the single image reference
+`images/c0fe4015d52e08dcc84cb5e0bad1feb22564800020e0e5fdd53e489644d04888.jpg`
+did not; the copied image remains only under the previously recorded alternate
+asset/raw paths. The package contains `0` render pages while the adjacent
+native render directory contains `2` pages. `offline_verified` remains
+`false`, normalized-PDF mapping remains `unmapped`, and no owner category was
+adjudicated. The packet remains `pending_human_adjudication` /
+`unverified` with qualification `deferred`; no locator, artifact, database,
+provider, private-data, implementation, or runtime-edge state changed.
