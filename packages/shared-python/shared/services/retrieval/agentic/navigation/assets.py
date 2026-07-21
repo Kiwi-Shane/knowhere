@@ -257,9 +257,15 @@ async def asset_filter_step(
         else:
             connected_rows = []
 
-        job_id = (
-            await db.execute(select(JobResult.job_id).where(JobResult.id == job_result_id))
-        ).scalar() or ""
+        job_result = (
+            await db.execute(select(JobResult).where(JobResult.id == job_result_id))
+        ).scalar_one_or_none()
+        job_id = job_result.job_id if job_result else ""
+        job_metadata = (
+            getattr(getattr(job_result, "job", None), "job_metadata", None)
+            if job_result
+            else None
+        )
         seen_ids: set[str] = set()
         chunks: list[dict[str, Any]] = []
         for row in list(asset_rows) + list(connected_rows):
@@ -301,6 +307,7 @@ async def asset_filter_step(
                     "sort_order": row[7],
                     "job_result_id": job_result_id,
                     "job_id": job_id,
+                    "_job_metadata": job_metadata,
                 }
             )
 

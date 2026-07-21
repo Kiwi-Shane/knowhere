@@ -11,6 +11,7 @@ from shared.services.storage.result_storage import get_result_storage
 
 AssetUrlValue = str
 PagePdfRequestKey = tuple[str, tuple[int, ...]]
+JobMetadata = dict[str, Any] | None
 
 
 def _normalize_artifact_ref(asset_ref: object) -> str | None:
@@ -29,7 +30,12 @@ def _is_page_row(row: dict[str, Any]) -> bool:
     return normalize_chunk_type(raw_chunk_type) == "page"
 
 
-def _resolve_asset_request(row: dict[str, Any]) -> tuple[str, str] | None:
+def _job_metadata_for_row(row: dict[str, Any]) -> JobMetadata:
+    value = row.get("_job_metadata")
+    return value if isinstance(value, dict) else None
+
+
+def _resolve_asset_request(row: dict[str, Any]) -> tuple[str, str, JobMetadata] | None:
     job_id = str(row.get("job_id") or "").strip()
     if not job_id or not _is_retrieval_media_row(row):
         return None
@@ -38,7 +44,7 @@ def _resolve_asset_request(row: dict[str, Any]) -> tuple[str, str] | None:
     if artifact_ref is None:
         return None
 
-    return job_id, artifact_ref
+    return job_id, artifact_ref, _job_metadata_for_row(row)
 
 
 def _metadata_for_row(row: dict[str, Any]) -> dict[str, Any]:
@@ -46,7 +52,9 @@ def _metadata_for_row(row: dict[str, Any]) -> dict[str, Any]:
     return metadata if isinstance(metadata, dict) else {}
 
 
-def _resolve_page_citation_asset_request(row: dict[str, Any]) -> tuple[str, str] | None:
+def _resolve_page_citation_asset_request(
+    row: dict[str, Any],
+) -> tuple[str, str, JobMetadata] | None:
     job_id = str(row.get("job_id") or "").strip()
     if not job_id or not _is_page_row(row):
         return None
@@ -55,7 +63,7 @@ def _resolve_page_citation_asset_request(row: dict[str, Any]) -> tuple[str, str]
         artifact_ref = _normalize_artifact_ref(page_asset.get("artifact_ref"))
         if artifact_ref is None:
             continue
-        return job_id, artifact_ref
+        return job_id, artifact_ref, _job_metadata_for_row(row)
     return None
 
 
@@ -119,11 +127,12 @@ async def _generate_retrieval_asset_url(
     if request is None:
         return None
 
-    job_id, artifact_ref = request
+    job_id, artifact_ref, job_metadata = request
     try:
         return get_result_storage().generate_artifact_url(
             job_id=job_id,
             artifact_ref=artifact_ref,
+            job_metadata=job_metadata,
         )
     except Exception as exc:
         logger.warning(f"Failed to generate {log_context} asset URL (ignored): {exc}")
@@ -143,11 +152,12 @@ async def _generate_page_citation_asset_url(
     if request is None:
         return None
 
-    job_id, artifact_ref = request
+    job_id, artifact_ref, job_metadata = request
     try:
         return get_result_storage().generate_artifact_url(
             job_id=job_id,
             artifact_ref=artifact_ref,
+            job_metadata=job_metadata,
         )
     except Exception as exc:
         logger.warning(
@@ -169,6 +179,7 @@ async def _enrich_page_assets(
 
     enriched_assets: list[dict[str, Any]] = []
     job_id = str(row.get("job_id") or "").strip()
+    job_metadata = _job_metadata_for_row(row)
     for page_asset in page_assets:
         enriched = dict(page_asset)
         if not str(enriched.get("asset_url") or "").strip() and job_id:
@@ -178,6 +189,7 @@ async def _enrich_page_assets(
                     asset_url = get_result_storage().generate_artifact_url(
                         job_id=job_id,
                         artifact_ref=artifact_ref,
+                        job_metadata=job_metadata,
                     )
                 except Exception as exc:
                     logger.warning(
@@ -206,6 +218,7 @@ def _attach_enriched_page_assets(
 async def _generate_page_pdf_asset_url_for_request(
     request: PagePdfRequestKey,
     *,
+    job_metadata: JobMetadata,
     log_context: str,
 ) -> str | None:
     job_id, pages = request
@@ -214,6 +227,7 @@ async def _generate_page_pdf_asset_url_for_request(
             crop_source_pdf_pages,
             job_id=job_id,
             pages=list(pages),
+            job_metadata=job_metadata,
         )
     except Exception as exc:
         logger.warning(f"Failed to generate {log_context} page PDF URL (ignored): {exc}")
@@ -225,11 +239,18 @@ async def _build_page_pdf_url_lookup(
     *,
     log_context: str,
 ) -> dict[PagePdfRequestKey, str]:
-    requests = {
-        request
-        for row in rows
-        if (request := _resolve_page_pdf_request(row)) is not None
-    }
+    requests: set[PagePdfRequestKey] = set()
+    job_metadata_by_request: dict[PagePdfRequestKey, JobMetadata] = {}
+    for row in rows:
+        request = _resolve_page_pdf_request(row)
+        if request is None:
+            continue
+        requests.add(request)
+        row_job_metadata = _job_metadata_for_row(row)
+        if request not in job_metadata_by_request or (
+            job_metadata_by_request[request] is None and row_job_metadata is not None
+        ):
+            job_metadata_by_request[request] = row_job_metadata
     if not requests:
         return {}
     sorted_requests = sorted(requests)
@@ -237,6 +258,7 @@ async def _build_page_pdf_url_lookup(
         *(
             _generate_page_pdf_asset_url_for_request(
                 request,
+                job_metadata=job_metadata_by_request.get(request),
                 log_context=log_context,
             )
             for request in sorted_requests

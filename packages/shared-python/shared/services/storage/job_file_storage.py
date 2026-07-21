@@ -132,7 +132,9 @@ class JobFileStorage:
         storage_key: str,
         *,
         bucket: str,
+        job_metadata: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
+        self._require_remote_storage_job_authorization(job_metadata)
         try:
             if not self.storage_adapter.exists(storage_key, bucket):
                 return {"exists": False}
@@ -160,8 +162,11 @@ class JobFileStorage:
         *,
         job_metadata: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        self._require_remote_storage_job_authorization(job_metadata)
-        return self.verify_exists(storage_key, bucket=self.uploads_bucket)
+        return self.verify_exists(
+            storage_key,
+            bucket=self.uploads_bucket,
+            job_metadata=job_metadata,
+        )
 
     def upload_local_file(
         self,
@@ -231,7 +236,9 @@ class JobFileStorage:
         *,
         bucket: str,
         content_type: str | None = None,
+        job_metadata: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
+        self._require_remote_storage_job_authorization(job_metadata)
         try:
             return self.storage_adapter.upload_fileobj(
                 file_obj,
@@ -252,7 +259,9 @@ class JobFileStorage:
         local_path: str,
         *,
         bucket: str,
+        job_metadata: dict[str, Any] | None = None,
     ) -> str:
+        self._require_remote_storage_job_authorization(job_metadata)
         try:
             return self.storage_adapter.download_file(storage_key, local_path, bucket)
         except Exception as exc:
@@ -269,7 +278,9 @@ class JobFileStorage:
         suffix: str,
         temp_dir: str,
         bucket: str,
+        job_metadata: dict[str, Any] | None = None,
     ) -> str:
+        self._require_remote_storage_job_authorization(job_metadata)
         local_temp_path: str | None = None
 
         try:
@@ -285,6 +296,7 @@ class JobFileStorage:
                 storage_key,
                 local_temp_path,
                 bucket=bucket,
+                job_metadata=job_metadata,
             )
             return local_temp_path
         except Exception as exc:
@@ -313,6 +325,7 @@ class JobFileStorage:
             suffix=suffix,
             temp_dir=temp_dir,
             bucket=self.uploads_bucket,
+            job_metadata=job_metadata,
         )
 
     def download_file_from_url(

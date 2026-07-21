@@ -540,8 +540,9 @@ async def test_agentic_retrieval_should_not_send_table_artifacts_to_vlm(
             job_id: str,
             artifact_ref: str,
             expires_in: int = 3600,
+            job_metadata: dict[str, object] | None = None,
         ) -> str | None:
-            del expires_in
+            del expires_in, job_metadata
             return f"https://assets.example.com/{job_id}/{artifact_ref}"
 
         def normalize_artifact_ref(self, artifact_ref: str | None) -> str | None:

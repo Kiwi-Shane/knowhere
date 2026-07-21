@@ -150,7 +150,7 @@ async def test_table_result_assembly_uses_summary_not_html() -> None:
 async def test_page_asset_url_is_generated_from_page_nums(monkeypatch) -> None:
     monkeypatch.setattr(
         "shared.services.retrieval.hydration.assets.crop_source_pdf_pages",
-        lambda *, job_id, pages: (
+        lambda *, job_id, pages, job_metadata=None: (
             f"https://assets.example.com/{job_id}/page_pdfs/{'-'.join(map(str, pages))}.pdf"
         ),
     )
@@ -183,7 +183,7 @@ async def test_page_asset_url_is_generated_from_page_nums(monkeypatch) -> None:
 async def test_page_citation_asset_precedes_lazy_page_pdf_fallback(monkeypatch) -> None:
     page_pdf_calls: list[tuple[str, list[int]]] = []
 
-    def fake_crop_source_pdf_pages(*, job_id, pages):
+    def fake_crop_source_pdf_pages(*, job_id, pages, job_metadata=None):
         page_pdf_calls.append((job_id, pages))
         return f"https://assets.example.com/{job_id}/page_pdfs/{'-'.join(map(str, pages))}.pdf"
 
@@ -199,6 +199,7 @@ async def test_page_citation_asset_precedes_lazy_page_pdf_fallback(monkeypatch) 
             job_id: str,
             artifact_ref: str,
             expires_in: int = 3600,
+            job_metadata: dict[str, object] | None = None,
         ) -> str:
             del expires_in
             return f"https://assets.example.com/{job_id}/{artifact_ref}"
@@ -336,8 +337,14 @@ def test_crop_source_pdf_pages_uploads_and_reuses_page_pdf_cache(tmp_path) -> No
             self.files: dict[str, Path] = {"source.pdf": source_pdf}
             self.upload_count = 0
 
-        def verify_raw_exists(self, *, job_id: str, relative_path: str) -> bool:
-            del job_id
+        def verify_raw_exists(
+            self,
+            *,
+            job_id: str,
+            relative_path: str,
+            job_metadata: dict[str, object] | None = None,
+        ) -> bool:
+            del job_id, job_metadata
             return relative_path in self.files
 
         def download_raw_to_temp(
@@ -347,8 +354,9 @@ def test_crop_source_pdf_pages_uploads_and_reuses_page_pdf_cache(tmp_path) -> No
             relative_path: str,
             suffix: str,
             temp_dir: str,
+            job_metadata: dict[str, object] | None = None,
         ) -> str:
-            del job_id, suffix
+            del job_id, suffix, job_metadata
             target = Path(temp_dir) / Path(relative_path).name
             shutil.copyfile(self.files[relative_path], target)
             return str(target)
@@ -359,8 +367,9 @@ def test_crop_source_pdf_pages_uploads_and_reuses_page_pdf_cache(tmp_path) -> No
             job_id: str,
             relative_path: str,
             local_file_path: str,
+            job_metadata: dict[str, object] | None = None,
         ) -> None:
-            del job_id
+            del job_id, job_metadata
             target = tmp_path / relative_path.replace("/", "_")
             shutil.copyfile(local_file_path, target)
             self.files[relative_path] = target
@@ -372,6 +381,7 @@ def test_crop_source_pdf_pages_uploads_and_reuses_page_pdf_cache(tmp_path) -> No
             job_id: str,
             artifact_ref: str,
             expires_in: int = 3600,
+            job_metadata: dict[str, object] | None = None,
         ) -> str:
             del expires_in
             return f"https://assets.example.com/{job_id}/{artifact_ref}"
@@ -404,8 +414,14 @@ def test_crop_source_pdf_pages_returns_none_when_source_pdf_is_missing(tmp_path)
         def __init__(self) -> None:
             self.upload_count = 0
 
-        def verify_raw_exists(self, *, job_id: str, relative_path: str) -> bool:
-            del job_id, relative_path
+        def verify_raw_exists(
+            self,
+            *,
+            job_id: str,
+            relative_path: str,
+            job_metadata: dict[str, object] | None = None,
+        ) -> bool:
+            del job_id, relative_path, job_metadata
             return False
 
         def download_raw_to_temp(self, **_kwargs) -> str:

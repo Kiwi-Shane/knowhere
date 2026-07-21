@@ -37,16 +37,32 @@ class ResultStorage(Protocol):
         raise NotImplementedError
 
     def generate_artifact_url(
-        self, *, job_id: str, artifact_ref: str, expires_in: int = 3600
+        self,
+        *,
+        job_id: str,
+        artifact_ref: str,
+        expires_in: int = 3600,
+        job_metadata: dict[str, object] | None = None,
     ) -> str | None:
         raise NotImplementedError
 
     def generate_raw_file_url(
-        self, *, job_id: str, relative_path: str, expires_in: int = 3600
+        self,
+        *,
+        job_id: str,
+        relative_path: str,
+        expires_in: int = 3600,
+        job_metadata: dict[str, object] | None = None,
     ) -> str | None:
         raise NotImplementedError
 
-    def verify_raw_exists(self, *, job_id: str, relative_path: str) -> bool:
+    def verify_raw_exists(
+        self,
+        *,
+        job_id: str,
+        relative_path: str,
+        job_metadata: dict[str, object] | None = None,
+    ) -> bool:
         raise NotImplementedError
 
     def normalize_artifact_ref(self, artifact_ref: str | None) -> str | None:
@@ -133,24 +149,47 @@ class JobResultStorage:
             raw_files=raw_files,
         )
 
-    def generate_url(self, *, storage_key: str, expires_in: int = 3600) -> str | None:
+    def generate_url(
+        self,
+        *,
+        storage_key: str,
+        expires_in: int = 3600,
+        job_metadata: dict[str, object] | None = None,
+    ) -> str | None:
         return self._job_file_storage.generate_download_url(
             storage_key,
             bucket=self.results_bucket,
             expires_in=expires_in,
+            job_metadata=job_metadata,
         )["download_url"]
 
-    def verify_raw_exists(self, *, job_id: str, relative_path: str) -> bool:
+    def verify_raw_exists(
+        self,
+        *,
+        job_id: str,
+        relative_path: str,
+        job_metadata: dict[str, object] | None = None,
+    ) -> bool:
         key = self.build_raw_key(job_id=job_id, relative_path=relative_path)
-        result = self._job_file_storage.verify_exists(key, bucket=self.results_bucket)
+        result = self._job_file_storage.verify_exists(
+            key,
+            bucket=self.results_bucket,
+            job_metadata=job_metadata,
+        )
         return bool(result.get("exists"))
 
     def generate_raw_file_url(
-        self, *, job_id: str, relative_path: str, expires_in: int = 3600
+        self,
+        *,
+        job_id: str,
+        relative_path: str,
+        expires_in: int = 3600,
+        job_metadata: dict[str, object] | None = None,
     ) -> str | None:
         return self.generate_url(
             storage_key=self.build_raw_key(job_id=job_id, relative_path=relative_path),
             expires_in=expires_in,
+            job_metadata=job_metadata,
         )
 
     def upload_raw_file(
@@ -159,11 +198,13 @@ class JobResultStorage:
         job_id: str,
         relative_path: str,
         local_file_path: str,
+        job_metadata: dict[str, object] | None = None,
     ) -> None:
         self._job_file_storage.upload_local_file(
             local_file_path,
             self.build_raw_key(job_id=job_id, relative_path=relative_path),
             bucket=self.results_bucket,
+            job_metadata=job_metadata,
         )
 
     def download_raw_to_temp(
@@ -173,16 +214,23 @@ class JobResultStorage:
         relative_path: str,
         suffix: str,
         temp_dir: str,
+        job_metadata: dict[str, object] | None = None,
     ) -> str:
         return self._job_file_storage.download_to_temp(
             self.build_raw_key(job_id=job_id, relative_path=relative_path),
             suffix=suffix,
             temp_dir=temp_dir,
             bucket=self.results_bucket,
+            job_metadata=job_metadata,
         )
 
     def generate_artifact_url(
-        self, *, job_id: str, artifact_ref: str, expires_in: int = 3600
+        self,
+        *,
+        job_id: str,
+        artifact_ref: str,
+        expires_in: int = 3600,
+        job_metadata: dict[str, object] | None = None,
     ) -> str | None:
         normalized_ref = self.normalize_artifact_ref(artifact_ref)
         if not normalized_ref:
@@ -190,6 +238,7 @@ class JobResultStorage:
         return self.generate_url(
             storage_key=self.build_raw_key(job_id=job_id, relative_path=normalized_ref),
             expires_in=expires_in,
+            job_metadata=job_metadata,
         )
 
     def _iter_raw_files(self, result_dir: Path) -> Iterator[Path]:

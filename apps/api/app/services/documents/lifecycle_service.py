@@ -29,11 +29,21 @@ def _datetime_payload(value: datetime | None) -> str | None:
     return value.isoformat() if value else None
 
 
+def _coerce_job_metadata(value: Any) -> dict[str, Any] | None:
+    return value if isinstance(value, dict) else None
+
+
+def _job_metadata_for_result(job_result: Any) -> dict[str, Any] | None:
+    job = getattr(job_result, "job", None)
+    return _coerce_job_metadata(getattr(job, "job_metadata", None))
+
+
 def _document_chunk_asset_url(
     *,
     chunk_type: str,
     job_id: str | None,
     file_path: str | None,
+    job_metadata: dict[str, Any] | None,
     include_asset_urls: bool,
     result_storage: ResultStorage | None,
 ) -> str | None:
@@ -51,6 +61,7 @@ def _document_chunk_asset_url(
             job_id=job_id,
             artifact_ref=file_path,
             expires_in=_DOCUMENT_CHUNK_ASSET_URL_EXPIRES_SECONDS,
+            job_metadata=job_metadata,
         )
     except Exception as exc:
         logger.warning(f"Failed to generate document chunk asset URL (ignored): {exc}")
@@ -61,6 +72,7 @@ def _document_page_assets(
     *,
     metadata: dict[str, Any] | None,
     job_id: str | None,
+    job_metadata: dict[str, Any] | None,
     include_asset_urls: bool,
     result_storage: ResultStorage | None,
 ) -> list[dict[str, Any]]:
@@ -81,6 +93,7 @@ def _document_page_assets(
             asset_url = _page_asset_url(
                 job_id=job_id,
                 artifact_ref=asset["artifact_ref"],
+                job_metadata=job_metadata,
                 result_storage=result_storage,
             )
             if asset_url:
@@ -116,6 +129,7 @@ def _page_asset_url(
     *,
     job_id: str,
     artifact_ref: str,
+    job_metadata: dict[str, Any] | None,
     result_storage: ResultStorage,
 ) -> str | None:
     normalized_ref = result_storage.normalize_artifact_ref(artifact_ref)
@@ -126,6 +140,7 @@ def _page_asset_url(
             job_id=job_id,
             artifact_ref=normalized_ref,
             expires_in=_DOCUMENT_CHUNK_ASSET_URL_EXPIRES_SECONDS,
+            job_metadata=job_metadata,
         )
     except Exception as exc:
         logger.warning(f"Failed to generate page citation asset URL (ignored): {exc}")
@@ -256,6 +271,7 @@ class DocumentService:
                 chunk=chunk,
                 section=section,
                 job_id=job_result.job_id,
+                job_metadata=_job_metadata_for_result(job_result),
                 include_asset_urls=include_asset_urls,
                 result_storage=result_storage,
             )
@@ -314,6 +330,7 @@ class DocumentService:
                 chunk=chunk,
                 section=section,
                 job_id=job_result.job_id,
+                job_metadata=_job_metadata_for_result(job_result),
                 include_asset_urls=include_asset_urls,
                 result_storage=result_storage,
             ),
@@ -358,6 +375,7 @@ class DocumentService:
         if not result_storage.verify_raw_exists(
             job_id=job_result.job_id,
             relative_path=_PAGE_CITATION_SOURCE_FILE_NAME,
+            job_metadata=_coerce_job_metadata(getattr(job, "job_metadata", None)),
         ):
             return None
 
@@ -365,6 +383,7 @@ class DocumentService:
             job_id=job_result.job_id,
             relative_path=_PAGE_CITATION_SOURCE_FILE_NAME,
             expires_in=_PAGE_CITATION_SOURCE_EXPIRES_SECONDS,
+            job_metadata=_coerce_job_metadata(getattr(job, "job_metadata", None)),
         )
         if not source_url:
             return None
@@ -390,6 +409,7 @@ class DocumentService:
         chunk: DocumentChunk,
         section: DocumentSection | None,
         job_id: str | None,
+        job_metadata: dict[str, Any] | None,
         include_asset_urls: bool,
         result_storage: ResultStorage | None,
     ) -> dict[str, Any]:
@@ -399,6 +419,7 @@ class DocumentService:
         page_assets = _document_page_assets(
             metadata=raw_metadata,
             job_id=job_id,
+            job_metadata=job_metadata,
             include_asset_urls=include_asset_urls,
             result_storage=result_storage,
         )
@@ -420,6 +441,7 @@ class DocumentService:
                 chunk_type=chunk_type,
                 job_id=job_id,
                 file_path=file_path,
+                job_metadata=job_metadata,
                 include_asset_urls=include_asset_urls,
                 result_storage=result_storage,
             ),

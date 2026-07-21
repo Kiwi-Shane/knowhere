@@ -4,6 +4,7 @@ import hashlib
 import os
 import tempfile
 from pathlib import Path
+from typing import Any
 
 from loguru import logger
 
@@ -20,6 +21,7 @@ def crop_source_pdf_pages(
     storage: JobResultStorage | None = None,
     expires_in: int = 3600,
     temp_dir: str | None = None,
+    job_metadata: dict[str, Any] | None = None,
 ) -> str | None:
     normalized_pages = _normalize_pages(pages)
     if not job_id or not normalized_pages:
@@ -27,14 +29,23 @@ def crop_source_pdf_pages(
 
     result_storage = storage or JobResultStorage()
     cache_ref = _cache_ref(normalized_pages)
-    if result_storage.verify_raw_exists(job_id=job_id, relative_path=cache_ref):
+    if result_storage.verify_raw_exists(
+        job_id=job_id,
+        relative_path=cache_ref,
+        job_metadata=job_metadata,
+    ):
         return result_storage.generate_artifact_url(
             job_id=job_id,
             artifact_ref=cache_ref,
             expires_in=expires_in,
+            job_metadata=job_metadata,
         )
 
-    if not result_storage.verify_raw_exists(job_id=job_id, relative_path=_SOURCE_PDF_REF):
+    if not result_storage.verify_raw_exists(
+        job_id=job_id,
+        relative_path=_SOURCE_PDF_REF,
+        job_metadata=job_metadata,
+    ):
         logger.warning("[page_pdf_crop] source.pdf missing for job_id={}", job_id)
         return None
 
@@ -46,6 +57,7 @@ def crop_source_pdf_pages(
                 relative_path=_SOURCE_PDF_REF,
                 suffix=".pdf",
                 temp_dir=local_dir,
+                job_metadata=job_metadata,
             )
             cropped_path = os.path.join(local_dir, Path(cache_ref).name)
             _write_cropped_pdf(
@@ -57,6 +69,7 @@ def crop_source_pdf_pages(
                 job_id=job_id,
                 relative_path=cache_ref,
                 local_file_path=cropped_path,
+                job_metadata=job_metadata,
             )
     except Exception as exc:
         logger.warning(
@@ -71,6 +84,7 @@ def crop_source_pdf_pages(
         job_id=job_id,
         artifact_ref=cache_ref,
         expires_in=expires_in,
+        job_metadata=job_metadata,
     )
 
 

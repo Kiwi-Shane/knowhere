@@ -98,6 +98,11 @@ async def load_all_scoped_chunks(
             'chunk_metadata': chunk.chunk_metadata or {},
             'job_result_id': chunk.job_result_id,
             'job_id': job_result.job_id if job_result else None,
+            '_job_metadata': (
+                getattr(getattr(job_result, 'job', None), 'job_metadata', None)
+                if job_result
+                else None
+            ),
             'sort_order': chunk.sort_order,
         })
     return rows

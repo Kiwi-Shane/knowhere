@@ -68,7 +68,9 @@ class FakeResultStorage:
         job_id: str,
         artifact_ref: str,
         expires_in: int = 3600,
+        job_metadata: dict[str, object] | None = None,
     ) -> str | None:
+        del expires_in, job_metadata
         normalized = self.normalize_artifact_ref(artifact_ref)
         if not normalized:
             return None
