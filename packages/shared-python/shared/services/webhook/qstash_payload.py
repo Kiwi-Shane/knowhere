@@ -34,6 +34,7 @@ class QStashPayloadEnricher:
             return self._resolver.enrich_payload(
                 payload,
                 job_result=job.job_result,
+                job_metadata=job.job_metadata,
             )
         except Exception as exc:
             logger.error(f"Failed to enrich payload for event {event.id}: {exc}")

@@ -411,6 +411,13 @@ def test_should_publish_completed_webhook_with_result_delivery_payload(
     from shared.services.jobs.result_delivery import JobResultDeliveryResolver
     from shared.services.storage.job_file_storage import JobFileStorage
 
+    monkeypatch.setattr(
+        "shared.core.config.settings.OBJECT_STORAGE_EXTERNAL_CALLS_ENABLED",
+        True,
+        raising=False,
+    )
+    monkeypatch.setenv("S3_TYPE", "s3")
+
     user_id = f"worker-user-{uuid4().hex[:12]}"
     target_url = "https://hooks.contract.test/worker"
     job_id = f"job_completed_{uuid4().hex[:12]}"
@@ -418,6 +425,15 @@ def test_should_publish_completed_webhook_with_result_delivery_payload(
     result_s3_key = f"results/{job_id}.zip"
     published_calls: list[dict[str, Any]] = []
     signed_url_calls: list[dict[str, Any]] = []
+    job_metadata = _build_file_job_metadata()
+    job_metadata["external_call_authorizations"]["object_storage"] = {
+        "approved": True,
+        "provider": "object_storage",
+        "data_classification": "synthetic",
+        "source_scope": "fixture:result-delivery-contract",
+        "authorization_id": "auth-result-delivery-contract-001",
+        "approved_by": "test-operator",
+    }
 
     class FakeMessageClient:
         def publish(self, **kwargs: Any) -> SimpleNamespace:
@@ -481,7 +497,7 @@ def test_should_publish_completed_webhook_with_result_delivery_payload(
             source_type="file",
             webhook_url=target_url,
             webhook_enabled=True,
-            job_metadata=_build_file_job_metadata(),
+            job_metadata=job_metadata,
             billing_status="charged",
         )
         _insert_job_result(

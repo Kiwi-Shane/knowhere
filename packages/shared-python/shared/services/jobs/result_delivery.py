@@ -26,6 +26,7 @@ class JobResultDeliveryResolver:
         job_result: Any | None,
         *,
         default_expires_at: datetime | None = None,
+        job_metadata: dict[str, Any] | None = None,
     ) -> JobResultDelivery:
         result = None
         result_url = None
@@ -47,6 +48,7 @@ class JobResultDeliveryResolver:
             url_info = self._storage.generate_download_url(
                 result_s3_key,
                 bucket=self._storage.results_bucket,
+                job_metadata=job_metadata,
             )
             result_url = url_info["download_url"]
             expires_in = int(url_info.get("expires_in", 3600))
@@ -63,11 +65,12 @@ class JobResultDeliveryResolver:
         payload: dict[str, Any],
         *,
         job_result: Any | None,
+        job_metadata: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         if payload.get("event") != "job.completed":
             return payload
 
-        delivery = self.resolve(job_result)
+        delivery = self.resolve(job_result, job_metadata=job_metadata)
         enriched = dict(payload)
         if delivery.result_url:
             enriched["result_url"] = delivery.result_url

@@ -114,6 +114,7 @@ def _resolve_duration_seconds(job: Any) -> float | None:
 
 async def _resolve_result_delivery(
     job: Any,
+    job_metadata: Optional[dict[str, Any]],
 ) -> tuple[dict[str, Any] | None, str | None, datetime]:
     default_expires_at = require_utc(
         job.created_at,
@@ -122,6 +123,7 @@ async def _resolve_result_delivery(
     delivery = JobResultDeliveryResolver().resolve(
         job.job_result,
         default_expires_at=default_expires_at,
+        job_metadata=job_metadata,
     )
     return (
         delivery.result,
@@ -139,7 +141,10 @@ async def build_job_result_response(
     original_request = _resolve_original_request(job_metadata)
     file_name = _resolve_source_file_name(original_request)
     parsing_params = _resolve_parsing_params(job_metadata, original_request)
-    result, result_url, result_url_expires_at = await _resolve_result_delivery(job)
+    result, result_url, result_url_expires_at = await _resolve_result_delivery(
+        job,
+        job_metadata,
+    )
 
     return JobResultResponse(
         job_id=job.job_id,

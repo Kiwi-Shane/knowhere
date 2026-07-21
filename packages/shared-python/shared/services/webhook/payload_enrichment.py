@@ -43,6 +43,7 @@ class WebhookPayloadEnricher:
                 return self._resolver.enrich_payload(
                     payload,
                     job_result=job.job_result,
+                    job_metadata=job.job_metadata,
                 )
 
         except Exception as error:

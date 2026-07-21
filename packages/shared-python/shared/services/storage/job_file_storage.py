@@ -101,7 +101,9 @@ class JobFileStorage:
         *,
         bucket: str,
         expires_in: int = 3600,
+        job_metadata: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
+        self._require_remote_storage_job_authorization(job_metadata)
         expiration = settings.validate_presign_expiration(expires_in)
         download_url = self.storage_adapter.generate_presigned_url(
             storage_key,
@@ -116,11 +118,13 @@ class JobFileStorage:
         storage_key: str,
         *,
         expires_in: int = 3600,
+        job_metadata: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         return self.generate_download_url(
             storage_key,
             bucket=self.uploads_bucket,
             expires_in=expires_in,
+            job_metadata=job_metadata,
         )
 
     def verify_exists(
