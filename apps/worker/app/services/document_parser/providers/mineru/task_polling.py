@@ -22,6 +22,7 @@ from shared.core.exceptions.domain_exceptions import (
     UnavailableException,
 )
 from shared.core.exceptions.knowhere_exception import KnowhereException
+from shared.models.schemas.job_metadata import JobMetadataHelper
 from shared.utils.zip_download import download_and_extract_zip
 
 
@@ -47,9 +48,14 @@ def poll_mineru_task(
     output_dir: str,
     get_status: Callable[[dict[str, Any]], Optional[dict[str, Any]]],
     preferred_token_id: Optional[str] = None,
+    job_metadata: dict[str, object] | None = None,
 ) -> None:
     settings.require_mineru_external_calls_enabled()
     settings.validate_mineru_endpoint(status_url)
+    JobMetadataHelper.require_external_call_authorization(
+        job_metadata,
+        provider="mineru",
+    )
     quota_manager = get_mineru_quota_manager()
     polling_logger = mineru_logger(
         "poll_status",

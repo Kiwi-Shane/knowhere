@@ -529,4 +529,5 @@ def parse_via_full(
         output_dir=output_dir,
         get_status=get_batch_status,
         preferred_token_id=token_id,
+        job_metadata=job_metadata,
     )
