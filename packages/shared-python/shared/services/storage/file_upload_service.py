@@ -58,13 +58,18 @@ class FileUploadService:
             )
 
     async def verify_s3_file_exists(
-        self, s3_key: str, bucket: Optional[str] = None
+        self,
+        s3_key: str,
+        bucket: Optional[str] = None,
+        *,
+        job_metadata: dict[str, object] | None = None,
     ) -> dict[str, Any]:
         try:
             return await asyncio.to_thread(
                 self._storage.verify_exists,
                 s3_key,
                 bucket=bucket or self._storage.uploads_bucket,
+                job_metadata=job_metadata,
             )
         except Exception as e:
             logger.error(f"Failed to verify file existence: {e}")

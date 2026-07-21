@@ -675,3 +675,35 @@ async def test_file_upload_service_propagates_job_metadata_to_storage_upload_url
             "job_metadata": metadata,
         }
     ]
+
+
+@pytest.mark.asyncio
+async def test_file_upload_service_propagates_job_metadata_to_file_existence_check() -> (
+    None
+):
+    class RecordingStorage:
+        def __init__(self) -> None:
+            self.uploads_bucket = "test-uploads"
+            self.calls: list[dict[str, object]] = []
+
+        def verify_exists(self, *args: object, **kwargs: object) -> dict[str, object]:
+            self.calls.append({"args": args, **kwargs})
+            return {"exists": True}
+
+    storage = RecordingStorage()
+    service = FileUploadService(storage=storage)  # type: ignore[arg-type]
+    metadata = _approved_object_storage_metadata()
+
+    result = await service.verify_s3_file_exists(
+        "uploads/job-1.pdf",
+        job_metadata=metadata,
+    )
+
+    assert result == {"exists": True}
+    assert storage.calls == [
+        {
+            "args": ("uploads/job-1.pdf",),
+            "bucket": "test-uploads",
+            "job_metadata": metadata,
+        }
+    ]

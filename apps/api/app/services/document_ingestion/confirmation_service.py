@@ -59,7 +59,10 @@ class DocumentIngestionConfirmationService:
                     ],
                 )
 
-            file_info = await self._file_upload_service.verify_s3_file_exists(job.s3_key)
+            file_info = await self._file_upload_service.verify_s3_file_exists(
+                job.s3_key,
+                job_metadata=job.job_metadata,
+            )
             if not bool(file_info.get("exists")):
                 raise ValidationException(
                     user_message="S3 file does not exist, please upload the file first",

@@ -1296,13 +1296,17 @@ async def test_should_confirm_upload_and_start_processing_for_a_waiting_file_job
         "data_id": "contract-job-confirm-upload",
     }
     started_workflows: list[dict[str, object]] = []
+    verified_metadata: list[dict[str, object] | None] = []
 
     async def _fake_verify_s3_file_exists(
         self: object,
         s3_key: str,
         bucket: str | None = None,
+        *,
+        job_metadata: dict[str, object] | None = None,
     ) -> dict[str, object]:
         assert bucket is None
+        verified_metadata.append(job_metadata)
         return {"exists": True, "s3_key": s3_key}
 
     async def _fake_start_uploaded_file_parse(
@@ -1350,6 +1354,7 @@ async def test_should_confirm_upload_and_start_processing_for_a_waiting_file_job
 
     job_row = await _load_job_record(job_id)
     assert job_row["status"] == "pending"
+    assert verified_metadata == [cast(dict[str, object], job_row["job_metadata"])]
     assert started_workflows == [
         {
             "job_id": job_id,
@@ -1376,8 +1381,11 @@ async def test_should_preserve_retryable_confirm_upload_transition_rejection(
         self: object,
         s3_key: str,
         bucket: str | None = None,
+        *,
+        job_metadata: dict[str, object] | None = None,
     ) -> dict[str, object]:
         assert bucket is None
+        assert job_metadata is not None
         return {"exists": True, "s3_key": s3_key}
 
     async def _fake_transition_outcome(
