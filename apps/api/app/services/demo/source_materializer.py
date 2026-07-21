@@ -124,9 +124,27 @@ class DemoSourceMaterializer:
         job_id = f"job_demo_{uuid4().hex[:12]}"
         job_result_id = str(uuid4())
         timestamp = _utc_now()
+        job_metadata: dict[str, object] = {
+            "document_id": document_id,
+            "namespace": namespace,
+            "source_type": "demo",
+            "source_file_name": source.title,
+            "demo_source_id": source.demo_source_id,
+            "external_call_authorizations": {
+                "object_storage": {
+                    "approved": True,
+                    "provider": "object_storage",
+                    "data_classification": "synthetic",
+                    "source_scope": f"canonical-demo:{source.demo_source_id}",
+                    "authorization_id": f"demo-materialization:{job_id}",
+                    "approved_by": "knowhere-demo-materializer",
+                }
+            },
+        }
         result_bundle = _upload_demo_result_bundle(
             job_id=job_id,
             source_directory=self._catalog.source_directory(source),
+            job_metadata=job_metadata,
         )
 
         db.add(
@@ -137,13 +155,7 @@ class DemoSourceMaterializer:
                 status="done",
                 source_type="demo",
                 webhook_enabled=False,
-                job_metadata={
-                    "document_id": document_id,
-                    "namespace": namespace,
-                    "source_type": "demo",
-                    "source_file_name": source.title,
-                    "demo_source_id": source.demo_source_id,
-                },
+                job_metadata=job_metadata,
                 version=0,
                 created_at=timestamp,
                 updated_at=timestamp,
@@ -299,6 +311,7 @@ def _upload_demo_result_bundle(
     *,
     job_id: str,
     source_directory: Path,
+    job_metadata: dict[str, object],
 ) -> dict[str, int | str]:
     with tempfile.TemporaryDirectory(prefix="knowhere-demo-result-") as temp_directory:
         zip_base_path = Path(temp_directory) / job_id
@@ -314,6 +327,7 @@ def _upload_demo_result_bundle(
             job_id=job_id,
             result_dir=str(source_directory),
             zip_file_path=str(zip_file_path),
+            job_metadata=job_metadata,
         )
 
     return {

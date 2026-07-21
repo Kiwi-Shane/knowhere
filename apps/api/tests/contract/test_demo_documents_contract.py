@@ -29,6 +29,7 @@ NVDA_EARNINGS_CALL_DEMO_SOURCE_ID = "demo-financial-nvda-q1-fy27-earnings-call"
 class FakeResultStorage:
     def __init__(self) -> None:
         self.raw_files_by_job_id: dict[str, set[str]] = {}
+        self.job_metadata_by_job_id: dict[str, dict[str, object] | None] = {}
 
     def upload(
         self,
@@ -36,8 +37,10 @@ class FakeResultStorage:
         job_id: str,
         result_dir: str,
         zip_file_path: str,
+        job_metadata: dict[str, object] | None = None,
     ) -> SimpleNamespace:
         assert Path(zip_file_path).is_file()
+        self.job_metadata_by_job_id[job_id] = job_metadata
         result_path = Path(result_dir)
         raw_files = {
             file_path.relative_to(result_path).as_posix()
@@ -370,7 +373,7 @@ async def test_should_materialize_demo_source_without_parse_or_credit_charge(
     )
     job_rows = await ContractDatabase.fetch_all(
         """
-        SELECT job_id, status, job_type, credits_charged, billing_status
+        SELECT job_id, status, job_type, credits_charged, billing_status, job_metadata
         FROM jobs
         WHERE user_id = 'local-dev-user'
           AND job_metadata ->> 'demo_source_id' = :demo_source_id
@@ -393,6 +396,19 @@ async def test_should_materialize_demo_source_without_parse_or_credit_charge(
     assert job_row["job_type"] == "demo_materialization"
     assert job_row["credits_charged"] == 0
     assert job_row["billing_status"] == "skipped"
+    job_metadata = cast(dict[str, object], job_row["job_metadata"])
+    assert fake_result_storage.job_metadata_by_job_id[str(job_row["job_id"])] == (
+        job_metadata
+    )
+    object_storage_authorization = cast(
+        dict[str, object],
+        cast(dict[str, object], job_metadata["external_call_authorizations"])[
+            "object_storage"
+        ],
+    )
+    assert object_storage_authorization["approved"] is True
+    assert object_storage_authorization["provider"] == "object_storage"
+    assert object_storage_authorization["data_classification"] == "synthetic"
 
     retrieval_body = cast(dict[str, Any], retrieval_response.json())
     retrieval_results = cast(list[dict[str, Any]], retrieval_body["results"])
