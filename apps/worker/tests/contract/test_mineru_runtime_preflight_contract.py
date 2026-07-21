@@ -167,9 +167,28 @@ def test_local_runtime_reports_missing_configured_model_root(tmp_path: Path) -> 
     assert str(tmp_path) not in json.dumps(status.to_dict())
 
 
+def test_local_runtime_reports_empty_configured_model_root(tmp_path: Path) -> None:
+    model_root = tmp_path / "empty-model-root"
+    model_root.mkdir()
+    config = _local_config(tmp_path, MINERU_LOCAL_MODEL_ROOT=str(model_root))
+
+    status = check_local_mineru_runtime(
+        config,
+        run_command=_Commands(),
+        disk_usage=lambda _path: SimpleNamespace(free=20 * GIB),
+        virtual_memory=lambda: SimpleNamespace(available=16 * GIB),
+        write_probe=lambda _path: True,
+    )
+
+    assert status.ready is False
+    assert status.checks["models"] is False
+    assert status.error_codes == ("models_missing",)
+    assert str(tmp_path) not in json.dumps(status.to_dict())
+
+
 def test_local_runtime_accepts_existing_configured_model_root(tmp_path: Path) -> None:
     model_root = tmp_path / "model-root"
-    model_root.mkdir()
+    (model_root / "models" / "MFR").mkdir(parents=True)
     config = _local_config(tmp_path, MINERU_LOCAL_MODEL_ROOT=str(model_root))
 
     status = check_local_mineru_runtime(

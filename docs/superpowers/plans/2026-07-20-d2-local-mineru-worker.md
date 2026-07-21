@@ -178,8 +178,18 @@ also passed. The private pilot evidence remains content-free and local-only;
 `offline_verified=false`, host-level no-egress proof, human visual/semantic
 adjudication, and provider/RA disposition remain outside this D2 plan.
 
+The 2026-07-21 remediation closed two runtime gaps found during the first
+fresh integrated attempt: the local Worker image now installs the MinerU
+source non-editably so isolated Python imports resolve inside the image, and
+local runtime preflight rejects a configured model root that does not contain
+a populated `models/` directory. The prepared pipeline model snapshot is
+private local runtime material outside Git. A content-free direct extraction
+probe and the full `verify-d2.ps1 -LocalMineru` gate passed after the model
+root was populated; this still does not establish host-level no-egress proof,
+private-pilot adjudication, or provider/RA disposition.
+
 ## Self-review
 
-- Spec coverage: Tasks 1–3 cover model-root preflight, pinned image, source/model boundary, overlay, cloud-default preservation, and no fallback; Task 4 covers verifier/runbook; Task 5 covers evidence/version-control.
+- Spec coverage: Tasks 1–3 cover model-root preflight, pinned image, source/model boundary, overlay, cloud-default preservation, and no fallback; the remediation also covers isolated non-editable package resolution and fail-fast detection of an empty configured model root. Task 4 covers verifier/runbook; Task 5 covers evidence/version-control.
 - Placeholder scan: all repository paths and filenames are concrete; operator values are explicit required Compose variables.
 - Type consistency: MINERU_LOCAL_MODEL_ROOT is a string consumed by preflight; overlay supplies /mnt/models/mineru; verifier checks the same value; model JSON maps pipeline to the same path.

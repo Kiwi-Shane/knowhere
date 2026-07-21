@@ -107,7 +107,7 @@ def test_local_overlay_model_mount_is_read_only_and_reuses_d2_restrictions() -> 
 def test_local_image_and_model_template_keep_source_and_model_contracts() -> None:
     dockerfile = DOCKERFILE_PATH.read_text(encoding="utf-8")
     assert "COPY --from=mineru-source" in dockerfile
-    assert "uv sync --locked --no-dev --extra pipeline" in dockerfile
+    assert "uv sync --locked --no-dev --no-editable --extra pipeline" in dockerfile
     assert "MINERU_SOURCE_REVISION" in dockerfile
     assert "MINERU_PROVIDER=local" in dockerfile
 

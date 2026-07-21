@@ -134,6 +134,16 @@ def _probe_writable(root: Path) -> bool:
     return writable
 
 
+def _probe_model_layout(root: Path) -> bool:
+    """Require a populated MinerU pipeline-model directory without exposing paths."""
+
+    models_dir = root / "models"
+    try:
+        return models_dir.is_dir() and any(child.is_dir() for child in models_dir.iterdir())
+    except OSError:
+        return False
+
+
 def _probe_adapter(
     uv_executable: Path,
     mineru_python: Path,
@@ -216,7 +226,7 @@ def check_local_mineru_runtime(
         "project": bool(project_value) and project.is_dir(),
         "uv": uv_executable is not None and uv_executable.is_file(),
         "python": mineru_python.is_file(),
-        "models": model_root is None or model_root.is_dir(),
+        "models": model_root is None or _probe_model_layout(model_root),
         "adapter": False,
         "temp_writable": temp_writable,
         "disk": free_disk_bytes
