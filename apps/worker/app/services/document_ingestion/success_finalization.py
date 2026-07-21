@@ -79,6 +79,7 @@ def finalize_parse_success(
         result_package=result_package,
         generated_package=generated_package,
         job_id=job_id,
+        job_metadata=job_context.job_metadata,
         result_storage_factory=result_storage_factory,
     )
     stored_count = 0
@@ -247,6 +248,7 @@ def _upload_result_package(
     result_package: ParseResultPackage,
     generated_package: GeneratedResultPackage,
     job_id: str,
+    job_metadata: dict[str, object],
     result_storage_factory: ResultStorageFactory,
 ) -> str:
     artifact_refs = collect_referenced_artifact_refs(result_package.chunks)
@@ -258,5 +260,6 @@ def _upload_result_package(
         result_dir=add_dir,
         zip_file_path=generated_package.zip_file_path,
         artifact_refs=artifact_refs,
+        job_metadata=job_metadata,
     )
     return result_bundle.zip_key

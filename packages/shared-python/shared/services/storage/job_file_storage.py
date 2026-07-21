@@ -159,7 +159,9 @@ class JobFileStorage:
         storage_key: str,
         *,
         bucket: str,
+        job_metadata: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
+        self._require_remote_storage_job_authorization(job_metadata)
         try:
             return self.storage_adapter.upload_file(local_file_path, storage_key, bucket)
         except Exception as exc:

@@ -32,6 +32,7 @@ class ResultStorage(Protocol):
         result_dir: str,
         zip_file_path: str,
         artifact_refs: set[str] | None = None,
+        job_metadata: dict[str, object] | None = None,
     ) -> UploadedResultBundle:
         raise NotImplementedError
 
@@ -93,6 +94,7 @@ class JobResultStorage:
         result_dir: str,
         zip_file_path: str,
         artifact_refs: set[str] | None = None,
+        job_metadata: dict[str, object] | None = None,
     ) -> UploadedResultBundle:
         result_path = Path(result_dir)
         if not result_path.is_dir():
@@ -106,6 +108,7 @@ class JobResultStorage:
             str(zip_path),
             zip_key,
             bucket=self.results_bucket,
+            job_metadata=job_metadata,
         )
         self._cleanup_file(zip_path)
 
@@ -120,6 +123,7 @@ class JobResultStorage:
                 str(file_path),
                 raw_key,
                 bucket=self.results_bucket,
+                job_metadata=job_metadata,
             )
             raw_files[relative_path] = raw_key
 
