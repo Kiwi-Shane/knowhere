@@ -218,6 +218,21 @@ class JobLLMCredentialService:
         return int(result.rowcount or 0)
 
     @staticmethod
+    def delete_for_terminal_job_sync(db: Session, job_id: str) -> int:
+        """Delete credential ciphertext only when the Job is terminal."""
+        terminal_job = select(Job.job_id).where(
+            Job.job_id == job_id,
+            Job.status.in_(TERMINAL_STATES),
+        )
+        result = db.execute(
+            delete(JobLLMCredential).where(
+                JobLLMCredential.job_id == job_id,
+                JobLLMCredential.job_id.in_(terminal_job),
+            )
+        )
+        return int(result.rowcount or 0)
+
+    @staticmethod
     def delete_for_job(job_id: str) -> int:
         """Delete one Job's ciphertext using a short-lived worker session."""
         from shared.core.database_sync import get_sync_db_context
@@ -228,6 +243,21 @@ class JobLLMCredentialService:
         except Exception as exc:
             logger.error(
                 "Failed to clean up job-scoped BYOK credential: "
+                f"error_type={type(exc).__name__}"
+            )
+            return 0
+
+    @staticmethod
+    def delete_for_terminal_job(job_id: str) -> int:
+        """Delete ciphertext only if the authoritative Job is terminal."""
+        from shared.core.database_sync import get_sync_db_context
+
+        try:
+            with get_sync_db_context() as db:
+                return JobLLMCredentialService.delete_for_terminal_job_sync(db, job_id)
+        except Exception as exc:
+            logger.error(
+                "Failed to clean up terminal job-scoped BYOK credential: "
                 f"error_type={type(exc).__name__}"
             )
             return 0

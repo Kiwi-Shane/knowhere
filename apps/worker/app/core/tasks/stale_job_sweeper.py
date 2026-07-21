@@ -122,7 +122,9 @@ def expire_stale_jobs() -> dict:
                     )
                     if outcome.succeeded:
                         expired_count += 1
-                        JobLLMCredentialService.delete_for_job_sync(db, job.job_id)
+                        JobLLMCredentialService.delete_for_terminal_job_sync(
+                            db, job.job_id
+                        )
                         logger.info(
                             f"Expired stale job {job.job_id} (was {job.status})"
                         )

@@ -148,3 +148,101 @@ def test_should_skip_duplicate_beat_firing_with_the_real_periodic_redis_lock(
         "status": "skipped",
         "reason": "duplicate Beat firing",
     }
+
+
+def test_terminal_credential_cleanup_does_not_delete_active_job_credentials(
+    worker_contract_environment: None,
+) -> None:
+    from shared.core.database_sync import get_sync_db_context
+    from shared.services.jobs.job_llm_credential_service import (
+        JobLLMCredentialService,
+    )
+
+    terminal_job_id = f"job_terminal_cleanup_{uuid4().hex[:12]}"
+    active_job_id = f"job_active_cleanup_{uuid4().hex[:12]}"
+    terminal_credential_id = f"jllm_{uuid4().hex[:24]}"
+    active_credential_id = f"jllm_{uuid4().hex[:24]}"
+    user_id = f"worker-user-{uuid4().hex[:12]}"
+    _, engine = _load_worker_modules()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+
+    with engine.begin() as connection:
+        insert_contract_user(connection, user_id=user_id)
+        insert_contract_job(
+            connection,
+            job_id=terminal_job_id,
+            user_id=user_id,
+            status="failed",
+            source_type="file",
+            webhook_enabled=False,
+            job_metadata=_build_file_job_metadata(),
+            created_at=now,
+            updated_at=now,
+        )
+        insert_contract_job(
+            connection,
+            job_id=active_job_id,
+            user_id=user_id,
+            status="running",
+            source_type="file",
+            webhook_enabled=False,
+            job_metadata=_build_file_job_metadata(),
+            created_at=now,
+            updated_at=now,
+        )
+        connection.execute(
+            text(
+                """
+                INSERT INTO job_llm_credentials (
+                    id, job_id, user_id, config_encrypted, status,
+                    expires_at, created_at
+                ) VALUES (
+                    :terminal_id, :terminal_job_id, :user_id, :terminal_ciphertext,
+                    'active', :expires_at, :created_at
+                ), (
+                    :active_id, :active_job_id, :user_id, :active_ciphertext,
+                    'active', :expires_at, :created_at
+                )
+                """
+            ),
+            {
+                "terminal_id": terminal_credential_id,
+                "terminal_job_id": terminal_job_id,
+                "terminal_ciphertext": "terminal-ciphertext",
+                "active_id": active_credential_id,
+                "active_job_id": active_job_id,
+                "active_ciphertext": "active-ciphertext",
+                "user_id": user_id,
+                "expires_at": now + timedelta(hours=1),
+                "created_at": now,
+            },
+        )
+
+    with get_sync_db_context() as db:
+        deleted_count = JobLLMCredentialService.delete_for_terminal_job_sync(
+            db,
+            terminal_job_id,
+        )
+
+    assert deleted_count == 1
+    with engine.begin() as connection:
+        remaining_rows = (
+            connection.execute(
+                text(
+                    """
+                    SELECT id, job_id
+                    FROM job_llm_credentials
+                    WHERE id IN (:terminal_id, :active_id)
+                    ORDER BY id
+                    """
+                ),
+                {
+                    "terminal_id": terminal_credential_id,
+                    "active_id": active_credential_id,
+                },
+            )
+            .mappings()
+            .all()
+        )
+
+    assert remaining_rows == [{"id": active_credential_id, "job_id": active_job_id}]

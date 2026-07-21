@@ -56,14 +56,18 @@ class DocumentIngestionBaseTask(Task):
                     error_details=error_info.get("details"),
                     should_refund=True,
                 )
-                if finalized:
-                    from shared.services.jobs.job_llm_credential_service import (
-                        JobLLMCredentialService,
-                    )
+                from shared.services.jobs.job_llm_credential_service import (
+                    JobLLMCredentialService,
+                )
 
-                    JobLLMCredentialService.delete_for_job(job_id)
+                terminal_credential_cleanup = (
+                    JobLLMCredentialService.delete_for_terminal_job(job_id)
+                )
                 logger.info(
-                    f"Job failure finalized: job_id={job_id}, error_code={error_info['code']}"
+                    "Job failure finalization attempted: "
+                    f"job_id={job_id}, error_code={error_info['code']}, "
+                    f"finalized={finalized}, "
+                    f"terminal_credential_cleanup={terminal_credential_cleanup}"
                 )
             except Exception as e:
                 logger.error(
