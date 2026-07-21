@@ -30,7 +30,7 @@ Interfaces:
 - Consume existing _query_cache_key and RetrievalQuery.from_parameters.
 - Produce failing tests for endpoint-aware key identity and query-level propagation.
 
-- [ ] Step 1: Extend the cache helper and add RED assertions.
+- [x] Step 1: Extend the cache helper and add RED assertions.
 
 Add llm_text_endpoint and llm_vision_endpoint arguments to the existing _key helper and pass them to _query_cache_key. Add tests whose exact assertions are:
 
@@ -53,11 +53,11 @@ def test_cache_key_normalizes_endpoint_trailing_slash() -> None:
     )
 ~~~
 
-- [ ] Step 2: Add the RED query-propagation test.
+- [x] Step 2: Add the RED query-propagation test.
 
 Create test_retrieval_query_cache_identity.py. Use a real LLMConfig with text provider endpoint https://provider.example.test/v1/ and vision provider endpoint https://vision.example.test/v1. Construct RetrievalQuery.from_parameters with db=cast(AsyncSession, object()), user_id user-1, namespace case-1, query find the verified result, top_k 5, and empty exclusions. Assert build_cache_extra returns canonical llm_text_endpoint and llm_vision_endpoint values, does not contain api_key, and does not contain either representative secret in repr(extra).
 
-- [ ] Step 3: Verify RED.
+- [x] Step 3: Verify RED.
 
 Run:
 ~~~powershell
@@ -78,11 +78,11 @@ Interfaces:
   llm_vision_endpoint together with their effective model identities.
 - Existing digest and extra-parameter paths consume them.
 
-- [ ] Step 1: Resolve canonical endpoints in build_cache_extra.
+- [x] Step 1: Resolve canonical endpoints in build_cache_extra.
 
 Import normalize_provider_endpoint. For each non-None effective text or vision provider, keep its model and set the endpoint to normalize_provider_endpoint(provider.base_url). Return both endpoint fields next to the existing model fields. Never return API keys or credential references.
 
-- [ ] Step 2: Include endpoints in _cache_shape_digest and workflow-plan keys.
+- [x] Step 2: Include endpoints in _cache_shape_digest and workflow-plan keys.
 
 Add optional llm_text_endpoint and llm_vision_endpoint parameters. Normalize missing values using the existing empty-string convention and append both canonical endpoint values after the normalized model values in the hashed extra list. Leave the query cache call graph, Redis calls, and TTL constants unchanged.
 
@@ -91,7 +91,7 @@ optional model/endpoint identity fields. WorkflowPlanService derives the
 current request-scoped effective providers from the existing LLM override
 context, excludes credentials, and passes only model/endpoint identity.
 
-- [ ] Step 3: Verify GREEN.
+- [x] Step 3: Verify GREEN.
 
 Run the Task 1 pytest command. Expected: all existing and new tests pass, including endpoint canonicalization and secret omission.
 
@@ -101,7 +101,7 @@ Files:
 - Modify: packages/shared-python/shared/tests/test_retrieval_cache_service.py
 - Modify: packages/shared-python/shared/tests/test_retrieval_query_cache_identity.py
 
-- [ ] Step 1: Add channel and absent-value assertions.
+- [x] Step 1: Add channel and absent-value assertions.
 
 Add these exact behaviors:
 
@@ -123,7 +123,7 @@ def test_absent_endpoint_values_are_deterministic() -> None:
 
 Add a query test with base_url http://localhost/v1 and assert LLMEndpointPolicyError is raised by normalize_provider_endpoint before cache extras are produced.
 
-- [ ] Step 2: Run the expanded shared selection.
+- [x] Step 2: Run the expanded shared selection.
 
 ~~~powershell
 python -m uv run pytest packages/shared-python/shared/tests/test_retrieval_cache_service.py packages/shared-python/shared/tests/test_retrieval_query_cache_identity.py packages/shared-python/shared/tests/test_llm_config.py packages/shared-python/shared/tests/test_byok_credential_reference.py -q
@@ -137,7 +137,7 @@ Files:
 - Modify: docs/qualification/knowledge-retrieval-result-v1.md
 - Modify: docs/superpowers/plans/2026-07-21-provider-aware-retrieval-cache-partitioning.md
 
-- [ ] Step 1: Run quality checks.
+- [x] Step 1: Run quality checks.
 
 ~~~powershell
 python -m uv run ruff check packages/shared-python/shared/services/retrieval/cache_service.py packages/shared-python/shared/services/retrieval/execution/query_request.py packages/shared-python/shared/tests/test_retrieval_cache_service.py packages/shared-python/shared/tests/test_retrieval_query_cache_identity.py
@@ -149,7 +149,7 @@ git diff --check
 
 Expected: all commands exit zero. Record unrelated baseline failures without claiming them fixed.
 
-- [ ] Step 2: Append a bounded evidence note.
+- [x] Step 2: Append a bounded evidence note.
 
 Record candidate SHA, test counts, endpoint partitioning behavior, no-provider/no-network boundary, and unchanged stay_pinned/sync_authorized=false disposition in this plan and the existing qualification record. Do not create a duplicate maintenance document, alter qualification status, or claim retention/deletion/egress proof.
 
@@ -193,6 +193,9 @@ Expected: empty worktree, equal local/remote commit IDs, and RA-UP-01 remains pi
 
 - [x] Design and plan reviewed; design/plan commit `ec0b01fc` was pushed on
   the isolated candidate branch.
+- [x] Implementation commit
+  `61a3c146c591b2e935fe7adafac59a482d5897e6` was pushed to the isolated
+  candidate branch.
 - [x] TDD RED observed before production changes: endpoint keyword rejection,
   missing query endpoint fields, and missing local-endpoint rejection.
 - [x] Focused GREEN: `14 passed`.

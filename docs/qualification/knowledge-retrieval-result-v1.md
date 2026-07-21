@@ -2213,3 +2213,30 @@ private-data execution, establish source sufficiency, or change RA disposition.
 D5/source-owner qualification and D2 runtime-edge qualification remain
 deferred/blocked as previously recorded; the default ingestion path remains
 unchanged.
+
+## Bounded provider-aware retrieval cache observation (2026-07-21)
+
+At isolated Knowhere candidate revision
+`61a3c146c591b2e935fe7adafac59a482d5897e6`, the existing retrieval cache
+shape digest was extended to include canonical effective text and vision
+provider model/endpoint identities. The retrieval-query path uses the existing
+`normalize_provider_endpoint` policy helper; the workflow-plan path derives
+the current request-scoped effective providers from the existing override
+context. Both paths retain opaque SHA-256 cache keys and do not pass API keys,
+encrypted credential references, request bodies, or provider output into the
+cache identity.
+
+The focused cache/query identity selection passed `14` tests, the expanded
+shared contract selection passed `39` tests, and the API retrieval contract
+selection passed `15` tests. The full shared-python suite passed `52` tests and
+retained the two previously known page-memory VLM fixture failures caused by
+legacy one-argument `get_openai_client` lambdas; those failures are outside
+this change's files and behavior.
+
+The evidence is pure synthetic/unit and mocked contract coverage. It did not
+start Redis, call a provider, access a database, process private source data,
+or establish host-level egress denial. Cache retention/deletion, provider
+authorization, production equivalence, runtime promotion, source-owner gold,
+native/semantic adjudication, and RA acceptance remain open. The qualification
+status remains `deferred`, and the pinned fork remains isolated with no
+upstream synchronization.
