@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from shared.models.schemas.llm_config import LLMConfig
 from shared.models.schemas.retrieval_namespace import normalize_retrieval_namespace
+from shared.services.ai.llm_endpoint_policy import normalize_provider_endpoint
 from shared.services.retrieval.execution.route_types import RetrievalRouteContext
 from shared.services.retrieval.settings import (
     INTERNAL_RECALL_K_MULTIPLIER,
@@ -78,11 +79,17 @@ class RetrievalQuery:
     def build_cache_extra(self) -> dict[str, Any]:
         text_model: str | None = None
         vision_model: str | None = None
+        text_endpoint: str | None = None
+        vision_endpoint: str | None = None
         if self.llm_config is not None:
             text_provider = self.llm_config.text_effective()
             vision_provider = self.llm_config.vision_effective()
-            text_model = text_provider.model if text_provider is not None else None
-            vision_model = vision_provider.model if vision_provider is not None else None
+            if text_provider is not None:
+                text_model = text_provider.model
+                text_endpoint = normalize_provider_endpoint(text_provider.base_url)
+            if vision_provider is not None:
+                vision_model = vision_provider.model
+                vision_endpoint = normalize_provider_endpoint(vision_provider.base_url)
         return {
             "chunk_types": sorted(self.chunk_types) if self.chunk_types else None,
             "signal_paths": self.signal_paths,
@@ -96,6 +103,8 @@ class RetrievalQuery:
             "decomposition_enabled": True,
             "llm_text_model": text_model,
             "llm_vision_model": vision_model,
+            "llm_text_endpoint": text_endpoint,
+            "llm_vision_endpoint": vision_endpoint,
         }
 
     def resolve_allowed_chunk_types(self) -> set[str] | None:

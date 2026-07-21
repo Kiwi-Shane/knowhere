@@ -6,6 +6,7 @@ from typing import Any
 from loguru import logger
 
 from shared.models.schemas.retrieval_namespace import normalize_retrieval_namespace
+from shared.services.ai.llm_endpoint_policy import normalize_provider_endpoint
 from shared.services.redis import RedisServiceFactory
 
 _RETRIEVAL_CACHE_TTL_SECONDS = 300
@@ -31,6 +32,12 @@ def _normalize_exclude_sections(exclude_sections: list[dict[str, str]]) -> list[
     return sorted(set(normalized))
 
 
+def _normalize_cache_endpoint(value: str | None) -> str:
+    if not value:
+        return ""
+    return normalize_provider_endpoint(value)
+
+
 def _cache_shape_digest(
     *,
     query: str,
@@ -49,12 +56,16 @@ def _cache_shape_digest(
     decomposition_enabled: bool | None = None,
     llm_text_model: str | None = None,
     llm_vision_model: str | None = None,
+    llm_text_endpoint: str | None = None,
+    llm_vision_endpoint: str | None = None,
 ) -> str:
     normalized_excludes = sorted(exclude_document_ids)
     normalized_sections = _normalize_exclude_sections(exclude_sections)
     chunk_types_str = ",".join(sorted(chunk_types)) if chunk_types else ""
     normalized_text_model = (llm_text_model or "").strip()
     normalized_vision_model = (llm_vision_model or "").strip()
+    normalized_text_endpoint = _normalize_cache_endpoint(llm_text_endpoint)
+    normalized_vision_endpoint = _normalize_cache_endpoint(llm_vision_endpoint)
     extra = "|".join(
         [
             chunk_types_str,
@@ -69,6 +80,8 @@ def _cache_shape_digest(
             str(decomposition_enabled),
             normalized_text_model,
             normalized_vision_model,
+            normalized_text_endpoint,
+            normalized_vision_endpoint,
         ]
     )
     payload = f"{query}|{top_k}|{'|'.join(normalized_excludes)}|{'|'.join(normalized_sections)}|{extra}"
@@ -204,6 +217,10 @@ async def _workflow_plan_cache_key(
     top_k: int,
     chunk_types: set[str] | None = None,
     exclude_document_ids: list[str] | None = None,
+    llm_text_model: str | None = None,
+    llm_vision_model: str | None = None,
+    llm_text_endpoint: str | None = None,
+    llm_vision_endpoint: str | None = None,
 ) -> str:
     namespace = normalize_retrieval_namespace(namespace)
     version = await get_retrieval_namespace_cache_version(
@@ -215,6 +232,10 @@ async def _workflow_plan_cache_key(
         chunk_types=chunk_types,
         exclude_document_ids=exclude_document_ids or [],
         exclude_sections=[],
+        llm_text_model=llm_text_model,
+        llm_vision_model=llm_vision_model,
+        llm_text_endpoint=llm_text_endpoint,
+        llm_vision_endpoint=llm_vision_endpoint,
     )
     return f"retrieval:workflow:plan:{user_id}:{namespace}:v{version}:{digest}"
 
@@ -227,12 +248,23 @@ async def get_cached_workflow_plan(
     top_k: int,
     chunk_types: set[str] | None = None,
     exclude_document_ids: list[str] | None = None,
+    llm_text_model: str | None = None,
+    llm_vision_model: str | None = None,
+    llm_text_endpoint: str | None = None,
+    llm_vision_endpoint: str | None = None,
 ) -> dict[str, Any] | None:
     redis_service = RedisServiceFactory.get_service()
     key = await _workflow_plan_cache_key(
-        user_id=user_id, namespace=namespace, query=query,
-        top_k=top_k, chunk_types=chunk_types,
+        user_id=user_id,
+        namespace=namespace,
+        query=query,
+        top_k=top_k,
+        chunk_types=chunk_types,
         exclude_document_ids=exclude_document_ids,
+        llm_text_model=llm_text_model,
+        llm_vision_model=llm_vision_model,
+        llm_text_endpoint=llm_text_endpoint,
+        llm_vision_endpoint=llm_vision_endpoint,
     )
     cached = await redis_service.get(key, default=None)
     return cached if isinstance(cached, dict) else None
@@ -246,12 +278,23 @@ async def set_cached_workflow_plan(
     top_k: int,
     chunk_types: set[str] | None = None,
     exclude_document_ids: list[str] | None = None,
+    llm_text_model: str | None = None,
+    llm_vision_model: str | None = None,
+    llm_text_endpoint: str | None = None,
+    llm_vision_endpoint: str | None = None,
     plan: dict[str, Any],
 ) -> None:
     redis_service = RedisServiceFactory.get_service()
     key = await _workflow_plan_cache_key(
-        user_id=user_id, namespace=namespace, query=query,
-        top_k=top_k, chunk_types=chunk_types,
+        user_id=user_id,
+        namespace=namespace,
+        query=query,
+        top_k=top_k,
+        chunk_types=chunk_types,
         exclude_document_ids=exclude_document_ids,
+        llm_text_model=llm_text_model,
+        llm_vision_model=llm_vision_model,
+        llm_text_endpoint=llm_text_endpoint,
+        llm_vision_endpoint=llm_vision_endpoint,
     )
     await redis_service.set(key, plan, ex=_WORKFLOW_PLAN_CACHE_TTL_SECONDS)

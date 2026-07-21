@@ -12,7 +12,8 @@
 
 - Work only in isolated branch fix/kiwi-shane/cache-partitioning-20260721, based on candidate 19f089f7255bcdb505d7883ece5bbdec90ba67fa.
 - Do not fetch, merge, rebase, synchronize, or force-push upstream.
-- Preserve existing cache API signatures and TTL constants.
+- Preserve existing caller compatibility and TTL constants; identity fields are
+  optional keyword parameters and no required positional contract changes.
 - Do not put API keys, encrypted credential references, raw request bodies, or provider output in cache keys, logs, or tracked files.
 - Reuse normalize_provider_endpoint; do not create a second endpoint-policy implementation.
 - Evidence is candidate-scope only and does not claim retention/deletion, egress, production promotion, RA acceptance, or qualification.
@@ -70,18 +71,25 @@ Expected: the endpoint keyword is rejected by the current cache helper and the q
 Files:
 - Modify: packages/shared-python/shared/services/retrieval/execution/query_request.py
 - Modify: packages/shared-python/shared/services/retrieval/cache_service.py
+- Modify: packages/shared-python/shared/services/retrieval/workflow/plan_service.py
 
 Interfaces:
-- Query produces llm_text_endpoint and llm_vision_endpoint.
+- Query and workflow-plan paths produce llm_text_endpoint and
+  llm_vision_endpoint together with their effective model identities.
 - Existing digest and extra-parameter paths consume them.
 
 - [ ] Step 1: Resolve canonical endpoints in build_cache_extra.
 
 Import normalize_provider_endpoint. For each non-None effective text or vision provider, keep its model and set the endpoint to normalize_provider_endpoint(provider.base_url). Return both endpoint fields next to the existing model fields. Never return API keys or credential references.
 
-- [ ] Step 2: Include endpoints in _cache_shape_digest.
+- [ ] Step 2: Include endpoints in _cache_shape_digest and workflow-plan keys.
 
-Add optional llm_text_endpoint and llm_vision_endpoint parameters. Normalize missing values using the existing empty-string convention and append both canonical endpoint values after the normalized model values in the hashed extra list. Leave _query_cache_key, _workflow_plan_cache_key, Redis calls, and TTL constants unchanged.
+Add optional llm_text_endpoint and llm_vision_endpoint parameters. Normalize missing values using the existing empty-string convention and append both canonical endpoint values after the normalized model values in the hashed extra list. Leave the query cache call graph, Redis calls, and TTL constants unchanged.
+
+The workflow-plan key and its existing async get/set wrappers accept the same
+optional model/endpoint identity fields. WorkflowPlanService derives the
+current request-scoped effective providers from the existing LLM override
+context, excludes credentials, and passes only model/endpoint identity.
 
 - [ ] Step 3: Verify GREEN.
 
@@ -126,8 +134,8 @@ Expected: all selected tests pass with no provider, Redis, database, or network 
 ### Task 4: Validate and record candidate evidence
 
 Files:
-- Modify: docs/maintenance/ra_up_01_knowhere_upstream_impact_decision_20260719.md
 - Modify: docs/qualification/knowledge-retrieval-result-v1.md
+- Modify: docs/superpowers/plans/2026-07-21-provider-aware-retrieval-cache-partitioning.md
 
 - [ ] Step 1: Run quality checks.
 
@@ -143,12 +151,12 @@ Expected: all commands exit zero. Record unrelated baseline failures without cla
 
 - [ ] Step 2: Append a bounded evidence note.
 
-Record candidate SHA, test counts, endpoint partitioning behavior, no-provider/no-network boundary, and unchanged stay_pinned/sync_authorized=false disposition. Do not alter qualification status or claim retention/deletion/egress proof.
+Record candidate SHA, test counts, endpoint partitioning behavior, no-provider/no-network boundary, and unchanged stay_pinned/sync_authorized=false disposition in this plan and the existing qualification record. Do not create a duplicate maintenance document, alter qualification status, or claim retention/deletion/egress proof.
 
 ### Task 5: Review, commit, push, and verify clean state
 
 Files:
-- Stage only the two production files, the two test files, and the two evidence documents.
+- Stage only the three production files, the two test files, this plan, and the existing qualification document.
 
 - [ ] Step 1: Review staged scope.
 
@@ -164,7 +172,7 @@ Expected: no private source, provider output, credential, local runtime, or gene
 - [ ] Step 2: Commit and push the isolated candidate.
 
 ~~~powershell
-git add packages/shared-python/shared/services/retrieval/cache_service.py packages/shared-python/shared/services/retrieval/execution/query_request.py packages/shared-python/shared/tests/test_retrieval_cache_service.py packages/shared-python/shared/tests/test_retrieval_query_cache_identity.py docs/maintenance/ra_up_01_knowhere_upstream_impact_decision_20260719.md docs/qualification/knowledge-retrieval-result-v1.md
+git add packages/shared-python/shared/services/retrieval/cache_service.py packages/shared-python/shared/services/retrieval/execution/query_request.py packages/shared-python/shared/services/retrieval/workflow/plan_service.py packages/shared-python/shared/tests/test_retrieval_cache_service.py packages/shared-python/shared/tests/test_retrieval_query_cache_identity.py docs/superpowers/plans/2026-07-21-provider-aware-retrieval-cache-partitioning.md docs/qualification/knowledge-retrieval-result-v1.md
 git commit -m "fix: partition retrieval cache by provider endpoint"
 git push --set-upstream origin fix/kiwi-shane/cache-partitioning-20260721
 ~~~
@@ -179,3 +187,23 @@ git rev-parse origin/fix/kiwi-shane/cache-partitioning-20260721
 
 Expected: empty worktree, equal local/remote commit IDs, and RA-UP-01 remains pinned with no synchronization.
 
+---
+
+## Implementation evidence (2026-07-21)
+
+- [x] Design and plan reviewed; design/plan commit `ec0b01fc` was pushed on
+  the isolated candidate branch.
+- [x] TDD RED observed before production changes: endpoint keyword rejection,
+  missing query endpoint fields, and missing local-endpoint rejection.
+- [x] Focused GREEN: `14 passed`.
+- [x] Expanded shared contract selection: `39 passed` across cache identity,
+  query propagation, LLMConfig, endpoint policy, and BYOK credential-reference
+  tests.
+- [x] Ruff check/format, Pyright, Python compile, and `git diff --check`
+  passed for the changed implementation and test files.
+- [x] Workflow-plan cache keys now use the same effective model/endpoint
+  identity and remain opaque SHA-256 digests. API keys, credential references,
+  request bodies, and provider output are not included.
+- [ ] Candidate runtime promotion, provider execution, retention/deletion,
+  host-level egress proof, RA acceptance, and upstream synchronization remain
+  out of scope. The fork remains pinned and `sync_authorized=false`.
