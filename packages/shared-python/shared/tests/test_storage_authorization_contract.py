@@ -394,6 +394,114 @@ def test_job_file_storage_allows_remote_result_upload_with_approved_job_authoriz
     ]
 
 
+def test_job_file_storage_rejects_remote_source_verification_without_job_authorization(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    class RecordingStorageAdapter:
+        def __init__(self) -> None:
+            self.calls: list[str] = []
+
+        def exists(self, key: str, bucket: str | None = None) -> bool:
+            del bucket
+            self.calls.append(f"exists:{key}")
+            return True
+
+        def get_object_size(self, key: str, bucket: str | None = None) -> int:
+            del bucket
+            self.calls.append(f"size:{key}")
+            return 1
+
+    monkeypatch.setattr(
+        "shared.core.config.settings.OBJECT_STORAGE_EXTERNAL_CALLS_ENABLED",
+        True,
+        raising=False,
+    )
+    monkeypatch.setattr("shared.core.config.settings.S3_TYPE", "s3", raising=False)
+    adapter = RecordingStorageAdapter()
+    storage = JobFileStorage(storage_adapter=adapter)  # type: ignore[arg-type]
+
+    with pytest.raises(PermissionDeniedException, match="object_storage"):
+        storage.verify_upload_exists(
+            "uploads/job-1.pdf",
+            job_metadata=None,
+        )
+
+    assert adapter.calls == []
+
+
+def test_job_file_storage_rejects_remote_source_download_without_job_authorization(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    class RecordingStorageAdapter:
+        def __init__(self) -> None:
+            self.calls: list[str] = []
+
+        def download_file(
+            self,
+            key: str,
+            local_path: str,
+            bucket: str | None = None,
+        ) -> str:
+            del local_path, bucket
+            self.calls.append(key)
+            return ""
+
+    monkeypatch.setattr(
+        "shared.core.config.settings.OBJECT_STORAGE_EXTERNAL_CALLS_ENABLED",
+        True,
+        raising=False,
+    )
+    monkeypatch.setattr("shared.core.config.settings.S3_TYPE", "s3", raising=False)
+    adapter = RecordingStorageAdapter()
+    storage = JobFileStorage(storage_adapter=adapter)  # type: ignore[arg-type]
+
+    with pytest.raises(PermissionDeniedException, match="object_storage"):
+        storage.download_upload_to_temp(
+            "uploads/job-1.pdf",
+            suffix=".pdf",
+            temp_dir="/tmp/contract",
+            job_metadata=None,
+        )
+
+    assert adapter.calls == []
+
+
+def test_job_file_storage_rejects_remote_source_upload_without_job_authorization(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    class RecordingStorageAdapter:
+        def __init__(self) -> None:
+            self.calls: list[str] = []
+
+        def upload_file(
+            self,
+            local_path: str,
+            key: str,
+            bucket: str | None = None,
+        ) -> dict[str, object]:
+            del local_path, bucket
+            self.calls.append(key)
+            return {"key": key}
+
+    monkeypatch.setattr(
+        "shared.core.config.settings.OBJECT_STORAGE_EXTERNAL_CALLS_ENABLED",
+        True,
+        raising=False,
+    )
+    monkeypatch.setattr("shared.core.config.settings.S3_TYPE", "s3", raising=False)
+    adapter = RecordingStorageAdapter()
+    storage = JobFileStorage(storage_adapter=adapter)  # type: ignore[arg-type]
+
+    with pytest.raises(PermissionDeniedException, match="object_storage"):
+        storage.upload_source_file(
+            "source.pdf",
+            "uploads/job-1.pdf",
+            job_metadata=None,
+        )
+
+    assert adapter.calls == []
+
+
 @pytest.mark.asyncio
 async def test_file_upload_service_propagates_job_metadata_to_storage_upload_url() -> None:
     class RecordingStorage:

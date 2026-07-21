@@ -44,11 +44,16 @@ def prepare_source_file(
     )
 
     storage = JobFileStorage()
-    _assert_source_file_within_size_limit(storage, job_context.s3_key)
+    _assert_source_file_within_size_limit(
+        storage,
+        job_context.s3_key,
+        job_metadata=job_context.job_metadata,
+    )
     local_file_path = storage.download_upload_to_temp(
         job_context.s3_key,
         suffix=file_extension,
         temp_dir=input_dir,
+        job_metadata=job_context.job_metadata,
     )
     logger.info(f"File downloaded: job_id={job_id}, local_path={local_file_path}")
 
@@ -75,8 +80,13 @@ def prepare_source_file(
 def _assert_source_file_within_size_limit(
     storage: JobFileStorage,
     s3_key: str,
+    *,
+    job_metadata: dict[str, object] | None = None,
 ) -> None:
-    file_info = storage.verify_upload_exists(s3_key)
+    file_info = storage.verify_upload_exists(
+        s3_key,
+        job_metadata=job_metadata,
+    )
     if not file_info.get("exists"):
         raise NotFoundException(
             resource="S3File",

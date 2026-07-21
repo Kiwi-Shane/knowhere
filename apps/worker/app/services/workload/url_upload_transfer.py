@@ -86,15 +86,27 @@ def upload_temp_file_to_source_storage(
     *,
     temp_file_path: str,
     s3_key: str,
+    job_metadata: dict[str, object] | None = None,
 ) -> None:
     storage = JobFileStorage()
-    storage.upload_source_file(temp_file_path, s3_key)
+    storage.upload_source_file(
+        temp_file_path,
+        s3_key,
+        job_metadata=job_metadata,
+    )
     logger.info(f"File uploaded to S3: {s3_key}")
 
 
-def verify_source_upload(s3_key: str) -> dict[str, object]:
+def verify_source_upload(
+    s3_key: str,
+    *,
+    job_metadata: dict[str, object] | None = None,
+) -> dict[str, object]:
     storage = JobFileStorage()
-    file_info = storage.verify_upload_exists(s3_key)
+    file_info = storage.verify_upload_exists(
+        s3_key,
+        job_metadata=job_metadata,
+    )
     if file_info.get("exists"):
         return dict(file_info)
 

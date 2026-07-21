@@ -66,6 +66,7 @@ def upload_url_file(
         upload_temp_file_to_source_storage(
             temp_file_path=temp_file_path,
             s3_key=upload_context.s3_key,
+            job_metadata=upload_context.job_metadata,
         )
 
     finally:
@@ -77,7 +78,10 @@ def upload_url_file(
         message="Verifying upload result...",
         redis_service=redis_service,
     )
-    file_info = verify_source_upload(upload_context.s3_key)
+    file_info = verify_source_upload(
+        upload_context.s3_key,
+        job_metadata=upload_context.job_metadata,
+    )
 
     lifecycle_service.update_progress(
         job_id,

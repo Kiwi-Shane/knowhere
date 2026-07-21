@@ -150,7 +150,13 @@ class JobFileStorage:
                 original_exception=exc,
             ) from exc
 
-    def verify_upload_exists(self, storage_key: str) -> dict[str, Any]:
+    def verify_upload_exists(
+        self,
+        storage_key: str,
+        *,
+        job_metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        self._require_remote_storage_job_authorization(job_metadata)
         return self.verify_exists(storage_key, bucket=self.uploads_bucket)
 
     def upload_local_file(
@@ -175,11 +181,14 @@ class JobFileStorage:
         self,
         local_file_path: str,
         storage_key: str,
+        *,
+        job_metadata: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         return self.upload_local_file(
             local_file_path,
             storage_key,
             bucket=self.uploads_bucket,
+            job_metadata=job_metadata,
         )
 
     def delete_object(
@@ -281,7 +290,9 @@ class JobFileStorage:
         *,
         suffix: str,
         temp_dir: str,
+        job_metadata: dict[str, Any] | None = None,
     ) -> str:
+        self._require_remote_storage_job_authorization(job_metadata)
         return self.download_to_temp(
             storage_key,
             suffix=suffix,
