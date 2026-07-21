@@ -129,3 +129,20 @@ def test_local_verifier_binds_worker_to_the_requested_revision() -> None:
     assert "$env:KNOWHERE_SOURCE_REVISION" in verifier
     assert "$expectedWorkerRevision" in verifier
     assert '"GIT_COMMIT=$expectedWorkerRevision"' in verifier
+
+
+def test_local_verifier_runs_the_real_integrated_retrieval_gate() -> None:
+    verifier = VERIFIER_PATH.read_text(encoding="utf-8")
+    required_markers = (
+        "D2 local MinerU integrated retrieval probe passed",
+        "app.core.tasks.document_ingestion_tasks.parse_task",
+        "run_retrieval_query",
+        "source_sha256",
+        "archive_document",
+        "delete_document",
+        "retrieval non-visibility",
+    )
+    for marker in required_markers:
+        assert marker in verifier, marker
+
+    assert "if ($LocalMineru)" in verifier

@@ -137,6 +137,36 @@ def test_d2_application_services_are_internal_telemetry_off_and_secret_file_back
     )
 
 
+def test_d2_api_and_worker_use_the_internal_s3_storage_backend() -> None:
+    config = _d2_config()
+    services = config["services"]
+    assert isinstance(services, dict)
+
+    for service_name in ("api", "worker"):
+        service = services[service_name]
+        assert isinstance(service, dict), service_name
+        environment = service["environment"]
+        assert isinstance(environment, dict), service_name
+        assert environment["S3_TYPE"] == "s3", service_name
+        assert environment["S3_ENDPOINT_URL"] == "http://localstack:4566", service_name
+        assert environment["S3_REGION"] == "us-west-1", service_name
+        assert environment["S3_ADDRESSING_STYLE"] == "path", service_name
+        assert "OBJECT_STORAGE_LOCAL_ROOT" not in environment, service_name
+
+
+def test_d2_synthetic_applications_disable_the_external_document_planner_model() -> None:
+    services = _d2_config()["services"]
+    assert isinstance(services, dict)
+
+    for service_name in ("api", "worker"):
+        service = services[service_name]
+        assert isinstance(service, dict), service_name
+        environment = service["environment"]
+        assert isinstance(environment, dict), service_name
+        assert environment["LLM_MOCK_ENABLED"] == "true", service_name
+        assert environment["IMAGE_MODEL"] == "", service_name
+
+
 def test_d2_postgres_uses_a_file_backed_secret() -> None:
     config = _d2_config()
     postgres = config["services"]["postgres"]
@@ -175,6 +205,9 @@ def test_d2_verifier_is_repeatable_and_does_not_teardown_the_harness() -> None:
     assert "DATABASE_PASSWORD_FILE" in script
     assert "d2_backup_smoke" in script
     assert "d2_rollback_smoke" in script
+    assert "awslocal s3api head-bucket" in script
+    assert "d2-synthetic-uploads" in script
+    assert "d2-synthetic-results" in script
     assert "D2 synthetic application lifecycle probe passed" in script
     assert "cross-scope" in script
     assert "archived graph residue" in script

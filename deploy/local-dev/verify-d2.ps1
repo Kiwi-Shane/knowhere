@@ -121,6 +121,12 @@ try {
     $null = Invoke-D2DockerText @("exec", "knowhere_d2_postgres", "sh", "-c", "test -s /run/secrets/postgres_password")
     Write-Output "D2 stage: dependency health and secret checks completed."
 
+    foreach ($bucketName in @("d2-synthetic-uploads", "d2-synthetic-results")) {
+        $bucketCommand = "awslocal s3api head-bucket --bucket $bucketName >/dev/null 2>&1 || awslocal s3 mb s3://$bucketName >/dev/null"
+        $null = Invoke-D2DockerText @("exec", "knowhere_d2_localstack", "sh", "-c", $bucketCommand)
+    }
+    Write-Output "D2 stage: internal S3 synthetic buckets are ready."
+
     $expectedDatabaseUrl = "DATABASE_URL=postgresql+asyncpg://root@postgres:5432/Knowhere"
     foreach ($serviceName in @("api", "worker")) {
         $containerName = "knowhere_d2_$serviceName"
@@ -168,6 +174,488 @@ try {
         "test -s /tmp/knowhere-worker-heartbeat.json"
     )
     Write-Output "D2 stage: API and worker health checks completed."
+
+    if ($LocalMineru) {
+        $integratedMineruProbe = @'
+import asyncio
+import hashlib
+import json
+import time
+import zipfile
+from pathlib import Path
+from uuid import uuid4
+
+from sqlalchemy import delete, select, text
+
+from app.services.documents.lifecycle_service import DocumentService
+from shared.core.celery_app import get_celery_app
+from shared.core.celery_router import task_router
+from shared.core.database import AsyncSessionFactory
+from shared.core.database_sync import get_sync_engine
+from shared.models.database.document import (
+    Document,
+    DocumentChunk,
+    DocumentSection,
+    GraphEdge,
+    GraphNode,
+)
+from shared.models.database.job import Job
+from shared.models.database.job_result import JobResult
+from shared.models.database.user import User
+from shared.services.retrieval.app_service import run_retrieval_query
+from shared.services.storage.job_file_storage import JobFileStorage
+
+
+_TASK_NAME = "app.core.tasks.document_ingestion_tasks.parse_task"
+_JOB_TYPE = "document_ingestion"
+
+
+def _pdf_escape(value: str) -> bytes:
+    return value.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)").encode("ascii")
+
+
+def _write_synthetic_pdf(path: Path, *, title: str, marker: str) -> None:
+    stream = b"\n".join(
+        [
+            b"BT",
+            b"/F1 18 Tf",
+            b"72 730 Td",
+            b"(" + _pdf_escape(title) + b") Tj",
+            b"0 -34 Td",
+            b"/F1 14 Tf",
+            b"(1. Integrated Locator) Tj",
+            b"0 -30 Td",
+            b"/F1 10 Tf",
+            b"(" + _pdf_escape(marker) + b") Tj",
+            b"0 -26 Td",
+            b"(Synthetic public qualification content; no client data.) Tj",
+            b"ET",
+        ]
+    )
+    objects = [
+        b"<< /Type /Catalog /Pages 2 0 R >>",
+        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+        (
+            b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] "
+            b"/Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>"
+        ),
+        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+        b"<< /Length " + str(len(stream)).encode("ascii") + b" >>\nstream\n" + stream + b"\nendstream",
+    ]
+    document = b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n"
+    offsets = [0]
+    for object_number, payload in enumerate(objects, start=1):
+        offsets.append(len(document))
+        document += f"{object_number} 0 obj\n".encode("ascii")
+        document += payload + b"\nendobj\n"
+    xref_offset = len(document)
+    document += b"xref\n0 6\n0000000000 65535 f \n"
+    document += b"".join(
+        f"{offset:010d} 00000 n \n".encode("ascii") for offset in offsets[1:]
+    )
+    document += (
+        b"trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n"
+        + str(xref_offset).encode("ascii")
+        + b"\n%%EOF\n"
+    )
+    path.write_bytes(document)
+
+
+def _poll_job(engine, job_id: str) -> dict[str, object]:
+    deadline = time.monotonic() + 240
+    while time.monotonic() < deadline:
+        with engine.connect() as connection:
+            row = connection.execute(
+                text(
+                    """
+                    SELECT status, error_code, error_message, page_count
+                    FROM jobs
+                    WHERE job_id = :job_id
+                    """
+                ),
+                {"job_id": job_id},
+            ).mappings().one()
+        if row["status"] in {"done", "failed"}:
+            return dict(row)
+        time.sleep(2)
+    raise AssertionError(f"local MinerU parse task timed out: job_id={job_id}")
+
+
+def _result_snapshot(engine, *, job_id: str) -> dict[str, object]:
+    with engine.connect() as connection:
+        result_row = connection.execute(
+            text(
+                """
+                SELECT id, document_id, result_s3_key, document_metadata
+                FROM job_results
+                WHERE job_id = :job_id
+                """
+            ),
+            {"job_id": job_id},
+        ).mappings().one_or_none()
+        assert result_row is not None, "successful parse did not publish a job result"
+        document_id = result_row["document_id"]
+        assert document_id, "successful parse did not publish a document id"
+        document_row = connection.execute(
+            text(
+                """
+                SELECT document_id, status, source_file_name, document_metadata
+                FROM documents
+                WHERE document_id = :document_id
+                """
+            ),
+            {"document_id": document_id},
+        ).mappings().one()
+        chunk_rows = connection.execute(
+            text(
+                """
+                SELECT content, source_chunk_path, chunk_metadata
+                FROM document_chunks
+                WHERE document_id = :document_id
+                ORDER BY sort_order
+                """
+            ),
+            {"document_id": document_id},
+        ).mappings().all()
+        section_rows = connection.execute(
+            text(
+                """
+                SELECT section_path
+                FROM document_sections
+                WHERE document_id = :document_id
+                ORDER BY sort_order
+                """
+            ),
+            {"document_id": document_id},
+        ).mappings().all()
+    return {
+        "result": dict(result_row),
+        "document": dict(document_row),
+        "chunks": [dict(row) for row in chunk_rows],
+        "sections": [dict(row) for row in section_rows],
+    }
+
+
+def _enqueue_parse(*, job_id: str, user_id: str) -> None:
+    queue_name = task_router.get_queue_for_job(_JOB_TYPE, user_id)
+    signature = get_celery_app().signature(
+        _TASK_NAME,
+        args=[job_id],
+        kwargs={"user_id": user_id, "job_type": _JOB_TYPE},
+    ).set(queue=queue_name)
+    signature.apply_async()
+
+
+def _matching_results(response: dict[str, object], document_id: str) -> list[dict[str, object]]:
+    raw_results = response.get("results")
+    if not isinstance(raw_results, list):
+        return []
+    matches: list[dict[str, object]] = []
+    for raw_result in raw_results:
+        if not isinstance(raw_result, dict):
+            continue
+        source = raw_result.get("source")
+        if isinstance(source, dict) and source.get("document_id") == document_id:
+            matches.append(raw_result)
+    return matches
+
+
+async def _retrieval(
+    db,
+    *,
+    user_id: str,
+    namespace: str,
+    marker: str,
+) -> dict[str, object]:
+    return await run_retrieval_query(
+        db=db,
+        user_id=user_id,
+        namespace=namespace,
+        query=marker,
+        top_k=10,
+        exclude_document_ids=[],
+        exclude_sections=[],
+        channels=["content"],
+        use_agentic=False,
+    )
+
+
+async def _cleanup_rows(
+    *,
+    user_id: str,
+    job_id: str,
+    document_id: str | None,
+) -> None:
+    async with AsyncSessionFactory() as db:
+        if document_id:
+            await db.execute(
+                delete(GraphEdge).where(
+                    (GraphEdge.owner_document_id == document_id)
+                    | (GraphEdge.source_node_id == f"doc:{document_id}")
+                    | (GraphEdge.target_node_id == f"doc:{document_id}")
+                )
+            )
+            await db.execute(delete(GraphNode).where(GraphNode.owner_document_id == document_id))
+            await db.execute(delete(DocumentChunk).where(DocumentChunk.document_id == document_id))
+            await db.execute(delete(DocumentSection).where(DocumentSection.document_id == document_id))
+            await db.execute(delete(Document).where(Document.document_id == document_id))
+        await db.execute(delete(JobResult).where(JobResult.job_id == job_id))
+        await db.execute(delete(Job).where(Job.job_id == job_id))
+        await db.execute(delete(User).where(User.id == user_id))
+        await db.commit()
+
+
+async def main() -> None:
+    engine = get_sync_engine()
+    storage = JobFileStorage()
+    service = DocumentService()
+    user_id = f"d2-local-mineru-{uuid4().hex[:12]}"
+    namespace = f"d2-local-mineru-{uuid4().hex[:12]}"
+    job_id = str(uuid4())
+    source_file_name = "d2-local-mineru-integrated.pdf"
+    source_key = f"uploads/{job_id}.pdf"
+    source_path = Path(f"/tmp/{job_id}-source.pdf")
+    result_zip_path = Path(f"/tmp/{job_id}-result.zip")
+    document_id: str | None = None
+    marker = f"D2LOCALMINERURETRIEVALMARKER{uuid4().hex}"
+
+    try:
+        _write_synthetic_pdf(
+            source_path,
+            title="D2 Local MinerU Integrated Retrieval Fixture",
+            marker=marker,
+        )
+        source_sha256 = hashlib.sha256(source_path.read_bytes()).hexdigest()
+        job_metadata = {
+            "namespace": namespace,
+            "source_type": "file",
+            "source_file_name": source_file_name,
+            "parse_track": "chunk",
+            "document_metadata": {
+                "synthetic": True,
+                "fixture": "d2-local-mineru-integrated-retrieval",
+                "source_sha256": source_sha256,
+            },
+            "parsing_params": {
+                "doc_type": "auto",
+                "smart_title_parse": False,
+                "summary_image": False,
+                "summary_table": False,
+                "summary_txt": False,
+                "summary_use_llm": False,
+            },
+        }
+        async with AsyncSessionFactory() as db:
+            db.add(
+                User(
+                    id=user_id,
+                    name="D2 local MinerU synthetic user",
+                    email=f"{user_id}@example.invalid",
+                )
+            )
+            await db.flush()
+            db.add(
+                Job(
+                    job_id=job_id,
+                    user_id=user_id,
+                    job_type=_JOB_TYPE,
+                    status="pending",
+                    source_type="file",
+                    file_path=source_file_name,
+                    s3_key=source_key,
+                    webhook_enabled=False,
+                    job_metadata=job_metadata,
+                    credits_charged=0,
+                    billing_status="pending",
+                )
+            )
+            await db.commit()
+
+        upload_result = storage.upload_source_file(str(source_path), source_key)
+        assert upload_result.get("status") == "success", upload_result
+        assert storage.verify_upload_exists(source_key)["exists"] is True
+        _enqueue_parse(job_id=job_id, user_id=user_id)
+
+        job_status = _poll_job(engine, job_id)
+        assert job_status["status"] == "done", (
+            f"local MinerU parse failed: status={job_status['status']} "
+            f"error_code={job_status['error_code']} error={job_status['error_message']}"
+        )
+        snapshot = _result_snapshot(engine, job_id=job_id)
+        result_row = snapshot["result"]
+        document_row = snapshot["document"]
+        assert isinstance(result_row, dict)
+        assert isinstance(document_row, dict)
+        document_id = str(result_row["document_id"])
+        assert document_row["status"] == "active"
+        assert document_row["source_file_name"] == source_file_name
+        assert document_row["document_metadata"]["source_sha256"] == source_sha256
+
+        chunk_rows = snapshot["chunks"]
+        section_rows = snapshot["sections"]
+        assert isinstance(chunk_rows, list) and chunk_rows, "no document chunks were published"
+        chunk_samples = [
+            {
+                "content_prefix": str(row.get("content") or "")[:240],
+                "source_chunk_path": row.get("source_chunk_path"),
+            }
+            for row in chunk_rows[:5]
+        ]
+        assert any(marker in str(row.get("content") or "") for row in chunk_rows), (
+            "synthetic retrieval marker was not preserved in published content: "
+            + json.dumps(chunk_samples, ensure_ascii=False)
+        )
+        locator_paths = [
+            str(row.get("source_chunk_path"))
+            for row in chunk_rows
+            if row.get("source_chunk_path")
+        ] + [
+            str(row.get("section_path"))
+            for row in section_rows
+            if row.get("section_path")
+        ]
+        assert locator_paths, "no published locator path was recorded"
+        assert any(path.strip().lower() != "root" for path in locator_paths)
+
+        result_s3_key = result_row["result_s3_key"]
+        assert isinstance(result_s3_key, str) and result_s3_key
+        storage.download_to_path(
+            result_s3_key,
+            str(result_zip_path),
+            bucket=storage.results_bucket,
+        )
+        with zipfile.ZipFile(result_zip_path) as archive:
+            manifest = json.loads(archive.read("manifest.json").decode("utf-8"))
+            chunks_payload = json.loads(archive.read("chunks.json").decode("utf-8"))
+        assert manifest["job_id"] == job_id
+        assert manifest["source_file_name"] == source_file_name
+        assert manifest["statistics"]["total_chunks"] > 0
+        assert chunks_payload["chunks"]
+
+        async with AsyncSessionFactory() as db:
+            retrieval_before = await _retrieval(
+                db,
+                user_id=user_id,
+                namespace=namespace,
+                marker=marker,
+            )
+            matches = _matching_results(retrieval_before, document_id)
+            assert matches, "integrated retrieval did not return the published document"
+            marker_matches = [
+                item
+                for item in matches
+                if marker in json.dumps(item, ensure_ascii=False)
+            ]
+            assert marker_matches, "integrated retrieval did not return the marker content"
+            retrieval_hit = marker_matches[0]
+            source = retrieval_hit.get("source")
+            assert isinstance(source, dict)
+            retrieval_locator = source.get("section_path") or retrieval_hit.get("source_chunk_path")
+            assert retrieval_locator and str(retrieval_locator).strip().lower() != "root"
+
+            other_user_results = await _retrieval(
+                db,
+                user_id=f"{user_id}-other",
+                namespace=namespace,
+                marker=marker,
+            )
+            other_namespace_results = await _retrieval(
+                db,
+                user_id=user_id,
+                namespace=f"{namespace}-other",
+                marker=marker,
+            )
+            assert not _matching_results(other_user_results, document_id)
+            assert not _matching_results(other_namespace_results, document_id)
+
+            archived = await service.archive_document(
+                db,
+                user_id=user_id,
+                document_id=document_id,
+            )
+            assert archived is not None and archived["status"] == "archived"
+            after_archive = await _retrieval(
+                db,
+                user_id=user_id,
+                namespace=namespace,
+                marker=marker,
+            )
+            assert not _matching_results(after_archive, document_id)
+
+            deleted = await service.delete_document(
+                db,
+                user_id=user_id,
+                document_id=document_id,
+            )
+            assert deleted == {"document_id": document_id, "deleted": True}
+            after_delete = await _retrieval(
+                db,
+                user_id=user_id,
+                namespace=namespace,
+                marker=marker,
+            )
+            assert not _matching_results(after_delete, document_id)
+
+        assert not storage.verify_upload_exists(source_key)["exists"]
+        assert not storage.verify_exists(
+            result_s3_key,
+            bucket=storage.results_bucket,
+        )["exists"]
+        assert not list(
+            storage.storage_adapter.list_objects(
+                prefix=f"results/{job_id}/",
+                bucket=storage.results_bucket,
+            )
+        )
+        with engine.connect() as connection:
+            assert connection.execute(
+                text("SELECT COUNT(*) FROM jobs WHERE job_id = :job_id"),
+                {"job_id": job_id},
+            ).scalar_one() == 0
+            assert connection.execute(
+                text("SELECT COUNT(*) FROM job_results WHERE job_id = :job_id"),
+                {"job_id": job_id},
+            ).scalar_one() == 0
+        print(
+            "D2 local MinerU integrated retrieval probe passed: parse task, "
+            "publication, source hash, locator, cross-scope isolation, archive "
+            "exclusion, hard-delete storage cleanup, and retrieval non-visibility."
+        )
+    finally:
+        try:
+            storage.delete_upload_file(source_key)
+            storage.delete_result_bundle(job_id=job_id)
+        finally:
+            await _cleanup_rows(
+                user_id=user_id,
+                job_id=job_id,
+                document_id=document_id,
+            )
+            source_path.unlink(missing_ok=True)
+            result_zip_path.unlink(missing_ok=True)
+
+
+asyncio.run(main())
+'@
+        Write-Output "D2 stage: local MinerU integrated retrieval probe starting."
+        $integratedMineruPreference = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        try {
+            $integratedMineruOutput = ($integratedMineruProbe | & docker exec -i knowhere_d2_api env PYTHONWARNINGS=ignore python - 2>&1 | Out-String).Trim()
+            $integratedMineruExitCode = $LASTEXITCODE
+        }
+        finally {
+            $ErrorActionPreference = $integratedMineruPreference
+        }
+        if ($integratedMineruExitCode -ne 0 -or $integratedMineruOutput -notlike "*D2 local MinerU integrated retrieval probe passed*") {
+            Write-Output "D2 local MinerU integrated retrieval probe diagnostic (exit=$integratedMineruExitCode):"
+            Write-Output $integratedMineruOutput
+        }
+        Assert-D2 ($integratedMineruExitCode -eq 0) "D2 local MinerU integrated retrieval probe failed: $integratedMineruOutput"
+        Assert-D2 ($integratedMineruOutput -like "*D2 local MinerU integrated retrieval probe passed*") `
+            "D2 local MinerU integrated retrieval probe did not report success: $integratedMineruOutput"
+        Write-Output "D2 local MinerU integrated retrieval probe completed."
+    }
 
     $lifecycleProbe = @'
 import asyncio
