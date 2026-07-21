@@ -27,6 +27,23 @@ _RETRIEVAL_LLM_TEMPERATURE = 0.1
 _RETRIEVAL_LLM_MAX_TOKENS = 2048
 
 
+def _retrieval_llm_external_calls_authorized() -> bool:
+    """Return whether retrieval may construct a real outbound LLM callable."""
+    if getattr(settings, 'LLM_MOCK_ENABLED', False):
+        return True
+    if not getattr(settings, 'LLM_EXTERNAL_CALLS_ENABLED', False):
+        logger.debug(
+            'retrieval: general LLM external calls are disabled; using local fallback'
+        )
+        return False
+    if not getattr(settings, 'RETRIEVAL_LLM_EXTERNAL_CALLS_ENABLED', False):
+        logger.debug(
+            'retrieval: retrieval LLM external calls are disabled; using local fallback'
+        )
+        return False
+    return True
+
+
 def _has_llm_credentials() -> bool:
     """Check whether at least one LLM provider is configured."""
     if getattr(settings, 'LLM_MOCK_ENABLED', False):
@@ -87,6 +104,8 @@ def create_retrieval_llm_fn(
     The model thinks internally but we only return ``message.content``
     (the final answer), not ``reasoning_content``.
     """
+    if not _retrieval_llm_external_calls_authorized():
+        return None
     if not _has_llm_credentials():
         logger.debug('retrieval: no LLM credentials configured, agent navigation disabled')
         return None
@@ -142,6 +161,8 @@ def create_retrieval_planner_fn(
     max_tokens: int = 8192,
 ) -> LLMFn | None:
     """Create a reasoning-capable LLM callable for query planning."""
+    if not _retrieval_llm_external_calls_authorized():
+        return None
     if not _has_llm_credentials():
         logger.debug('retrieval: no LLM credentials configured, workflow planner disabled')
         return None
@@ -183,6 +204,8 @@ def create_retrieval_vlm_fn(
     """
     from shared.core.config import settings
 
+    if not _retrieval_llm_external_calls_authorized():
+        return None
     effective_model = model or getattr(settings, 'IMAGE_MODEL', '') or 'qwen3.6-flash'
 
     if not _has_llm_credentials():

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import asyncio
 import os
 from pathlib import Path
 
@@ -29,6 +30,101 @@ def test_llm_external_calls_can_be_explicitly_enabled() -> None:
     config = AIConfig(LLM_EXTERNAL_CALLS_ENABLED=True)
 
     config.require_llm_external_calls_enabled()
+
+
+def test_retrieval_llm_has_a_separate_default_deny_gate() -> None:
+    config = AIConfig(LLM_EXTERNAL_CALLS_ENABLED=True)
+
+    assert config.RETRIEVAL_LLM_EXTERNAL_CALLS_ENABLED is False
+    with pytest.raises(SystemSettingMissingException):
+        config.require_retrieval_llm_external_calls_enabled()
+
+    enabled_config = AIConfig(
+        LLM_EXTERNAL_CALLS_ENABLED=True,
+        RETRIEVAL_LLM_EXTERNAL_CALLS_ENABLED=True,
+    )
+    enabled_config.require_retrieval_llm_external_calls_enabled()
+
+
+def test_retrieval_llm_factories_do_not_construct_a_provider_without_retrieval_opt_in(
+    monkeypatch,
+) -> None:
+    from shared.services.retrieval import llm_adapter
+
+    monkeypatch.setattr(llm_adapter.settings, "LLM_MOCK_ENABLED", False)
+    monkeypatch.setattr(llm_adapter.settings, "LLM_EXTERNAL_CALLS_ENABLED", True)
+    monkeypatch.setattr(
+        llm_adapter.settings,
+        "RETRIEVAL_LLM_EXTERNAL_CALLS_ENABLED",
+        False,
+    )
+    monkeypatch.setattr(llm_adapter, "_has_llm_credentials", lambda: True)
+
+    def fail_if_provider_is_constructed(*_args, **_kwargs):
+        raise AssertionError("retrieval provider must remain unconstructed")
+
+    from shared.services.ai import openai_compatible_client_sync as client_module
+
+    monkeypatch.setattr(
+        client_module,
+        "get_openai_client",
+        fail_if_provider_is_constructed,
+    )
+
+    assert llm_adapter.create_retrieval_llm_fn() is None
+    assert llm_adapter.create_retrieval_planner_fn() is None
+    assert llm_adapter.create_retrieval_vlm_fn() is None
+
+
+def test_retrieval_llm_factory_uses_fake_provider_only_after_both_opt_ins(
+    monkeypatch,
+) -> None:
+    from shared.services.ai import openai_compatible_client_sync as client_module
+    from shared.services.retrieval import llm_adapter
+
+    class FakeClient:
+        def chat_completion_with_usage(self, *_args, **_kwargs):
+            return "fixture response", {"total_tokens": 0}
+
+    monkeypatch.setattr(llm_adapter.settings, "LLM_MOCK_ENABLED", False)
+    monkeypatch.setattr(llm_adapter.settings, "LLM_EXTERNAL_CALLS_ENABLED", True)
+    monkeypatch.setattr(
+        llm_adapter.settings,
+        "RETRIEVAL_LLM_EXTERNAL_CALLS_ENABLED",
+        True,
+    )
+    monkeypatch.setattr(llm_adapter, "_has_llm_credentials", lambda: True)
+    monkeypatch.setattr(client_module, "get_openai_client", lambda **_kwargs: FakeClient())
+
+    llm_fn = llm_adapter.create_retrieval_llm_fn()
+    assert llm_fn is not None
+    assert asyncio.run(llm_fn("fixture query")) == "fixture response"
+
+
+def test_all_retrieval_factories_apply_the_retrieval_gate() -> None:
+    source_path = Path("packages/shared-python/shared/services/retrieval/llm_adapter.py")
+    tree = ast.parse(source_path.read_text(encoding="utf-8"))
+    factory_names = {
+        "create_retrieval_llm_fn",
+        "create_retrieval_planner_fn",
+        "create_retrieval_vlm_fn",
+    }
+    factory_nodes = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.FunctionDef) and node.name in factory_names
+    ]
+
+    assert {node.name for node in factory_nodes} == factory_names
+    for node in factory_nodes:
+        gate_calls = [
+            call
+            for call in ast.walk(node)
+            if isinstance(call, ast.Call)
+            and isinstance(call.func, ast.Name)
+            and call.func.id == "_retrieval_llm_external_calls_authorized"
+        ]
+        assert gate_calls, f"{node.name} must apply the retrieval LLM gate"
 
 
 def test_openai_client_checks_opt_in_before_sdk_construction() -> None:

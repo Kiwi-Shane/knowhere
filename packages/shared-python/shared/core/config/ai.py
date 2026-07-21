@@ -98,6 +98,12 @@ class AIConfig(BaseModel):
             "Explicit operator opt-in for outbound OpenAI-compatible provider calls."
         ),
     )
+    RETRIEVAL_LLM_EXTERNAL_CALLS_ENABLED: bool = Field(
+        default=False,
+        description=(
+            "Separate operator opt-in for outbound LLM calls initiated by retrieval."
+        ),
+    )
     OPENAI_CLIENT_TIMEOUT: int = Field(
         default=300, description="OpenAI-compatible client timeout in seconds"
     )
@@ -230,6 +236,23 @@ class AIConfig(BaseModel):
                 "OpenAI-compatible provider calls are not explicitly enabled; set "
                 "LLM_EXTERNAL_CALLS_ENABLED=true to authorize outbound provider "
                 "operations"
+            )
+        )
+
+    def require_retrieval_llm_external_calls_enabled(self) -> None:
+        """Fail closed until retrieval-originated LLM calls are explicitly enabled."""
+        if (
+            self.LLM_EXTERNAL_CALLS_ENABLED
+            and self.RETRIEVAL_LLM_EXTERNAL_CALLS_ENABLED
+        ):
+            return
+
+        raise SystemSettingMissingException(
+            internal_message=(
+                "Retrieval-originated LLM calls are not explicitly enabled; set "
+                "LLM_EXTERNAL_CALLS_ENABLED=true and "
+                "RETRIEVAL_LLM_EXTERNAL_CALLS_ENABLED=true to authorize outbound "
+                "retrieval provider operations"
             )
         )
 
