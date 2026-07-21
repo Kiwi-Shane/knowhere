@@ -43,6 +43,7 @@ class ExcelWorkbookParseRequest:
     relative_root: str | None
     use_precision_mode: bool
     include_hidden_sheets: bool
+    job_metadata: dict[str, object] | None
 
 
 def parse_xlsx(
@@ -55,6 +56,7 @@ def parse_xlsx(
     relative_root: str | None = None,
     use_precision_mode: bool = True,
     include_hidden_sheets: bool = False,
+    job_metadata: dict[str, object] | None = None,
 ) -> pd.DataFrame:
     request = ExcelWorkbookParseRequest(
         file_path=file_path,
@@ -66,6 +68,7 @@ def parse_xlsx(
         relative_root=relative_root,
         use_precision_mode=use_precision_mode,
         include_hidden_sheets=include_hidden_sheets,
+        job_metadata=job_metadata,
     )
     return parse_excel_workbook(request)
 
@@ -100,7 +103,11 @@ def _normalise_llm_parameters(
 def _load_excel_sheets(
     request: ExcelWorkbookParseRequest,
 ) -> tuple[dict[str, pd.DataFrame], bool]:
-    table_data = load_file_bytes(request.file_path, file_url=request.baseurl)
+    table_data = load_file_bytes(
+        request.file_path,
+        file_url=request.baseurl,
+        job_metadata=request.job_metadata,
+    )
     table_stream = io.BytesIO(table_data)
 
     os.makedirs(os.path.join(request.output_dir, "tables"), exist_ok=True)

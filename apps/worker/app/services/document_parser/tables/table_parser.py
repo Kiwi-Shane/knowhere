@@ -13,6 +13,7 @@ def parse_xlsx(
     relative_root: str | None = None,
     use_precision_mode: bool = True,
     include_hidden_sheets: bool = False,
+    job_metadata: dict[str, object] | None = None,
 ) -> pd.DataFrame:
     from app.services.document_parser.formats.excel.table_parser import (
         parse_xlsx as parse_excel_xlsx,
@@ -28,4 +29,5 @@ def parse_xlsx(
         relative_root=relative_root,
         use_precision_mode=use_precision_mode,
         include_hidden_sheets=include_hidden_sheets,
+        job_metadata=job_metadata,
     )

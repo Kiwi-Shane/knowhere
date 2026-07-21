@@ -20,9 +20,18 @@ def clean_texts_by_form(text, form="html"):
     return text
 
 
-def parse_texts(file_path: str, baseurl: str = "") -> list:
+def parse_texts(
+    file_path: str,
+    baseurl: str = "",
+    *,
+    job_metadata: dict[str, object] | None = None,
+) -> list:
     """Parse text file and return lines list."""
-    txt_bytes = load_file_bytes(file_path, file_url=baseurl)
+    txt_bytes = load_file_bytes(
+        file_path,
+        file_url=baseurl,
+        job_metadata=job_metadata,
+    )
     text = txt_bytes.decode("utf-8")
     txt_lines = []
     for line in text.splitlines():

@@ -216,6 +216,7 @@ def parse_image(
     base_llm_paras=None,
     auto_rename=True,
     relative_root=None,
+    job_metadata=None,
 ):
     split_char = settings.SPLIT_CHAR or "/"
     time_stamp = get_str_time()
@@ -228,7 +229,11 @@ def parse_image(
         # can collect them with the same convention as document-extracted images.
         relative_source_path = f"images/{filename}"
         img_path = os.path.join(img_dir, filename)
-        img_bytes = load_file_bytes(image_path, file_url=baseurl)
+        img_bytes = load_file_bytes(
+            image_path,
+            file_url=baseurl,
+            job_metadata=job_metadata,
+        )
         img_obj = Image.open(io.BytesIO(img_bytes))
         img_obj.save(img_path)
 

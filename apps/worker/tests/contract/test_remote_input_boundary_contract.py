@@ -40,7 +40,9 @@ def test_load_file_bytes_routes_remote_content_through_guarded_downloader(
             *,
             temp_dir: str | None = None,
             timeout_seconds: float = 0,
+            job_metadata: dict[str, object] | None = None,
         ) -> str:
+            del job_metadata
             assert temp_dir is not None
             calls.append((file_url, temp_dir, timeout_seconds))
             downloaded_path = Path(temp_dir) / "remote.bin"

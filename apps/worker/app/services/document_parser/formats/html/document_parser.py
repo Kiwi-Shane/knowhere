@@ -14,12 +14,17 @@ def parse_html(
     file_path: str,
     base_llm_paras=None,
     relative_root: str | None = None,
+    job_metadata: dict[str, object] | None = None,
 ):
     """Parse an HTML file into a hierarchical document DataFrame."""
     from app.services.common.file_loading import load_file_bytes
     from app.services.document_parser.formats.markdown.parser import parse_md
 
-    html_bytes = load_file_bytes(file_path, file_url="")
+    html_bytes = load_file_bytes(
+        file_path,
+        file_url="",
+        job_metadata=job_metadata,
+    )
     md_lines = _html_to_md_lines(html_bytes)
 
     parsed_df = parse_md(
@@ -27,6 +32,7 @@ def parse_html(
         source_type=source_type,
         md_lines=md_lines,
         base_llm_paras=base_llm_paras,
+        job_metadata=job_metadata,
         relative_root=relative_root,
     )
     return parsed_df

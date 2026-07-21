@@ -19,6 +19,7 @@ def load_file_bytes(
     *,
     file_url: str | ParseResult = "",
     timeout: float | None = None,
+    job_metadata: dict[str, object] | None = None,
 ) -> bytes:
     """Load bytes from local path or remote URL synchronously."""
     if isinstance(file_path, str) and is_remote(file_path):
@@ -34,6 +35,7 @@ def load_file_bytes(
                 url_to_use,
                 temp_dir=temp_dir,
                 timeout_seconds=effective_timeout,
+                job_metadata=job_metadata,
             )
             return Path(downloaded_path).read_bytes()
 

@@ -479,8 +479,13 @@ def parse_docx(
     filename="",
     file_url="",
     relative_root=None,
+    job_metadata=None,
 ):
-    doc_data = load_file_bytes(docx_path, file_url=file_url)
+    doc_data = load_file_bytes(
+        docx_path,
+        file_url=file_url,
+        job_metadata=job_metadata,
+    )
 
     doc_structure = []
     headings_stack = [{"level": -1, "content": doc_structure}]

@@ -59,7 +59,11 @@ def _normalize_pptx_to_pdf(
             job_metadata,
             provider="iloveapi",
         )
-    pptx_data = load_file_bytes(file_path, file_url=base_url)
+    pptx_data = load_file_bytes(
+        file_path,
+        file_url=base_url,
+        job_metadata=job_metadata,
+    )
     pdf_filename = f"{os.path.splitext(filename)[0]}.pdf"
     pdf_path = os.path.join(output_dir, pdf_filename)
     try:

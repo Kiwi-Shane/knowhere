@@ -364,7 +364,11 @@ def parse_pptx(
         if cached_result is not None:
             return cached_result
 
-    pptx_data = load_file_bytes(pptx_path, file_url=baseurl)
+    pptx_data = load_file_bytes(
+        pptx_path,
+        file_url=baseurl,
+        job_metadata=job_metadata,
+    )
     logger.info(f"[parse_pptx] PPTX loaded: {len(pptx_data) / 1024:.1f} KB")
 
     if strategy == "to_pdf_api":

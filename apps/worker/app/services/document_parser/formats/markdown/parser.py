@@ -235,6 +235,7 @@ def parse_md(
     lines_with_heading=None,
     is_first_shard=True,
     skip_toc_detection=False,
+    job_metadata: dict[str, object] | None = None,
 ):
     if lines_with_heading is not None:
         # ── Phase A bypass ──
@@ -251,7 +252,10 @@ def parse_md(
             from app.services.common.file_loading import is_remote, load_file_bytes
 
             if is_remote(file_path):
-                file_bytes = load_file_bytes(file_path)
+                file_bytes = load_file_bytes(
+                    file_path,
+                    job_metadata=job_metadata,
+                )
                 md_content = file_bytes.decode("utf-8")
                 md_lines = md_content.splitlines()
             else:

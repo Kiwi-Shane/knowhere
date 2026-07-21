@@ -41,12 +41,17 @@ class TextParseAdapter:
         from app.services.document_parser.formats.markdown.parser import parse_md
         from app.services.document_parser.formats.text.parser import parse_texts
 
-        text_lines = parse_texts(file_path=session.file_full_path, baseurl=session.base_url)
+        text_lines = parse_texts(
+            file_path=session.file_full_path,
+            baseurl=session.base_url,
+            job_metadata=session.job_metadata,
+        )
         parsed_df = parse_md(
             session.full_output_dir,
             source_type="md",
             md_lines=text_lines,
             base_llm_paras=session.base_llm_paras,
+            job_metadata=session.job_metadata,
             relative_root=session.relative_root,
         )
         return ParseOutput(output_dir=session.full_output_dir, parsed_df=parsed_df)
@@ -65,6 +70,7 @@ class ImageParseAdapter:
             output_dir=session.full_output_dir,
             baseurl=session.base_url,
             base_llm_paras=session.base_llm_paras,
+            job_metadata=session.job_metadata,
             relative_root=session.relative_root,
         )
         return ParseOutput(output_dir=session.full_output_dir, parsed_df=parsed_df)
@@ -170,6 +176,7 @@ class MarkdownParseAdapter:
             source_type="md",
             file_path=session.file_full_path,
             base_llm_paras=session.base_llm_paras,
+            job_metadata=session.job_metadata,
             relative_root=session.relative_root,
         )
         return ParseOutput(output_dir=session.full_output_dir, parsed_df=parsed_df)
@@ -196,6 +203,7 @@ class HtmlParseAdapter:
             source_type="html",
             file_path=session.file_full_path,
             base_llm_paras=session.base_llm_paras,
+            job_metadata=session.job_metadata,
             relative_root=session.relative_root,
         )
         return ParseOutput(output_dir=session.full_output_dir, parsed_df=parsed_df)
@@ -213,6 +221,7 @@ def _parse_docx_path(
         session.full_output_dir,
         session.filename,
         session.base_url,
+        job_metadata=session.job_metadata,
         relative_root=session.relative_root,
     )
     parsed_df = convert_doc2dics(
@@ -237,6 +246,7 @@ def _parse_xlsx_path(
         session.full_output_dir,
         session.base_url,
         base_llm_paras=session.base_llm_paras,
+        job_metadata=session.job_metadata,
         relative_root=session.relative_root,
     )
     return ParseOutput(output_dir=session.full_output_dir, parsed_df=parsed_df)
