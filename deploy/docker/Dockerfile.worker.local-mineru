@@ -1,0 +1,137 @@
+# syntax=docker/dockerfile:1.7
+
+ARG MINERU_SOURCE_REVISION
+
+FROM python:3.12-slim-trixie AS mineru-builder
+
+ARG MINERU_SOURCE_REVISION
+WORKDIR /opt/mineru
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    g++ \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN python -m pip install --no-cache-dir uv
+
+COPY --from=mineru-source pyproject.toml /opt/mineru/pyproject.toml
+COPY --from=mineru-source uv.lock /opt/mineru/uv.lock
+COPY --from=mineru-source README.md /opt/mineru/README.md
+COPY --from=mineru-source LICENSE.md /opt/mineru/LICENSE.md
+COPY --from=mineru-source mineru /opt/mineru/mineru
+
+RUN UV_PROJECT_ENVIRONMENT=/opt/mineru/.venv \
+    uv sync --locked --no-dev --extra pipeline && \
+    find /opt/mineru/.venv -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true && \
+    find /opt/mineru/.venv -type f \( -name "*.pyc" -o -name "*.pyo" \) -delete
+
+RUN test -n "$MINERU_SOURCE_REVISION" && \
+    printf '%s\n' "$MINERU_SOURCE_REVISION" > /opt/mineru/source-revision.txt
+
+FROM python:3.12-slim-trixie AS knowhere-builder
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    g++ \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN python -m pip install --no-cache-dir uv
+
+COPY pyproject.toml uv.lock /app/
+COPY packages/shared-python /app/packages/shared-python
+COPY apps/api/pyproject.toml /app/apps/api/pyproject.toml
+COPY apps/worker/pyproject.toml /app/apps/worker/pyproject.toml
+
+WORKDIR /app/apps/worker
+
+RUN UV_PROJECT_ENVIRONMENT=/app/venv uv sync --locked --no-dev && \
+    find /app/venv -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true && \
+    find /app/venv -type f \( -name "*.pyc" -o -name "*.pyo" \) -delete
+
+FROM python:3.12-slim-trixie
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    libgl1 \
+    libglib2.0-0 \
+    libgomp1 \
+    libreoffice-core \
+    libreoffice-calc \
+    libreoffice-impress \
+    libreoffice-writer \
+    openjdk-21-jre-headless \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN java -version
+
+COPY --from=knowhere-builder /app/venv /app/venv
+COPY --from=mineru-builder /opt/mineru /opt/mineru
+COPY --from=mineru-builder /usr/local/bin/uv /usr/local/bin/uv
+COPY packages/shared-python /app/packages/shared-python
+COPY apps/worker/worker.py /app/
+COPY apps/worker/pyproject.toml /app/
+COPY apps/worker/app /app/app
+COPY apps/worker/static /app/static
+COPY deploy/docker/mineru.local.json /opt/mineru/mineru.json
+
+ARG ENVIRONMENT=development
+ARG APP_VERSION=d2-local-mineru
+ARG BUILD_TIME=""
+ARG GIT_COMMIT=""
+ARG MINERU_SOURCE_REVISION
+
+LABEL org.opencontainers.image.revision="$GIT_COMMIT" \
+      com.knowhere.mineru.source-revision="$MINERU_SOURCE_REVISION"
+
+ENV PATH="/app/venv/bin:$PATH" \
+    PYTHONPATH=/app \
+    PYTHONUNBUFFERED=1 \
+    ENVIRONMENT="$ENVIRONMENT" \
+    APP_VERSION="$APP_VERSION" \
+    BUILD_TIME="$BUILD_TIME" \
+    GIT_COMMIT="$GIT_COMMIT" \
+    HF_HOME=/tmp/huggingface \
+    TRANSFORMERS_CACHE=/tmp/huggingface \
+    MINERU_PROVIDER=local \
+    MINERU_LOCAL_PROJECT_PATH=/opt/mineru \
+    MINERU_LOCAL_UV_EXECUTABLE=/usr/local/bin/uv \
+    MINERU_LOCAL_PYTHON_EXECUTABLE=/opt/mineru/.venv/bin/python \
+    MINERU_LOCAL_MODEL_ROOT=/mnt/models/mineru \
+    MINERU_LOCAL_PREFLIGHT_ON_STARTUP=true \
+    MINERU_LOCAL_OFFLINE=true \
+    MINERU_LOCAL_BACKEND=pipeline \
+    MINERU_LOCAL_METHOD=auto \
+    MINERU_LOCAL_LANGUAGE=en \
+    MINERU_LOCAL_MAX_CONCURRENT_JOBS=1 \
+    MINERU_LOCAL_SHARD_CONCURRENCY=1 \
+    MINERU_MODEL_SOURCE=local \
+    MINERU_TOOLS_CONFIG_JSON=/opt/mineru/mineru.json \
+    UV_OFFLINE=1 \
+    HF_HUB_OFFLINE=1 \
+    TRANSFORMERS_OFFLINE=1 \
+    MODELSCOPE_OFFLINE=1
+
+RUN useradd --create-home --shell /bin/bash appuser && \
+    chown -R appuser:appuser /app /opt/mineru
+
+RUN mkdir -p /tmp/users /tmp/aismart_bid && \
+    chmod -R 777 /tmp/users /tmp/aismart_bid && \
+    printf '%s\n' \
+        '#!/bin/sh' \
+        'set -eu' \
+        'mkdir -p /tmp/users /tmp/aismart_bid' \
+        'exec python worker.py' > /entrypoint.sh && \
+    chmod +x /entrypoint.sh
+
+USER appuser
+
+HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
+    CMD python -c "from shared.services.worker_health import assert_worker_healthy; assert_worker_healthy()" || exit 1
+
+ENTRYPOINT ["/entrypoint.sh"]

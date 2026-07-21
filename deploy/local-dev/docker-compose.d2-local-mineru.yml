@@ -1,0 +1,73 @@
+# Opt-in D2 local MinerU worker overlay.
+#
+# Apply after docker-compose.dev.yml and docker-compose.d2.yml. The overlay
+# replaces the cloud-default D2 worker in the same compose project; do not run
+# the cloud and local workers together on the same ingestion queues.
+
+services:
+  worker:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.worker.local-mineru
+      additional_contexts:
+        mineru-source: ${MINERU_SOURCE_CONTEXT:?Set MINERU_SOURCE_CONTEXT to a pinned MinerU checkout}
+      args:
+        ENVIRONMENT: development
+        APP_VERSION: d2-local-mineru
+        GIT_COMMIT: e0502809
+        MINERU_SOURCE_REVISION: ${MINERU_SOURCE_REVISION:?Set MINERU_SOURCE_REVISION to the validated MinerU SHA}
+    image: knowhere-worker:d2-local-mineru
+    container_name: knowhere_d2_worker
+    ports: !reset []
+    read_only: true
+    tmpfs: !override
+      - /tmp:size=12g
+      - /home/appuser/.cache
+    cap_drop: !override
+      - ALL
+    security_opt: !override
+      - no-new-privileges:true
+    restart: "no"
+    environment:
+      MINERU_PROVIDER: local
+      MINERU_LOCAL_PREFLIGHT_ON_STARTUP: "true"
+      MINERU_LOCAL_PROJECT_PATH: /opt/mineru
+      MINERU_LOCAL_UV_EXECUTABLE: /usr/local/bin/uv
+      MINERU_LOCAL_PYTHON_EXECUTABLE: /opt/mineru/.venv/bin/python
+      MINERU_LOCAL_MODEL_ROOT: /mnt/models/mineru
+      MINERU_LOCAL_OFFLINE: "true"
+      MINERU_LOCAL_BACKEND: pipeline
+      MINERU_LOCAL_METHOD: auto
+      MINERU_LOCAL_LANGUAGE: en
+      MINERU_LOCAL_MAX_CONCURRENT_JOBS: "1"
+      MINERU_LOCAL_SHARD_CONCURRENCY: "1"
+      MINERU_MODEL_SOURCE: local
+      MINERU_TOOLS_CONFIG_JSON: /opt/mineru/mineru.json
+      UV_OFFLINE: "1"
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      MODELSCOPE_OFFLINE: "1"
+      MINERU_URL: ""
+      MINERU_API_KEYS: ""
+      WORKER_HEARTBEAT_FILE: /tmp/knowhere-worker-heartbeat.json
+      WORKER_CONCURRENCY: "1"
+      PYMUPDF_MAX_CONCURRENT: "1"
+    secrets:
+      - postgres_password
+    volumes:
+      - type: bind
+        source: ${MINERU_MODEL_ROOT:?Set MINERU_MODEL_ROOT to a prepared pipeline model root}
+        target: /mnt/models/mineru
+        read_only: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    networks:
+      - knowhere_network
+    mem_limit: 4g
+    cpus: 2.0
+    pids_limit: 512

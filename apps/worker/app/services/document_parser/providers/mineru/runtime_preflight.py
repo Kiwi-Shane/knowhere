@@ -95,11 +95,16 @@ def _resolve_uv(value: str) -> Path | None:
 def _resolve_mineru_python(config: _RuntimeConfig, project: Path) -> Path:
     configured = config.MINERU_LOCAL_PYTHON_EXECUTABLE.strip()
     if configured:
-        return Path(configured).expanduser().resolve()
+        configured_path = Path(configured).expanduser()
+        return (
+            configured_path
+            if configured_path.is_absolute()
+            else configured_path.resolve()
+        )
     relative = Path(
         "./.venv/Scripts/python.exe" if os.name == "nt" else "./.venv/bin/python"
     )
-    return (project / relative).resolve()
+    return project / relative
 
 
 def _probe_writable(root: Path) -> bool:

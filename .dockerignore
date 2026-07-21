@@ -176,6 +176,9 @@ __tests__/
 # Deployment scripts (keep only what's needed)
 deploy/
 !deploy/aws/scripts/
+!deploy/
+!deploy/docker/
+!deploy/docker/mineru.local.json
 
 # Large files that shouldn't be in containers
 *.zip
