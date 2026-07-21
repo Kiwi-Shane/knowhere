@@ -52,8 +52,9 @@ services:
       WORKER_HEARTBEAT_FILE: /tmp/knowhere-worker-heartbeat.json
       WORKER_CONCURRENCY: "1"
       PYMUPDF_MAX_CONCURRENT: "1"
-    secrets:
-      - postgres_password
+    secrets: !override
+      - source: postgres_password
+        target: postgres_password
     volumes:
       - type: bind
         source: ${MINERU_MODEL_ROOT:?Set MINERU_MODEL_ROOT to a prepared pipeline model root}
@@ -71,3 +72,7 @@ services:
     mem_limit: 4g
     cpus: 2.0
     pids_limit: 512
+
+secrets:
+  postgres_password:
+    file: ./.d2-secrets/postgres_password.local

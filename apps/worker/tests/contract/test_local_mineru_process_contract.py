@@ -124,6 +124,7 @@ def test_runner_builds_argv_list_for_paths_with_spaces_and_uses_no_shell(
         "run",
         "--project",
         str(project_path.resolve()),
+        "--no-sync",
         "mineru-knowhere-export",
         "--input",
         str(request.source_path.resolve()),

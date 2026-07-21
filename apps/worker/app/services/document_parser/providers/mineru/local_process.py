@@ -143,6 +143,7 @@ class LocalMinerURunner:
             "run",
             "--project",
             str(self.project_path),
+            "--no-sync",
             "mineru-knowhere-export",
             "--input",
             str(request.source_path.expanduser().resolve()),

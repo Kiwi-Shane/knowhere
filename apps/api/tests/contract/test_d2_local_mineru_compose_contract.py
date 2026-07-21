@@ -86,6 +86,9 @@ def test_local_overlay_model_mount_is_read_only_and_reuses_d2_restrictions() -> 
     assert worker["read_only"] is True
     assert "ALL" in worker["cap_drop"]
     assert "no-new-privileges:true" in worker["security_opt"]
+    assert worker["secrets"] == [
+        {"source": "postgres_password", "target": "postgres_password"}
+    ]
 
     volumes = worker["volumes"]
     assert isinstance(volumes, list)
@@ -108,4 +111,9 @@ def test_local_image_and_model_template_keep_source_and_model_contracts() -> Non
         "models-dir": {"pipeline": "/mnt/models/mineru", "vlm": ""},
         "model-source": "local",
         "config_version": "1.3.2",
+    }
+
+    secrets = _config()["secrets"]
+    assert secrets == {
+        "postgres_password": {"file": "./.d2-secrets/postgres_password.local"}
     }
