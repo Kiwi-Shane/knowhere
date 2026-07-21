@@ -6,6 +6,14 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
+$expectedWorkerRevision = "e0502809"
+if ($LocalMineru) {
+    $expectedWorkerRevision = [string]$env:KNOWHERE_SOURCE_REVISION
+    if ($expectedWorkerRevision -notmatch "^[0-9a-f]{40}$") {
+        throw "KNOWHERE_SOURCE_REVISION must be a full 40-character commit SHA for local verification"
+    }
+}
+
 $d2RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $d2BaseCompose = Join-Path $d2RepoRoot "deploy\local-dev\docker-compose.dev.yml"
 $d2OverrideCompose = Join-Path $d2RepoRoot "deploy\local-dev\docker-compose.d2.yml"
@@ -124,9 +132,9 @@ try {
             "$containerName does not use the file-backed database password"
         Assert-D2 ($environment -contains $expectedDatabaseUrl) `
             "$containerName exposes a database URL with an embedded password or unexpected host"
-        Assert-D2 ($environment -contains "GIT_COMMIT=e0502809") `
-            "$containerName is not bound to the characterized source revision"
         if ($serviceName -eq "worker") {
+            Assert-D2 ($environment -contains "GIT_COMMIT=$expectedWorkerRevision") `
+                "$containerName is not bound to the characterized source revision"
             Assert-D2 ($environment -contains "WORKER_HEARTBEAT_FILE=/tmp/knowhere-worker-heartbeat.json") `
                 "$containerName does not expose the expected heartbeat path"
             if ($LocalMineru) {
@@ -140,6 +148,9 @@ try {
                 Assert-D2 ($modelMount.Count -eq 1 -and $modelMount[0].RW -eq $false) `
                     "$containerName MinerU model mount is not read-only"
             }
+        } else {
+            Assert-D2 ($environment -contains "GIT_COMMIT=e0502809") `
+                "$containerName is not bound to the characterized source revision"
         }
         $null = Invoke-D2DockerText @("exec", $containerName, "sh", "-c", "test -s /run/secrets/postgres_password")
     }

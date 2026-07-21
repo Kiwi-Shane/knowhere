@@ -18,8 +18,12 @@ prepared pipeline model root. Keep both outside the Knowhere Git worktree:
 ```powershell
 $env:MINERU_SOURCE_CONTEXT = 'C:\path\to\pinned\MinerU'
 $env:MINERU_SOURCE_REVISION = (& git -C $env:MINERU_SOURCE_CONTEXT rev-parse HEAD).Trim()
+$env:KNOWHERE_SOURCE_REVISION = (& git rev-parse HEAD).Trim()
 $env:MINERU_MODEL_ROOT = 'C:\path\to\PDF-Extract-Kit-1.0\snapshot'
 
+if ((git status --short).Trim()) {
+    throw 'The Knowhere checkout must be clean for a traceable image build'
+}
 if ((git -C $env:MINERU_SOURCE_CONTEXT status --short).Trim()) {
     throw 'MINERU_SOURCE_CONTEXT must be clean'
 }

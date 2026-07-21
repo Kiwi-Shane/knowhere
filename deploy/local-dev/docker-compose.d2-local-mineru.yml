@@ -14,7 +14,7 @@ services:
       args:
         ENVIRONMENT: development
         APP_VERSION: d2-local-mineru
-        GIT_COMMIT: e0502809
+        GIT_COMMIT: ${KNOWHERE_SOURCE_REVISION:?Set KNOWHERE_SOURCE_REVISION to the pinned Knowhere revision}
         MINERU_SOURCE_REVISION: ${MINERU_SOURCE_REVISION:?Set MINERU_SOURCE_REVISION to the validated MinerU SHA}
     image: knowhere-worker:d2-local-mineru
     container_name: knowhere_d2_worker

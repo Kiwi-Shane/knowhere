@@ -12,6 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 OVERLAY_PATH = REPO_ROOT / "deploy" / "local-dev" / "docker-compose.d2-local-mineru.yml"
 DOCKERFILE_PATH = REPO_ROOT / "deploy" / "docker" / "Dockerfile.worker.local-mineru"
 MODEL_CONFIG_PATH = REPO_ROOT / "deploy" / "docker" / "mineru.local.json"
+VERIFIER_PATH = REPO_ROOT / "deploy" / "local-dev" / "verify-d2.ps1"
 
 
 class _ComposeLoader(yaml.SafeLoader):
@@ -60,6 +61,10 @@ def test_local_overlay_replaces_only_worker_and_requires_named_context() -> None
     args = build["args"]
     assert isinstance(args, dict)
     assert "MINERU_SOURCE_REVISION" in args
+    assert args["GIT_COMMIT"] == (
+        "${KNOWHERE_SOURCE_REVISION:?Set KNOWHERE_SOURCE_REVISION "
+        "to the pinned Knowhere revision}"
+    )
     assert worker["image"] == "knowhere-worker:d2-local-mineru"
 
 
@@ -117,3 +122,10 @@ def test_local_image_and_model_template_keep_source_and_model_contracts() -> Non
     assert secrets == {
         "postgres_password": {"file": "./.d2-secrets/postgres_password.local"}
     }
+
+
+def test_local_verifier_binds_worker_to_the_requested_revision() -> None:
+    verifier = VERIFIER_PATH.read_text(encoding="utf-8")
+    assert "$env:KNOWHERE_SOURCE_REVISION" in verifier
+    assert "$expectedWorkerRevision" in verifier
+    assert '"GIT_COMMIT=$expectedWorkerRevision"' in verifier
