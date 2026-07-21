@@ -1,7 +1,15 @@
 from __future__ import annotations
 
+import os
 from types import SimpleNamespace
 from typing import Any
+
+os.environ.setdefault("DATABASE_URL", "postgresql+asyncpg://test:test@localhost/test")
+os.environ.setdefault("TMP_PATH", "/tmp/knowhere-test")
+os.environ.setdefault("S3_BUCKET_NAME", "test-uploads")
+os.environ.setdefault("S3_ACCESS_KEY_ID", "test")
+os.environ.setdefault("S3_SECRET_ACCESS_KEY", "test")
+os.environ.setdefault("S3_TEMP_PATH", "/tmp")
 
 from shared.services.jobs.result_delivery import JobResultDeliveryResolver
 
