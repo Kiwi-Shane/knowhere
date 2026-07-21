@@ -30,7 +30,7 @@
 - Consumes: _query_cache_key(**kwargs) from shared.services.retrieval.cache_service.
 - Produces: pure tests proving the accepted model-identity fields, deterministic keying, model partitioning, and whitespace normalization contract.
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create packages/shared-python/shared/tests/test_retrieval_cache_service.py with:
 
@@ -106,7 +106,7 @@ def test_cache_key_does_not_expose_representative_secret_or_endpoint_text() -> N
     assert "https://provider.invalid/v1" not in key
 ~~~
 
-- [ ] **Step 2: Run the tests to verify the expected red state**
+- [x] **Step 2: Run the tests to verify the expected red state**
 
 Run from the qualification worktree:
 
@@ -127,7 +127,7 @@ Expected result before production changes: collection succeeds and the first mod
 - Consumes: the failing _query_cache_key() calls from Task 1.
 - Produces: _cache_shape_digest(..., llm_text_model: str | None = None, llm_vision_model: str | None = None) -> str with deterministic model-aware identity.
 
-- [ ] **Step 1: Add the minimal implementation**
+- [x] **Step 1: Add the minimal implementation**
 
 Extend the _cache_shape_digest() keyword-only signature after decomposition_enabled:
 
@@ -152,7 +152,7 @@ Append the two normalized values, in text-then-vision order, to the existing ext
 
 Do not change _query_cache_key(), the Redis functions, or provider configuration code. Do not add a generic **kwargs escape hatch.
 
-- [ ] **Step 2: Run the focused tests to verify green**
+- [x] **Step 2: Run the focused tests to verify green**
 
 Run:
 
@@ -174,7 +174,7 @@ Expected result: 5 passed and no failures. The test must exercise the real _quer
 - Consumes: the green model-aware cache-key implementation.
 - Produces: local qualification evidence with no external calls.
 
-- [ ] **Step 1: Run shared retrieval tests**
+- [x] **Step 1: Run shared retrieval tests**
 
 Run:
 
@@ -185,7 +185,7 @@ $env:PYTHONPATH = "packages/shared-python;apps/api;apps/worker"
 
 Expected result: the new five tests pass. The two known upstream-candidate failures in test_page_memory_vlm_limiter.py may remain because their fixture still supplies a legacy one-argument get_openai_client lambda; report those as pre-existing and do not alter that unrelated fixture in this slice.
 
-- [ ] **Step 2: Run Ruff on the changed Python files**
+- [x] **Step 2: Run Ruff on the changed Python files**
 
 Run:
 
@@ -195,7 +195,7 @@ Run:
 
 Expected result: exit code 0 with no findings.
 
-- [ ] **Step 3: Run Pyright for the shared package**
+- [x] **Step 3: Run Pyright for the shared package**
 
 Run:
 
@@ -205,7 +205,7 @@ Run:
 
 Expected result: exit code 0, with no new errors attributable to this slice.
 
-- [ ] **Step 4: Inspect the final diff and boundary**
+- [x] **Step 4: Inspect the final diff and boundary**
 
 Run:
 

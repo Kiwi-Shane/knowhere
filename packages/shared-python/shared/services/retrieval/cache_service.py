@@ -47,10 +47,14 @@ def _cache_shape_digest(
     internal_recall_k: int | None = None,
     use_agentic: bool | None = None,
     decomposition_enabled: bool | None = None,
+    llm_text_model: str | None = None,
+    llm_vision_model: str | None = None,
 ) -> str:
     normalized_excludes = sorted(exclude_document_ids)
     normalized_sections = _normalize_exclude_sections(exclude_sections)
     chunk_types_str = ",".join(sorted(chunk_types)) if chunk_types else ""
+    normalized_text_model = (llm_text_model or "").strip()
+    normalized_vision_model = (llm_vision_model or "").strip()
     extra = "|".join(
         [
             chunk_types_str,
@@ -63,6 +67,8 @@ def _cache_shape_digest(
             str(internal_recall_k),
             str(use_agentic),
             str(decomposition_enabled),
+            normalized_text_model,
+            normalized_vision_model,
         ]
     )
     payload = f"{query}|{top_k}|{'|'.join(normalized_excludes)}|{'|'.join(normalized_sections)}|{extra}"
