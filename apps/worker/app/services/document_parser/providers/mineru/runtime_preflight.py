@@ -20,6 +20,7 @@ _ERROR_CODES = {
     "uv": "uv_missing",
     "python": "python_missing",
     "adapter": "adapter_unavailable",
+    "models": "models_missing",
     "temp_writable": "temp_not_writable",
     "disk": "disk_below_minimum",
     "memory": "memory_below_minimum",
@@ -36,6 +37,7 @@ class _RuntimeConfig(Protocol):
     MINERU_LOCAL_PROJECT_PATH: str
     MINERU_LOCAL_UV_EXECUTABLE: str
     MINERU_LOCAL_PYTHON_EXECUTABLE: str
+    MINERU_LOCAL_MODEL_ROOT: str
     MINERU_LOCAL_MIN_FREE_DISK_GB: int
     MINERU_LOCAL_MIN_AVAILABLE_MEMORY_GB: int
     TMP_PATH: str
@@ -195,6 +197,8 @@ def check_local_mineru_runtime(
     )
     uv_executable = _resolve_uv(config.MINERU_LOCAL_UV_EXECUTABLE)
     mineru_python = _resolve_mineru_python(config, project)
+    model_root_value = getattr(config, "MINERU_LOCAL_MODEL_ROOT", "").strip()
+    model_root = Path(model_root_value).expanduser().resolve() if model_root_value else None
     temp_root = Path(config.TMP_PATH).expanduser().resolve()
     temp_writable = write_probe(temp_root)
     try:
@@ -207,6 +211,7 @@ def check_local_mineru_runtime(
         "project": bool(project_value) and project.is_dir(),
         "uv": uv_executable is not None and uv_executable.is_file(),
         "python": mineru_python.is_file(),
+        "models": model_root is None or model_root.is_dir(),
         "adapter": False,
         "temp_writable": temp_writable,
         "disk": free_disk_bytes

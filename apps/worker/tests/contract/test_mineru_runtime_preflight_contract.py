@@ -47,6 +47,7 @@ def _local_config(tmp_path: Path, **overrides: object) -> SimpleNamespace:
         "MINERU_LOCAL_PROJECT_PATH": str(project),
         "MINERU_LOCAL_UV_EXECUTABLE": str(uv),
         "MINERU_LOCAL_PYTHON_EXECUTABLE": "",
+        "MINERU_LOCAL_MODEL_ROOT": "",
         "MINERU_LOCAL_MIN_FREE_DISK_GB": 10,
         "MINERU_LOCAL_MIN_AVAILABLE_MEMORY_GB": 8,
         "TMP_PATH": str(temp_root),
@@ -116,6 +117,7 @@ def test_ready_local_runtime_is_content_free_and_uses_offline_argv(
             "project": True,
             "uv": True,
             "python": True,
+            "models": True,
             "adapter": True,
             "temp_writable": True,
             "disk": True,
@@ -143,6 +145,44 @@ def test_ready_local_runtime_is_content_free_and_uses_offline_argv(
     assert str(tmp_path) not in serialized
     assert "never-report-this" not in serialized
     assert "model-path" not in serialized
+
+
+def test_local_runtime_reports_missing_configured_model_root(tmp_path: Path) -> None:
+    config = _local_config(
+        tmp_path,
+        MINERU_LOCAL_MODEL_ROOT=str(tmp_path / "missing-model-root"),
+    )
+
+    status = check_local_mineru_runtime(
+        config,
+        run_command=_Commands(),
+        disk_usage=lambda _path: SimpleNamespace(free=20 * GIB),
+        virtual_memory=lambda: SimpleNamespace(available=16 * GIB),
+        write_probe=lambda _path: True,
+    )
+
+    assert status.ready is False
+    assert status.checks["models"] is False
+    assert status.error_codes == ("models_missing",)
+    assert str(tmp_path) not in json.dumps(status.to_dict())
+
+
+def test_local_runtime_accepts_existing_configured_model_root(tmp_path: Path) -> None:
+    model_root = tmp_path / "model-root"
+    model_root.mkdir()
+    config = _local_config(tmp_path, MINERU_LOCAL_MODEL_ROOT=str(model_root))
+
+    status = check_local_mineru_runtime(
+        config,
+        run_command=_Commands(),
+        disk_usage=lambda _path: SimpleNamespace(free=20 * GIB),
+        virtual_memory=lambda: SimpleNamespace(available=16 * GIB),
+        write_probe=lambda _path: True,
+    )
+
+    assert status.ready is True
+    assert status.checks["models"] is True
+    assert status.error_codes == ()
 
 
 def test_local_runtime_reports_stable_codes_for_all_capacity_failures(

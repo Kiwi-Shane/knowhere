@@ -121,6 +121,10 @@ class MineruConfig(BaseModel):
         default="",
         description="Optional MinerU virtual-environment Python; derived from the project when empty.",
     )
+    MINERU_LOCAL_MODEL_ROOT: str = Field(
+        default="",
+        description="Optional local pipeline model root required by a pinned local worker.",
+    )
     MINERU_LOCAL_MAX_CONCURRENT_JOBS: int = Field(
         default=1,
         ge=1,
