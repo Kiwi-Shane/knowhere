@@ -97,6 +97,7 @@ def execute_document_parse(
                     filename=prepared_source.source_file_name,
                     output_dir=output_dir,
                     job_id=job_id,
+                    job_metadata=job_context.job_metadata,
                     internal_output_filename=prepared_source.internal_parse_name,
                     doc_type=doc_type,
                     smart_title_parse=JobMetadataHelper.get_parsing_param(

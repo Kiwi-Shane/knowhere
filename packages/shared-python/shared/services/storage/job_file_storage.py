@@ -200,7 +200,9 @@ class JobFileStorage:
         storage_key: str,
         *,
         bucket: str,
+        job_metadata: dict[str, Any] | None = None,
     ) -> bool:
+        self._require_remote_storage_job_authorization(job_metadata)
         try:
             return self.storage_adapter.delete_object(storage_key, bucket)
         except Exception as exc:
@@ -210,8 +212,17 @@ class JobFileStorage:
                 original_exception=exc,
             ) from exc
 
-    def delete_upload_file(self, storage_key: str) -> bool:
-        return self.delete_object(storage_key, bucket=self.uploads_bucket)
+    def delete_upload_file(
+        self,
+        storage_key: str,
+        *,
+        job_metadata: dict[str, Any] | None = None,
+    ) -> bool:
+        return self.delete_object(
+            storage_key,
+            bucket=self.uploads_bucket,
+            job_metadata=job_metadata,
+        )
 
     def upload_fileobj(
         self,

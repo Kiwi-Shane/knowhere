@@ -31,6 +31,7 @@ def parse_cached_rendered_pdf(
     output_dir: str,
     base_llm_paras: dict[str, object],
     relative_root: str | None,
+    job_metadata: dict[str, object] | None = None,
 ) -> pd.DataFrame | None:
     """Parse a previously rendered PDF from S3 without re-reading the source deck."""
     if rendered_pdf_s3_key is None:
@@ -47,6 +48,7 @@ def parse_cached_rendered_pdf(
         cached_rendered_pdf_s3_key,
         suffix=".pdf",
         temp_dir=output_dir,
+        job_metadata=job_metadata,
     )
     try:
         return parse_pdfs(
@@ -56,6 +58,7 @@ def parse_cached_rendered_pdf(
             base_llm_paras,
             relative_root=relative_root,
             s3_key=cached_rendered_pdf_s3_key,
+            job_metadata=job_metadata,
         )
     finally:
         if os.path.exists(cached_rendered_pdf_path):
@@ -70,6 +73,7 @@ def parse_rendered_pdf_bytes(
     base_llm_paras: dict[str, object],
     relative_root: str | None,
     rendered_pdf_s3_key: str | None = None,
+    job_metadata: dict[str, object] | None = None,
 ) -> pd.DataFrame:
     image_only_pdf_bytes = render_pdf_to_image_pdf(pdf_bytes)
     temporary_pdf_path = os.path.join(output_dir, RENDERED_PDF_TEMP_FILENAME)
@@ -84,6 +88,7 @@ def parse_rendered_pdf_bytes(
             base_llm_paras=base_llm_paras,
             relative_root=relative_root,
             s3_key=rendered_pdf_s3_key,
+            job_metadata=job_metadata,
         )
     finally:
         if os.path.exists(temporary_pdf_path):

@@ -756,7 +756,12 @@ def test_oversized_pdf_happy_path_uses_shard_pipeline_without_external_services(
     deleted_s3_keys: list[str] = []
 
     class _FakeJobFileStorage:
-        def delete_upload_file(self, storage_key: str) -> bool:
+        def delete_upload_file(
+            self,
+            storage_key: str,
+            *,
+            job_metadata: dict[str, object] | None = None,
+        ) -> bool:
             deleted_s3_keys.append(storage_key)
             return True
 

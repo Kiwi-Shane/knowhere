@@ -25,6 +25,7 @@ def parse_pdfs(
     relative_root=None,
     s3_key=None,
     job_id=None,
+    job_metadata=None,
 ):
     # Deprecated: prefer page_memory track for PDF processing.
     base_llm_paras.update({"doc_name": filename})
@@ -55,6 +56,7 @@ def parse_pdfs(
                 pdf_path, filename, output_dir, base_llm_paras,
                 profile=profile, relative_root=relative_root, s3_key=s3_key,
                 job_id=job_id,
+                job_metadata=job_metadata,
             )
         except Exception as exc:
             if not is_oversized:
@@ -89,7 +91,7 @@ def parse_pdfs(
 
 def _parse_pdf_via_shards(
     pdf_path, filename, output_dir, base_llm_paras,
-    profile=None, relative_root=None, s3_key=None, job_id=None,
+    profile=None, relative_root=None, s3_key=None, job_id=None, job_metadata=None,
 ):
     """Handle PDFs via the unified shard-first hierarchy pipeline.
 
@@ -357,7 +359,10 @@ def _parse_pdf_via_shards(
                 lines_with_heading=all_lines_with_heading,
             )
     finally:
-        _cleanup_temp_shard_s3_assets(temp_shard_s3_keys)
+        _cleanup_temp_shard_s3_assets(
+            temp_shard_s3_keys,
+            job_metadata=job_metadata,
+        )
         _cleanup_local_shard_workspace(work_dir)
 
 def _build_temp_shard_s3_key(
@@ -386,14 +391,21 @@ def _sanitize_temp_storage_segment(value: object) -> str:
     return normalized or "document"
 
 
-def _cleanup_temp_shard_s3_assets(s3_keys: list[str]) -> None:
+def _cleanup_temp_shard_s3_assets(
+    s3_keys: list[str],
+    *,
+    job_metadata: dict[str, object] | None = None,
+) -> None:
     if not s3_keys:
         return
 
     storage = JobFileStorage()
     for s3_key in s3_keys:
         try:
-            deleted = storage.delete_upload_file(s3_key)
+            deleted = storage.delete_upload_file(
+                s3_key,
+                job_metadata=job_metadata,
+            )
             if deleted:
                 logger.info(f"Deleted temporary MinerU shard S3 object: {s3_key}")
             else:

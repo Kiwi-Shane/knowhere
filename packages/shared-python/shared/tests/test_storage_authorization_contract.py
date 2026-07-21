@@ -286,6 +286,70 @@ def test_job_file_storage_allows_remote_download_url_with_approved_job_authoriza
     ]
 
 
+def test_job_file_storage_rejects_remote_delete_without_job_authorization(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    class RecordingStorageAdapter:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, object]] = []
+
+        def delete_object(self, key: str, bucket: str | None = None) -> bool:
+            self.calls.append({"key": key, "bucket": bucket})
+            return True
+
+    monkeypatch.setattr(
+        "shared.core.config.settings.OBJECT_STORAGE_EXTERNAL_CALLS_ENABLED",
+        True,
+        raising=False,
+    )
+    monkeypatch.setattr("shared.core.config.settings.S3_TYPE", "s3", raising=False)
+    adapter = RecordingStorageAdapter()
+    storage = JobFileStorage(
+        storage_adapter=adapter,
+        uploads_bucket="contract-bucket",
+    )  # type: ignore[arg-type]
+
+    with pytest.raises(PermissionDeniedException, match="object_storage"):
+        storage.delete_upload_file(
+            "tmp/mineru-shards/job-1/shard_0.pdf",
+            job_metadata=None,
+        )
+
+    assert adapter.calls == []
+
+
+def test_job_file_storage_allows_remote_delete_with_approved_job_authorization(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    class RecordingStorageAdapter:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, object]] = []
+
+        def delete_object(self, key: str, bucket: str | None = None) -> bool:
+            self.calls.append({"key": key, "bucket": bucket})
+            return True
+
+    monkeypatch.setattr(
+        "shared.core.config.settings.OBJECT_STORAGE_EXTERNAL_CALLS_ENABLED",
+        True,
+        raising=False,
+    )
+    monkeypatch.setattr("shared.core.config.settings.S3_TYPE", "s3", raising=False)
+    adapter = RecordingStorageAdapter()
+    storage = JobFileStorage(
+        storage_adapter=adapter,
+        uploads_bucket="contract-bucket",
+    )  # type: ignore[arg-type]
+
+    assert storage.delete_upload_file(
+        "tmp/mineru-shards/job-1/shard_0.pdf",
+        job_metadata=_approved_object_storage_metadata(),
+    ) is True
+    assert adapter.calls == [
+        {"key": "tmp/mineru-shards/job-1/shard_0.pdf", "bucket": "contract-bucket"}
+    ]
+
+
 def test_job_file_storage_validates_configured_upload_url_lifetime_before_signing(
     monkeypatch: MonkeyPatch,
 ) -> None:

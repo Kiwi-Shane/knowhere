@@ -87,6 +87,7 @@ class PdfParseAdapter:
             relative_root=session.relative_root,
             s3_key=session.s3_key,
             job_id=session.job_id,
+            job_metadata=session.job_metadata,
         )
         return ParseOutput(output_dir=session.full_output_dir, parsed_df=parsed_df)
 
@@ -152,6 +153,7 @@ class PptxParseAdapter:
             job_id=session.job_id,
             relative_root=session.relative_root,
             baseurl=session.base_url,
+            job_metadata=session.job_metadata,
         )
         return ParseOutput(output_dir=session.full_output_dir, parsed_df=parsed_df)
 

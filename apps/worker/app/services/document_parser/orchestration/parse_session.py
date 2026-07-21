@@ -25,6 +25,7 @@ class ParseSession:
     full_output_dir: str
     internal_output_filename: str
     job_id: str | None
+    job_metadata: dict[str, object] | None
     output_dir: str
     profile: Any
     relative_root: str
@@ -49,6 +50,7 @@ class ParseSession:
             full_output_dir=full_output_dir,
             internal_output_filename=parse_input.internal_output_filename,
             job_id=parse_input.job_id,
+            job_metadata=parse_input.job_metadata,
             output_dir=parse_input.output_dir,
             profile=profile,
             relative_root=relative_root,

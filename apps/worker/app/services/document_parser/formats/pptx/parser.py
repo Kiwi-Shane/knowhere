@@ -335,6 +335,7 @@ def parse_pptx(
     relative_root=None,
     baseurl="",
     job_id=None,
+    job_metadata=None,
 ):
     """
     Deprecated: prefer page_memory track for PPTX processing.
@@ -358,6 +359,7 @@ def parse_pptx(
             output_dir=output_dir,
             base_llm_paras=base_llm_paras,
             relative_root=relative_root,
+            job_metadata=job_metadata,
         )
         if cached_result is not None:
             return cached_result
@@ -376,6 +378,7 @@ def parse_pptx(
                 base_llm_paras,
                 relative_root,
                 rendered_pdf_s3_key=rendered_pdf_s3_key,
+                job_metadata=job_metadata,
             )
         except ValueError as e:
             if "iLoveAPI keys configured" in str(e) or "ILOVEAPI" in str(e):
@@ -436,6 +439,7 @@ def parse_pptx(
             base_llm_paras,
             relative_root,
             rendered_pdf_s3_key=rendered_pdf_s3_key,
+            job_metadata=job_metadata,
         )
 
     elif strategy == "to_md":
@@ -454,6 +458,7 @@ def _parse_pptx_via_api(
     base_llm_paras,
     relative_root,
     rendered_pdf_s3_key=None,
+    job_metadata=None,
 ):
     """
     PPTX bytes → iLoveAPI PDF bytes → image-only PDF bytes → MinerU.
@@ -473,6 +478,7 @@ def _parse_pptx_via_api(
         base_llm_paras=base_llm_paras,
         relative_root=relative_root,
         rendered_pdf_s3_key=rendered_pdf_s3_key,
+        job_metadata=job_metadata,
     )
 
 
@@ -483,6 +489,7 @@ def _parse_pptx_via_libreoffice(
     base_llm_paras,
     relative_root,
     rendered_pdf_s3_key=None,
+    job_metadata=None,
 ):
     """
     LibreOffice requires file paths (subprocess), so temp dir is unavoidable here.
@@ -521,6 +528,7 @@ def _parse_pptx_via_libreoffice(
         base_llm_paras=base_llm_paras,
         relative_root=relative_root,
         rendered_pdf_s3_key=rendered_pdf_s3_key,
+        job_metadata=job_metadata,
     )
 
 

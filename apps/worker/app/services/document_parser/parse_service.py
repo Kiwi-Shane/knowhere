@@ -24,6 +24,7 @@ def checkerboard_parse_output(
     base_url: str = "",
     fragment_content: str = "",
     s3_key: str | None = None,
+    job_metadata: dict[str, object] | None = None,
 ) -> ParsePipelineResult:
     """Run the stable parser seam and return the parser output contract."""
     parse_input = ParseInput(
@@ -31,6 +32,7 @@ def checkerboard_parse_output(
         filename=filename,
         internal_output_filename=internal_output_filename,
         job_id=job_id,
+        job_metadata=job_metadata,
         output_dir=output_dir,
         options=ParseOptions(
             add_frag_desc=add_frag_desc,

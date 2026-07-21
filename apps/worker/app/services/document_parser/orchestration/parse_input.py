@@ -22,6 +22,7 @@ class ParseInput:
     output_dir: str
     internal_output_filename: str
     job_id: str | None = None
+    job_metadata: dict[str, object] | None = None
     options: ParseOptions = field(default_factory=ParseOptions)
     base_url: str = ""
     fragment_content: str = ""
