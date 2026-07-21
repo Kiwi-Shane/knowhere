@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import pytest
 from cryptography.fernet import Fernet
 
+from shared.core.state_machine.states import JobStatus
 from shared.models.database.job_llm_credential import (
     JobLLMCredential,
     JobLLMCredentialStatus,
@@ -144,7 +145,7 @@ def test_worker_resolution_enforces_owner_and_rechecks_endpoint_policy(
     )
 
     resolved = JobLLMCredentialService.resolve_sync(
-        _FakeSession((credential, "user_resolve")),
+        _FakeSession((credential, "user_resolve", JobStatus.RUNNING.value)),
         job_id="job_resolve",
         requested_user_id="user_resolve",
         metadata={"llm_credential_id": credential.id},
@@ -157,7 +158,7 @@ def test_worker_resolution_enforces_owner_and_rechecks_endpoint_policy(
 
     with pytest.raises(JobLLMCredentialResolutionError, match="owner"):
         JobLLMCredentialService.resolve_sync(
-            _FakeSession((credential, "user_resolve")),
+            _FakeSession((credential, "user_resolve", JobStatus.RUNNING.value)),
             job_id="job_resolve",
             requested_user_id="different-user",
             metadata={"llm_credential_id": credential.id},
@@ -187,7 +188,7 @@ def test_worker_resolution_marks_expired_credentials_before_rejecting() -> None:
 
     with pytest.raises(JobLLMCredentialResolutionError, match="expired"):
         JobLLMCredentialService.resolve_sync(
-            _FakeSession((credential, "user_expired")),
+            _FakeSession((credential, "user_expired", JobStatus.RUNNING.value)),
             job_id="job_expired",
             requested_user_id="user_expired",
             metadata={"llm_credential_id": credential.id},
@@ -196,3 +197,38 @@ def test_worker_resolution_marks_expired_credentials_before_rejecting() -> None:
         )
 
     assert credential.status == JobLLMCredentialStatus.EXPIRED
+
+
+@pytest.mark.parametrize(
+    "terminal_status", [JobStatus.DONE.value, JobStatus.FAILED.value]
+)
+def test_worker_resolution_rejects_terminal_jobs_before_decrypting_credentials(
+    terminal_status: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    encryption = FernetService(Fernet.generate_key().decode())
+    credential = JobLLMCredentialService.build(
+        job_id="job_terminal",
+        user_id="user_terminal",
+        config=_config(),
+        expires_at=datetime.utcnow() + timedelta(hours=1),
+        encryption_service=encryption,
+    )
+    monkeypatch.setattr(
+        JobLLMCredentialService,
+        "decrypt_config",
+        staticmethod(
+            lambda *_args, **_kwargs: pytest.fail(
+                "terminal job must not decrypt its BYOK credential"
+            )
+        ),
+    )
+
+    with pytest.raises(JobLLMCredentialResolutionError, match="terminal"):
+        JobLLMCredentialService.resolve_sync(
+            _FakeSession((credential, "user_terminal", terminal_status)),
+            job_id="job_terminal",
+            requested_user_id="user_terminal",
+            metadata={"llm_credential_id": credential.id},
+            encryption_service=encryption,
+        )

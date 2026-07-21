@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from loguru import logger
 
 from shared.core.config import settings
+from shared.core.state_machine.states import TERMINAL_STATES
 from shared.models.database.job import Job
 from shared.models.database.job_llm_credential import (
     JobLLMCredential,
@@ -128,7 +129,7 @@ class JobLLMCredentialService:
     ) -> LLMConfig | None:
         """Resolve a credential only after authoritative owner/lifecycle checks."""
         result = db.execute(
-            select(JobLLMCredential, Job.user_id)
+            select(JobLLMCredential, Job.user_id, Job.status)
             .join(Job, Job.job_id == JobLLMCredential.job_id)
             .where(JobLLMCredential.job_id == job_id)
         ).one_or_none()
@@ -145,7 +146,7 @@ class JobLLMCredentialService:
                 )
             return None
 
-        credential, owner_id = result
+        credential, owner_id, job_status = result
         if requested_user_id is not None and str(owner_id) != requested_user_id:
             raise JobLLMCredentialResolutionError(
                 "BYOK credential owner does not match the worker owner"
@@ -153,6 +154,10 @@ class JobLLMCredentialService:
         if credential.user_id != str(owner_id):
             raise JobLLMCredentialResolutionError(
                 "BYOK credential owner binding is invalid"
+            )
+        if job_status in TERMINAL_STATES:
+            raise JobLLMCredentialResolutionError(
+                "BYOK credential cannot be resolved for a terminal job"
             )
 
         effective_now = now or utc_now_naive()
