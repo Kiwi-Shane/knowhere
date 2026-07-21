@@ -4,14 +4,19 @@ import uuid
 from typing import Any
 
 from loguru import logger
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from shared.core.config import app_config
 from shared.core.exceptions.domain_exceptions import (
+    PermissionDeniedException,
     SystemSettingInvalidException,
     SystemSettingMissingException,
 )
+from shared.models.database.job import Job
 from shared.models.database.webhook import WebhookEvent
 from shared.models.database.webhook_log import WebhookLog
+from shared.models.schemas.job_metadata import JobMetadataHelper
 from shared.services.webhook.delivery_client import (
     WebhookDeliveryClient,
     WebhookDeliveryResult,
@@ -38,6 +43,10 @@ class WebhookEventDelivery:
     async def send(
         self, *, db: AsyncSession, event: WebhookEvent, is_manual: bool = False
     ) -> WebhookDeliveryResult:
+        authorization_failure = await self._authorize_delivery(db=db, event=event)
+        if authorization_failure:
+            return authorization_failure
+
         attempt_id = str(uuid.uuid4())
         target_validation = await self._client.validate_target(
             event_id=event.id,
@@ -87,6 +96,45 @@ class WebhookEventDelivery:
             result=result,
         )
         return result
+
+    async def _authorize_delivery(
+        self, *, db: AsyncSession, event: WebhookEvent
+    ) -> WebhookDeliveryResult | None:
+        """Require explicit operator and job authorization before direct HTTP."""
+        if not app_config.WEBHOOK_EXTERNAL_CALLS_ENABLED:
+            logger.warning(
+                f"Direct webhook delivery denied: external calls are disabled for "
+                f"event {event.id}"
+            )
+            return WebhookDeliveryResult(
+                success=False,
+                status_code=403,
+                duration_ms=0,
+                error_message="Direct webhook delivery is not explicitly enabled",
+            )
+
+        result = await db.execute(
+            select(Job.job_metadata).where(Job.job_id == event.job_id)
+        )
+        job_metadata = result.scalar_one_or_none()
+        try:
+            JobMetadataHelper.require_external_call_authorization(
+                job_metadata,
+                provider="webhook",
+            )
+        except PermissionDeniedException as exc:
+            logger.warning(
+                f"Direct webhook delivery authorization denied for event "
+                f"{event.id}: {exc.internal_message}"
+            )
+            return WebhookDeliveryResult(
+                success=False,
+                status_code=403,
+                duration_ms=0,
+                error_message="Direct webhook delivery is not authorized for this job",
+            )
+
+        return None
 
     async def _resolve_secret(
         self, db: AsyncSession, event: WebhookEvent

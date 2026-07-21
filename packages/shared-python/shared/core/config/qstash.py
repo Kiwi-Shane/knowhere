@@ -10,6 +10,13 @@ from pydantic import BaseModel, Field
 class QStashConfig(BaseModel):
     """QStash configuration for webhook delivery."""
 
+    WEBHOOK_EXTERNAL_CALLS_ENABLED: bool = Field(
+        default=False,
+        description=(
+            "Explicit operator opt-in for direct outbound webhook HTTP delivery"
+        ),
+    )
+
     QSTASH_WEBHOOK_ENABLED: bool = Field(
         default=False,
         description=(
