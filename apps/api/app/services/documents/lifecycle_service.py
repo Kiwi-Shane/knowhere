@@ -442,19 +442,17 @@ class DocumentService:
         if document is None:
             return None
 
-        if document.status == "archived":
-            return document_payload(document)
-
         previous_namespace = document.namespace
-        await self._repository.archive_document(db, document=document)
-        await db.run_sync(
-            lambda sync_db: self._graph_service.remove_document_graph(
-                sync_db,
-                scope=GraphScope(user_id=user_id, namespace=document.namespace),
-                document_id=document_id,
+        if document.status != "archived":
+            await self._repository.archive_document(db, document=document)
+            await db.run_sync(
+                lambda sync_db: self._graph_service.remove_document_graph(
+                    sync_db,
+                    scope=GraphScope(user_id=user_id, namespace=document.namespace),
+                    document_id=document_id,
+                )
             )
-        )
-        await db.commit()
+            await db.commit()
         try:
             await invalidate_retrieval_cache_namespaces(
                 user_id=user_id,

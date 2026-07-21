@@ -1334,3 +1334,42 @@ async def test_should_archive_a_document_via_the_legacy_archive_route(
     assert response_json["archived_at"]
     assert persisted_document["status"] == "archived"
     assert persisted_document["archived_at"] is not None
+
+
+@pytest.mark.asyncio
+async def test_should_reinvalidate_cache_when_archiving_an_already_archived_document(
+    developer_api_client_factory: Callable[
+        [], AbstractAsyncContextManager[AsyncClient]
+    ],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    document_id = f"doc_{uuid4().hex[:12]}"
+    namespace = "contract-archive-cache"
+    invalidation_calls: list[dict[str, object]] = []
+
+    async def record_cache_invalidation(
+        *, user_id: str, namespaces: list[str]
+    ) -> None:
+        invalidation_calls.append(
+            {"user_id": user_id, "namespaces": list(namespaces)}
+        )
+
+    async with developer_api_client_factory() as api_client:
+        import app.services.documents.lifecycle_service as lifecycle_module
+
+        monkeypatch.setattr(
+            lifecycle_module,
+            "invalidate_retrieval_cache_namespaces",
+            record_cache_invalidation,
+        )
+        await _insert_document(
+            document_id=document_id,
+            namespace=namespace,
+            status="archived",
+        )
+        response = await api_client.post(f"/api/v1/documents/{document_id}/archive")
+
+    assert response.status_code == 200
+    assert invalidation_calls == [
+        {"user_id": "local-dev-user", "namespaces": [namespace]}
+    ]
