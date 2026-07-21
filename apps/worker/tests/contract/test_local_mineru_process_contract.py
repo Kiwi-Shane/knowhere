@@ -141,6 +141,46 @@ def test_runner_builds_argv_list_for_paths_with_spaces_and_uses_no_shell(
     assert seen["kwargs"]["shell"] is False
 
 
+def test_runner_uses_writable_per_run_uv_cache_for_read_only_containers(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    request = _request(tmp_path)
+    project_path = tmp_path / "MinerU project"
+    project_path.mkdir()
+    uv_path = tmp_path / "tools" / "uv.exe"
+    uv_path.parent.mkdir()
+    uv_path.touch()
+    process = _FakeProcess()
+    seen: dict[str, Any] = {}
+
+    def fake_popen(argv, **kwargs):
+        seen["kwargs"] = kwargs
+        return process
+
+    expected_bundle = _bundle(request)
+    from app.services.document_parser.providers.mineru import local_process
+
+    monkeypatch.setattr(local_process.subprocess, "Popen", fake_popen)
+    monkeypatch.setattr(
+        local_process,
+        "validate_mineru_artifact_bundle",
+        lambda **_kwargs: expected_bundle,
+    )
+    runner = local_process.LocalMinerURunner(
+        project_path=project_path,
+        uv_executable=str(uv_path),
+        timeout_seconds=30,
+        max_log_chars=1000,
+    )
+
+    runner.run(request)
+
+    expected_cache = request.output_root.parent / "uv-cache"
+    assert seen["kwargs"]["env"]["UV_CACHE_DIR"] == str(expected_cache)
+    assert expected_cache.is_dir()
+
+
 def test_runner_passes_explicit_canonical_manifest_identity_and_validates_result(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

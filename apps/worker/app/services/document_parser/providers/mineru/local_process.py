@@ -181,8 +181,13 @@ class LocalMinerURunner:
             raise ValueError("Local MinerU source path must be an existing file.")
         output_root = request.output_root.expanduser().resolve()
         output_root.mkdir(parents=True, exist_ok=True)
+        uv_cache_root = output_root.parent / "uv-cache"
+        uv_cache_root.mkdir(parents=True, exist_ok=True)
         log_path = output_root.parent / "logs" / "mineru.log"
         log_path.parent.mkdir(parents=True, exist_ok=True)
+
+        child_environment = os.environ.copy()
+        child_environment["UV_CACHE_DIR"] = str(uv_cache_root)
 
         process_options = {
             "cwd": str(self.project_path),
@@ -192,6 +197,7 @@ class LocalMinerURunner:
             "encoding": "utf-8",
             "errors": "replace",
             "shell": False,
+            "env": child_environment,
         }
         if os.name == "nt":
             process_options["creationflags"] = getattr(

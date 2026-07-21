@@ -146,3 +146,33 @@ def test_local_verifier_runs_the_real_integrated_retrieval_gate() -> None:
         assert marker in verifier, marker
 
     assert "if ($LocalMineru)" in verifier
+
+
+def test_private_pilot_verifier_requires_local_mode_and_private_inputs() -> None:
+    verifier = VERIFIER_PATH.read_text(encoding="utf-8")
+    for marker in (
+        "[string] $PrivatePilotSourcePath",
+        "[string] $PrivatePilotRetrievalQuery",
+        "PrivatePilotSourcePath requires -LocalMineru",
+        "D2_PRIVATE_SOURCE_PATH",
+        "D2_PRIVATE_SOURCE_FILE_NAME",
+        "D2_PRIVATE_RETRIEVAL_QUERY",
+    ):
+        assert marker in verifier, marker
+
+
+def test_private_pilot_verifier_has_privacy_safe_pass_and_cleanup_markers() -> None:
+    verifier = VERIFIER_PATH.read_text(encoding="utf-8")
+    for marker in (
+        "D2 local MinerU private pilot probe passed",
+        "D2_PRIVATE_PILOT=true",
+        "base64 -d -i",
+        "D2 private source cleanup completed",
+    ):
+        assert marker in verifier, marker
+
+
+def test_private_pilot_uses_a_longer_bounded_poll_timeout() -> None:
+    verifier = VERIFIER_PATH.read_text(encoding="utf-8")
+    assert "D2_PRIVATE_POLL_TIMEOUT_SECONDS=1800" in verifier
+    assert "timeout_seconds" in verifier

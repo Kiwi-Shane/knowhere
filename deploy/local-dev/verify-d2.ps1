@@ -1,6 +1,8 @@
 [CmdletBinding()]
 param(
-    [switch] $LocalMineru
+    [switch] $LocalMineru,
+    [string] $PrivatePilotSourcePath,
+    [string] $PrivatePilotRetrievalQuery
 )
 
 $ErrorActionPreference = "Stop"
@@ -65,6 +67,30 @@ function Assert-D2 {
     if (-not $Condition) {
         throw $Message
     }
+}
+
+$privatePilotSourceFullPath = $null
+$privatePilotSourceFileName = $null
+$privatePilotContainerPath = $null
+if (-not [string]::IsNullOrWhiteSpace($PrivatePilotSourcePath)) {
+    if (-not $LocalMineru) {
+        throw "PrivatePilotSourcePath requires -LocalMineru"
+    }
+    if ([string]::IsNullOrWhiteSpace($PrivatePilotRetrievalQuery)) {
+        throw "PrivatePilotSourcePath requires a non-empty PrivatePilotRetrievalQuery"
+    }
+    $privatePilotSourceFullPath = [System.IO.Path]::GetFullPath($PrivatePilotSourcePath)
+    if (-not (Test-Path -LiteralPath $privatePilotSourceFullPath -PathType Leaf)) {
+        throw "Private pilot source file is not available"
+    }
+    $privatePilotExtension = [System.IO.Path]::GetExtension($privatePilotSourceFullPath).ToLowerInvariant()
+    if ($privatePilotExtension -notin @(".pdf", ".docx")) {
+        throw "Private pilot source must be a PDF or DOCX"
+    }
+    $privatePilotSourceFileName = [System.IO.Path]::GetFileName($privatePilotSourceFullPath)
+    $privatePilotContainerPath = "/tmp/d2-private-source-$([guid]::NewGuid().ToString('N'))"
+} elseif (-not [string]::IsNullOrWhiteSpace($PrivatePilotRetrievalQuery)) {
+    throw "PrivatePilotRetrievalQuery requires -PrivatePilotSourcePath"
 }
 
 try {
@@ -180,6 +206,7 @@ try {
 import asyncio
 import hashlib
 import json
+import os
 import time
 import zipfile
 from pathlib import Path
@@ -261,8 +288,13 @@ def _write_synthetic_pdf(path: Path, *, title: str, marker: str) -> None:
     path.write_bytes(document)
 
 
-def _poll_job(engine, job_id: str) -> dict[str, object]:
-    deadline = time.monotonic() + 240
+def _poll_job(
+    engine,
+    job_id: str,
+    *,
+    timeout_seconds: int,
+) -> dict[str, object]:
+    deadline = time.monotonic() + timeout_seconds
     while time.monotonic() < deadline:
         with engine.connect() as connection:
             row = connection.execute(
@@ -409,22 +441,44 @@ async def main() -> None:
     engine = get_sync_engine()
     storage = JobFileStorage()
     service = DocumentService()
+    private_pilot = os.environ.get("D2_PRIVATE_PILOT") == "true"
+    private_source_path = os.environ.get("D2_PRIVATE_SOURCE_PATH")
+    private_source_file_name = os.environ.get("D2_PRIVATE_SOURCE_FILE_NAME")
+    private_retrieval_query = os.environ.get("D2_PRIVATE_RETRIEVAL_QUERY")
+    poll_timeout_seconds = int(
+        os.environ.get(
+            "D2_PRIVATE_POLL_TIMEOUT_SECONDS",
+            "1800" if private_pilot else "240",
+        )
+    )
+    assert poll_timeout_seconds > 0
     user_id = f"d2-local-mineru-{uuid4().hex[:12]}"
     namespace = f"d2-local-mineru-{uuid4().hex[:12]}"
     job_id = str(uuid4())
-    source_file_name = "d2-local-mineru-integrated.pdf"
-    source_key = f"uploads/{job_id}.pdf"
-    source_path = Path(f"/tmp/{job_id}-source.pdf")
+    marker = f"D2LOCALMINERURETRIEVALMARKER{uuid4().hex}"
+    if private_pilot:
+        assert private_source_path and private_source_file_name and private_retrieval_query
+        source_path = Path(private_source_path)
+        assert source_path.is_file(), "private pilot source copy is missing inside API"
+        source_file_name = private_source_file_name
+        source_key = f"uploads/{job_id}{Path(source_file_name).suffix.lower()}"
+        retrieval_query = private_retrieval_query
+    else:
+        source_file_name = "d2-local-mineru-integrated.pdf"
+        source_key = f"uploads/{job_id}.pdf"
+        source_path = Path(f"/tmp/{job_id}-source.pdf")
+        retrieval_query = marker
     result_zip_path = Path(f"/tmp/{job_id}-result.zip")
     document_id: str | None = None
-    marker = f"D2LOCALMINERURETRIEVALMARKER{uuid4().hex}"
 
     try:
-        _write_synthetic_pdf(
-            source_path,
-            title="D2 Local MinerU Integrated Retrieval Fixture",
-            marker=marker,
-        )
+        if not private_pilot:
+            _write_synthetic_pdf(
+                source_path,
+                title="D2 Local MinerU Integrated Retrieval Fixture",
+                marker=marker,
+            )
+            retrieval_query = marker
         source_sha256 = hashlib.sha256(source_path.read_bytes()).hexdigest()
         job_metadata = {
             "namespace": namespace,
@@ -432,8 +486,12 @@ async def main() -> None:
             "source_file_name": source_file_name,
             "parse_track": "chunk",
             "document_metadata": {
-                "synthetic": True,
-                "fixture": "d2-local-mineru-integrated-retrieval",
+                "synthetic": not private_pilot,
+                "fixture": (
+                    "d2-local-mineru-private-pilot"
+                    if private_pilot
+                    else "d2-local-mineru-integrated-retrieval"
+                ),
                 "source_sha256": source_sha256,
             },
             "parsing_params": {
@@ -476,7 +534,11 @@ async def main() -> None:
         assert storage.verify_upload_exists(source_key)["exists"] is True
         _enqueue_parse(job_id=job_id, user_id=user_id)
 
-        job_status = _poll_job(engine, job_id)
+        job_status = _poll_job(
+            engine,
+            job_id,
+            timeout_seconds=poll_timeout_seconds,
+        )
         assert job_status["status"] == "done", (
             f"local MinerU parse failed: status={job_status['status']} "
             f"error_code={job_status['error_code']} error={job_status['error_message']}"
@@ -494,17 +556,22 @@ async def main() -> None:
         chunk_rows = snapshot["chunks"]
         section_rows = snapshot["sections"]
         assert isinstance(chunk_rows, list) and chunk_rows, "no document chunks were published"
-        chunk_samples = [
-            {
-                "content_prefix": str(row.get("content") or "")[:240],
-                "source_chunk_path": row.get("source_chunk_path"),
-            }
-            for row in chunk_rows[:5]
-        ]
-        assert any(marker in str(row.get("content") or "") for row in chunk_rows), (
-            "synthetic retrieval marker was not preserved in published content: "
-            + json.dumps(chunk_samples, ensure_ascii=False)
-        )
+        if private_pilot:
+            assert any(str(row.get("content") or "").strip() for row in chunk_rows), (
+                "private pilot published no non-empty chunk content"
+            )
+        else:
+            chunk_samples = [
+                {
+                    "content_prefix": str(row.get("content") or "")[:240],
+                    "source_chunk_path": row.get("source_chunk_path"),
+                }
+                for row in chunk_rows[:5]
+            ]
+            assert any(marker in str(row.get("content") or "") for row in chunk_rows), (
+                "synthetic retrieval marker was not preserved in published content: "
+                + json.dumps(chunk_samples, ensure_ascii=False)
+            )
         locator_paths = [
             str(row.get("source_chunk_path"))
             for row in chunk_rows
@@ -537,17 +604,20 @@ async def main() -> None:
                 db,
                 user_id=user_id,
                 namespace=namespace,
-                marker=marker,
+                marker=retrieval_query,
             )
             matches = _matching_results(retrieval_before, document_id)
             assert matches, "integrated retrieval did not return the published document"
-            marker_matches = [
-                item
-                for item in matches
-                if marker in json.dumps(item, ensure_ascii=False)
-            ]
-            assert marker_matches, "integrated retrieval did not return the marker content"
-            retrieval_hit = marker_matches[0]
+            if private_pilot:
+                retrieval_hit = matches[0]
+            else:
+                marker_matches = [
+                    item
+                    for item in matches
+                    if marker in json.dumps(item, ensure_ascii=False)
+                ]
+                assert marker_matches, "integrated retrieval did not return the marker content"
+                retrieval_hit = marker_matches[0]
             source = retrieval_hit.get("source")
             assert isinstance(source, dict)
             retrieval_locator = source.get("section_path") or retrieval_hit.get("source_chunk_path")
@@ -557,13 +627,13 @@ async def main() -> None:
                 db,
                 user_id=f"{user_id}-other",
                 namespace=namespace,
-                marker=marker,
+                marker=retrieval_query,
             )
             other_namespace_results = await _retrieval(
                 db,
                 user_id=user_id,
                 namespace=f"{namespace}-other",
-                marker=marker,
+                marker=retrieval_query,
             )
             assert not _matching_results(other_user_results, document_id)
             assert not _matching_results(other_namespace_results, document_id)
@@ -578,7 +648,7 @@ async def main() -> None:
                 db,
                 user_id=user_id,
                 namespace=namespace,
-                marker=marker,
+                marker=retrieval_query,
             )
             assert not _matching_results(after_archive, document_id)
 
@@ -592,7 +662,7 @@ async def main() -> None:
                 db,
                 user_id=user_id,
                 namespace=namespace,
-                marker=marker,
+                marker=retrieval_query,
             )
             assert not _matching_results(after_delete, document_id)
 
@@ -616,10 +686,15 @@ async def main() -> None:
                 text("SELECT COUNT(*) FROM job_results WHERE job_id = :job_id"),
                 {"job_id": job_id},
             ).scalar_one() == 0
+        success_marker = (
+            "D2 local MinerU private pilot probe passed"
+            if private_pilot
+            else "D2 local MinerU integrated retrieval probe passed"
+        )
         print(
-            "D2 local MinerU integrated retrieval probe passed: parse task, "
-            "publication, source hash, locator, cross-scope isolation, archive "
-            "exclusion, hard-delete storage cleanup, and retrieval non-visibility."
+            success_marker + ": parse task, publication, source hash, locator, "
+            "cross-scope isolation, archive exclusion, hard-delete storage cleanup, "
+            "and retrieval non-visibility."
         )
     finally:
         try:
@@ -637,23 +712,67 @@ async def main() -> None:
 
 asyncio.run(main())
 '@
+        $privateSourceCopied = $false
+        if ($null -ne $privatePilotSourceFullPath) {
+            $privateSourceBase64 = [Convert]::ToBase64String(
+                [System.IO.File]::ReadAllBytes($privatePilotSourceFullPath)
+            )
+            $privateSourceBase64 | & docker exec -i knowhere_d2_api sh -c `
+                "base64 -d -i > $privatePilotContainerPath"
+            $privateSourceCopyExitCode = $LASTEXITCODE
+            Assert-D2 ($privateSourceCopyExitCode -eq 0) "private pilot source copy failed"
+            $privateSourceCopied = $true
+            Write-Output "D2 stage: private local source copied into the API container."
+        }
         Write-Output "D2 stage: local MinerU integrated retrieval probe starting."
         $integratedMineruPreference = $ErrorActionPreference
         $ErrorActionPreference = "Continue"
         try {
-            $integratedMineruOutput = ($integratedMineruProbe | & docker exec -i knowhere_d2_api env PYTHONWARNINGS=ignore python - 2>&1 | Out-String).Trim()
+            $integratedEnvArgs = @("env", "PYTHONWARNINGS=ignore")
+            if ($null -ne $privatePilotSourceFullPath) {
+                $integratedEnvArgs += @(
+                    "D2_PRIVATE_PILOT=true",
+                    "D2_PRIVATE_SOURCE_PATH=$privatePilotContainerPath",
+                    "D2_PRIVATE_SOURCE_FILE_NAME=$privatePilotSourceFileName",
+                    "D2_PRIVATE_RETRIEVAL_QUERY=$PrivatePilotRetrievalQuery",
+                    "D2_PRIVATE_POLL_TIMEOUT_SECONDS=1800"
+                )
+            }
+            $integratedMineruOutput = ($integratedMineruProbe | & docker exec -i knowhere_d2_api @integratedEnvArgs python - 2>&1 | Out-String).Trim()
             $integratedMineruExitCode = $LASTEXITCODE
         }
         finally {
             $ErrorActionPreference = $integratedMineruPreference
+            if ($privateSourceCopied) {
+                $null = (& docker exec knowhere_d2_api rm -f $privatePilotContainerPath 2>&1 | Out-String)
+                Assert-D2 ($LASTEXITCODE -eq 0) "private pilot source cleanup failed"
+                Write-Output "D2 private source cleanup completed."
+            }
         }
-        if ($integratedMineruExitCode -ne 0 -or $integratedMineruOutput -notlike "*D2 local MinerU integrated retrieval probe passed*") {
-            Write-Output "D2 local MinerU integrated retrieval probe diagnostic (exit=$integratedMineruExitCode):"
-            Write-Output $integratedMineruOutput
+        $integratedSuccessMarker = if ($null -ne $privatePilotSourceFullPath) {
+            "D2 local MinerU private pilot probe passed"
+        } else {
+            "D2 local MinerU integrated retrieval probe passed"
         }
-        Assert-D2 ($integratedMineruExitCode -eq 0) "D2 local MinerU integrated retrieval probe failed: $integratedMineruOutput"
-        Assert-D2 ($integratedMineruOutput -like "*D2 local MinerU integrated retrieval probe passed*") `
-            "D2 local MinerU integrated retrieval probe did not report success: $integratedMineruOutput"
+        if ($integratedMineruExitCode -ne 0 -or $integratedMineruOutput -notlike "*$integratedSuccessMarker*") {
+            if ($null -ne $privatePilotSourceFullPath) {
+                Write-Output "D2 private pilot diagnostic redacted (exit=$integratedMineruExitCode)."
+            } else {
+                Write-Output "D2 local MinerU integrated retrieval probe diagnostic (exit=$integratedMineruExitCode):"
+                Write-Output $integratedMineruOutput
+            }
+        }
+        if ($null -ne $privatePilotSourceFullPath) {
+            Assert-D2 ($integratedMineruExitCode -eq 0) `
+                "D2 local MinerU private pilot probe failed; private diagnostics redacted (exit=$integratedMineruExitCode)"
+            Assert-D2 ($integratedMineruOutput -like "*$integratedSuccessMarker*") `
+                "D2 local MinerU private pilot probe did not report success; private diagnostics redacted"
+        } else {
+            Assert-D2 ($integratedMineruExitCode -eq 0) `
+                "D2 local MinerU integrated retrieval probe failed: $integratedMineruOutput"
+            Assert-D2 ($integratedMineruOutput -like "*$integratedSuccessMarker*") `
+                "D2 local MinerU integrated retrieval probe did not report success: $integratedMineruOutput"
+        }
         Write-Output "D2 local MinerU integrated retrieval probe completed."
     }
 
