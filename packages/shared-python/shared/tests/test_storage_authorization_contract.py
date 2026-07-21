@@ -17,10 +17,12 @@ os.environ.setdefault("S3_TEMP_PATH", "/tmp")
 
 from shared.core.config.storage import StorageConfig
 from shared.core.exceptions.domain_exceptions import (
+    PermissionDeniedException,
     SystemSettingInvalidException,
     SystemSettingMissingException,
 )
 from shared.services.storage.adapters import FileSystemStorageAdapter, S3StorageAdapter
+from shared.services.storage.file_upload_service import FileUploadService
 from shared.services.storage.job_file_storage import JobFileStorage
 
 
@@ -40,6 +42,21 @@ def _storage_config(
         OBJECT_STORAGE_EXTERNAL_CALLS_ENABLED=external_calls_enabled,
         OSS_ENDPOINT="https://oss.contract.test",
     )
+
+
+def _approved_object_storage_metadata() -> dict[str, object]:
+    return {
+        "external_call_authorizations": {
+            "object_storage": {
+                "approved": True,
+                "provider": "object_storage",
+                "data_classification": "synthetic",
+                "source_scope": "storage-upload-contract",
+                "authorization_id": "auth-storage-upload-contract",
+                "approved_by": "qa-contract",
+            }
+        }
+    }
 
 
 def test_s3_factory_requires_explicit_external_storage_opt_in(
@@ -223,3 +240,107 @@ def test_job_file_storage_validates_configured_upload_url_lifetime_before_signin
         storage.generate_upload_url(job_id="job-1", file_extension=".pdf")
 
     assert adapter.calls == []
+
+
+def test_job_file_storage_rejects_remote_upload_url_without_job_authorization(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    class RecordingStorageAdapter:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, object]] = []
+
+        def generate_presigned_url(
+            self,
+            key: str,
+            **kwargs: object,
+        ) -> str:
+            kwargs["key"] = key
+            self.calls.append(kwargs)
+            return "signed://contract"
+
+    monkeypatch.setattr(
+        "shared.core.config.settings.OBJECT_STORAGE_EXTERNAL_CALLS_ENABLED",
+        True,
+        raising=False,
+    )
+    monkeypatch.setattr("shared.core.config.settings.S3_TYPE", "s3", raising=False)
+    adapter = RecordingStorageAdapter()
+    storage = JobFileStorage(storage_adapter=adapter)  # type: ignore[arg-type]
+
+    with pytest.raises(PermissionDeniedException, match="object_storage"):
+        storage.generate_upload_url(
+            job_id="job-1",
+            file_extension=".pdf",
+            job_metadata=None,
+        )
+
+    assert adapter.calls == []
+
+
+def test_job_file_storage_allows_remote_upload_url_with_approved_job_authorization(
+    monkeypatch: MonkeyPatch,
+) -> None:
+    class RecordingStorageAdapter:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, object]] = []
+
+        def generate_presigned_url(
+            self,
+            key: str,
+            **kwargs: object,
+        ) -> str:
+            kwargs["key"] = key
+            self.calls.append(kwargs)
+            return "signed://contract"
+
+    monkeypatch.setattr(
+        "shared.core.config.settings.OBJECT_STORAGE_EXTERNAL_CALLS_ENABLED",
+        True,
+        raising=False,
+    )
+    monkeypatch.setattr("shared.core.config.settings.S3_TYPE", "s3", raising=False)
+    adapter = RecordingStorageAdapter()
+    storage = JobFileStorage(storage_adapter=adapter)  # type: ignore[arg-type]
+
+    result = storage.generate_upload_url(
+        job_id="job-1",
+        file_extension=".pdf",
+        job_metadata=_approved_object_storage_metadata(),
+    )
+
+    assert result["upload_url"] == "signed://contract"
+    assert adapter.calls and adapter.calls[0]["method"] == "PUT"
+
+
+@pytest.mark.asyncio
+async def test_file_upload_service_propagates_job_metadata_to_storage_upload_url() -> None:
+    class RecordingStorage:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, object]] = []
+
+        def generate_upload_url(self, **kwargs: object) -> dict[str, object]:
+            self.calls.append(kwargs)
+            return {
+                "upload_url": "signed://contract",
+                "s3_key": "uploads/job-1.pdf",
+                "expires_in": 3600,
+                "upload_headers": {"Content-Type": "application/pdf"},
+            }
+
+    storage = RecordingStorage()
+    service = FileUploadService(storage=storage)  # type: ignore[arg-type]
+    metadata = _approved_object_storage_metadata()
+
+    await service.generate_upload_url(
+        "job-1",
+        ".pdf",
+        job_metadata=metadata,
+    )
+
+    assert storage.calls == [
+        {
+            "job_id": "job-1",
+            "file_extension": ".pdf",
+            "job_metadata": metadata,
+        }
+    ]

@@ -176,6 +176,7 @@ class DocumentIngestionCreationService:
         upload_info = await self._file_upload_service.generate_upload_url(
             job_id,
             file_extension,
+            job_metadata=scope.job_metadata,
         )
         upload_url = cast(str, upload_info["upload_url"])
         upload_headers = cast(UploadHeaders, upload_info["upload_headers"])

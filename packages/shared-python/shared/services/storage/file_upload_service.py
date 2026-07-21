@@ -16,13 +16,18 @@ class FileUploadService:
         self._storage = storage or JobFileStorage()
 
     async def generate_upload_url(
-        self, job_id: str, file_extension: str = ""
+        self,
+        job_id: str,
+        file_extension: str = "",
+        *,
+        job_metadata: dict[str, object] | None = None,
     ) -> dict[str, Any]:
         try:
             return await asyncio.to_thread(
                 self._storage.generate_upload_url,
                 job_id=job_id,
                 file_extension=file_extension,
+                job_metadata=job_metadata,
             )
 
         except Exception as e:

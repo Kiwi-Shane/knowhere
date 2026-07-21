@@ -7,6 +7,7 @@ from typing import Any, BinaryIO
 from shared.core.config import settings
 from shared.core.config.storage import get_cached_storage_adapter
 from shared.core.exceptions.domain_exceptions import StorageServiceException
+from shared.models.schemas.job_metadata import JobMetadataHelper
 from shared.services.storage.storage_adapter import StorageAdapter
 from shared.services.http.pinned_outbound import download_pinned_outbound_file
 from shared.services.http.url_security import validate_http_url_and_resolve_ip
@@ -53,7 +54,9 @@ class JobFileStorage:
         *,
         job_id: str,
         file_extension: str = "",
+        job_metadata: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
+        self._require_remote_storage_job_authorization(job_metadata)
         storage_key = self.build_upload_key(
             job_id=job_id,
             file_extension=file_extension,
@@ -75,6 +78,22 @@ class JobFileStorage:
             "expires_in": expiration,
             "upload_headers": {"Content-Type": content_type},
         }
+
+    def _require_remote_storage_job_authorization(
+        self,
+        job_metadata: dict[str, Any] | None,
+    ) -> None:
+        if not settings.OBJECT_STORAGE_EXTERNAL_CALLS_ENABLED:
+            return
+
+        storage_type = os.getenv("S3_TYPE", settings.S3_TYPE).lower()
+        if storage_type == "filesystem":
+            return
+
+        JobMetadataHelper.require_external_call_authorization(
+            job_metadata,
+            provider="object_storage",
+        )
 
     def generate_download_url(
         self,
