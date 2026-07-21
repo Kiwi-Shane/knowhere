@@ -17,11 +17,21 @@ def _utc_now() -> datetime:
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
-def _build_file_job_metadata() -> dict[str, str]:
+def _build_file_job_metadata() -> dict[str, Any]:
     return {
         "document_id": f"doc_{uuid4().hex[:12]}",
         "namespace": "worker-contract",
         "source_type": "file",
+        "external_call_authorizations": {
+            "webhook": {
+                "approved": True,
+                "provider": "webhook",
+                "data_classification": "synthetic",
+                "source_scope": "fixture:webhook-recovery-contract",
+                "authorization_id": "auth-webhook-recovery-contract-001",
+                "approved_by": "test-operator",
+            }
+        },
     }
 
 
@@ -316,6 +326,80 @@ def test_should_republish_only_orphaned_pending_webhook_events_and_persist_qstas
         "qstash_message_id": None,
     }
     assert secrets_count_row["secrets_count"] == 1
+
+
+def test_qstash_publisher_fails_closed_without_webhook_job_authorization(
+    worker_contract_environment: None,
+    monkeypatch: MonkeyPatch,
+) -> None:
+    _, qstash_publisher, engine = _load_worker_modules()
+
+    monkeypatch.setattr(
+        qstash_publisher.app_config,
+        "QSTASH_WEBHOOK_ENABLED",
+        True,
+        raising=False,
+    )
+
+    user_id = f"worker-user-{uuid4().hex[:12]}"
+    target_url = "https://hooks.contract.test/worker"
+    job_id = f"job_unauthorized_{uuid4().hex[:12]}"
+    event_id = str(uuid4())
+    validation_attempts = 0
+    publish_attempts = 0
+
+    def unexpected_validation(*args: Any, **kwargs: Any) -> Any:
+        nonlocal validation_attempts
+        validation_attempts += 1
+        raise AssertionError("authorization must run before SSRF validation")
+
+    def unexpected_publish(**kwargs: Any) -> Any:
+        nonlocal publish_attempts
+        publish_attempts += 1
+        raise AssertionError("unauthorized webhook must not be published")
+
+    monkeypatch.setattr(
+        qstash_publisher,
+        "validate_http_url_and_resolve_ip",
+        unexpected_validation,
+    )
+    publisher = qstash_publisher.QStashWebhookPublisher()
+    monkeypatch.setattr(publisher._client_adapter, "publish_webhook", unexpected_publish)
+
+    with engine.begin() as connection:
+        insert_contract_user(connection, user_id=user_id)
+        insert_contract_job(
+            connection,
+            job_id=job_id,
+            user_id=user_id,
+            status="done",
+            source_type="file",
+            webhook_url=target_url,
+            webhook_enabled=True,
+            job_metadata={"document_id": "unauthorized-contract"},
+            billing_status="charged",
+        )
+        _insert_webhook_event(
+            connection,
+            event_id=event_id,
+            job_id=job_id,
+            target_url=target_url,
+            status="pending",
+            attempts=0,
+            created_at=_utc_now(),
+        )
+
+    assert publisher.publish_event(event_id) is None
+
+    with engine.begin() as connection:
+        status = connection.execute(
+            text("SELECT status FROM webhook_events WHERE id = :event_id"),
+            {"event_id": event_id},
+        ).scalar_one()
+
+    assert status == "failed"
+    assert validation_attempts == 0
+    assert publish_attempts == 0
 
 
 def test_should_publish_completed_webhook_with_result_delivery_payload(

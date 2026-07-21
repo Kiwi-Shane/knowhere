@@ -16,9 +16,12 @@ from typing import Optional
 from loguru import logger
 from sqlalchemy import select
 
+from shared.core.config import app_config
+from shared.core.exceptions.domain_exceptions import PermissionDeniedException
 from shared.core.database_sync import get_sync_db_context
 from shared.models.database.job import Job
 from shared.models.database.webhook import WebhookEvent, WebhookEventStatus
+from shared.models.schemas.job_metadata import JobMetadataHelper
 from shared.services.webhook.qstash_client import (
     QStashClientAdapter,
     QStashDeliveryStatus,
@@ -66,6 +69,32 @@ class QStashWebhookPublisher:
                 logger.info(f"QStash publish: event already terminal: {event_id}")
                 return None
 
+            job_record = db.execute(
+                select(Job.user_id, Job.job_metadata).where(Job.job_id == event.job_id)
+            ).first()
+
+            if not job_record:
+                logger.warning(f"QStash publish: no job for event {event_id}")
+                event.status = WebhookEventStatus.FAILED
+                db.commit()
+                return None
+
+            user_id, job_metadata = job_record
+            if app_config.QSTASH_WEBHOOK_ENABLED:
+                try:
+                    JobMetadataHelper.require_external_call_authorization(
+                        job_metadata,
+                        provider="webhook",
+                    )
+                except PermissionDeniedException as exc:
+                    logger.warning(
+                        f"QStash publish: webhook authorization denied for event "
+                        f"{event_id}: {exc.internal_message}"
+                    )
+                    event.status = WebhookEventStatus.FAILED
+                    db.commit()
+                    return None
+
             # SSRF pre-validation
             validation = validate_http_url_and_resolve_ip(
                 event.target_url,
@@ -80,16 +109,6 @@ class QStashWebhookPublisher:
                 return None
 
             payload = self._payload_enricher.enrich(db, event)
-
-            user_id = db.execute(
-                select(Job.user_id).where(Job.job_id == event.job_id)
-            ).scalar_one_or_none()
-
-            if not user_id:
-                logger.warning(f"QStash publish: no user_id for job {event.job_id}")
-                event.status = WebhookEventStatus.FAILED
-                db.commit()
-                return None
 
             secret = self._secret_resolver.resolve(
                 db,
