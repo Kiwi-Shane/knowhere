@@ -227,7 +227,7 @@ Expected result: only the cache service and its focused test are modified after 
 - Consumes: fresh test, lint, typecheck, and diff evidence from Task 3.
 - Produces: a pushed branch that remains isolated from the pinned fork and upstream synchronization.
 
-- [ ] **Step 1: Stage only the intended files**
+- [x] **Step 1: Stage only the intended files**
 
 Run:
 
@@ -239,7 +239,7 @@ git diff --cached --stat
 
 Expected result: no whitespace errors and only the four listed paths are staged.
 
-- [ ] **Step 2: Commit the candidate**
+- [x] **Step 2: Commit the candidate**
 
 Run:
 
@@ -249,7 +249,7 @@ git commit -m "fix: include BYOK models in retrieval cache identity"
 
 Expected result: a new commit on fix/kiwi-shane/upstream-cache-compatibility-20260721.
 
-- [ ] **Step 3: Push only the qualification branch**
+- [x] **Step 3: Push only the qualification branch**
 
 Run:
 
@@ -259,7 +259,7 @@ git push origin fix/kiwi-shane/upstream-cache-compatibility-20260721
 
 Expected result: the candidate branch is pushed. Do not create a PR, merge it, or change the fork's pinned baseline in this plan.
 
-- [ ] **Step 4: Verify the published branch state**
+- [x] **Step 4: Verify the published branch state**
 
 Run:
 
