@@ -60,6 +60,14 @@ def execute_document_parse(
             doc_type=doc_type,
             parse_track=parse_track,
         ):
+            if (
+                settings.LLM_EXTERNAL_CALLS_ENABLED
+                and not settings.LLM_MOCK_ENABLED
+            ):
+                JobMetadataHelper.require_external_call_authorization(
+                    job_context.job_metadata,
+                    provider="llm",
+                )
             if parse_track == "page_memory":
                 parse_output = _execute_page_memory_parse(
                     job_id=job_id,

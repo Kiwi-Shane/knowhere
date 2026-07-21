@@ -103,6 +103,7 @@ class OpenAICompatibleClientSync:
         self._client: Optional[OpenAI] = None
         if _should_mock_llm_calls():
             return
+        settings.require_llm_external_calls_enabled()
         if not self._should_use_ali_pool():
             resolved_key: Optional[str] = self._resolve_direct_api_key(
                 model_name=self.default_model,

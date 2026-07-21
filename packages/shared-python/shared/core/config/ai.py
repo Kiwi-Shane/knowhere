@@ -92,6 +92,12 @@ class AIConfig(BaseModel):
         default=False,
         description="Short-circuit all OpenAI-compatible LLM calls and return canned mock responses.",
     )
+    LLM_EXTERNAL_CALLS_ENABLED: bool = Field(
+        default=False,
+        description=(
+            "Explicit operator opt-in for outbound OpenAI-compatible provider calls."
+        ),
+    )
     OPENAI_CLIENT_TIMEOUT: int = Field(
         default=300, description="OpenAI-compatible client timeout in seconds"
     )
@@ -213,6 +219,19 @@ class AIConfig(BaseModel):
         default=5,
         description="Max concurrent in-flight iLoveAPI conversions across all workers. Fail-open to LibreOffice when exceeded.",
     )
+
+    def require_llm_external_calls_enabled(self) -> None:
+        """Fail closed until outbound OpenAI-compatible calls are explicitly enabled."""
+        if self.LLM_EXTERNAL_CALLS_ENABLED:
+            return
+
+        raise SystemSettingMissingException(
+            internal_message=(
+                "OpenAI-compatible provider calls are not explicitly enabled; set "
+                "LLM_EXTERNAL_CALLS_ENABLED=true to authorize outbound provider "
+                "operations"
+            )
+        )
 
     def require_iloveapi_external_calls_enabled(self) -> None:
         """Fail closed until outbound iLoveAPI conversion calls are explicitly enabled."""

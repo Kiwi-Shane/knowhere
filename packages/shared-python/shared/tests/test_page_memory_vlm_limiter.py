@@ -146,6 +146,7 @@ def test_page_memory_provider_exception_still_releases_lease(monkeypatch) -> Non
         "get_page_memory_vlm_limiter",
         lambda: fake_limiter,
     )
+    monkeypatch.setattr(client_mod.settings, "LLM_EXTERNAL_CALLS_ENABLED", True)
     client = client_mod.OpenAICompatibleClientSync(
         api_key="test",
         api_url="http://provider.example/v1",
