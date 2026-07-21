@@ -83,7 +83,12 @@ def test_cloud_provider_is_default_and_delegates_all_arguments(
     provider.parse_pdf("source.pdf", "document.pdf", str(tmp_path), s3_key="in/key")
 
     assert calls == [
-        ("source.pdf", "document.pdf", str(tmp_path), {"s3_key": "in/key"})
+        (
+            "source.pdf",
+            "document.pdf",
+            str(tmp_path),
+            {"s3_key": "in/key", "job_metadata": None},
+        )
     ]
     assert MineruConfig().MINERU_PROVIDER == "cloud"
 

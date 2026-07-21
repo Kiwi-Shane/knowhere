@@ -74,7 +74,13 @@ def parse_pdfs(
     # ── Standard single-pass MinerU ──
     logger.info(f"📄 Standard MinerU parse for {filename}")
     with stage_timer("pdf.extract.standard", filename=filename):
-        parse_pdf(pdf_path, filename, output_dir, s3_key=s3_key)
+        parse_pdf(
+            pdf_path,
+            filename,
+            output_dir,
+            s3_key=s3_key,
+            job_metadata=job_metadata,
+        )
 
     logger.info("✅ PDF parsing step 1 complete: text extracted")
 
@@ -178,7 +184,13 @@ def _parse_pdf_via_shards(
         if fast_path_original_pdf:
             logger.info("📄 Single shard without TOC pages; using original PDF fast path")
             with stage_timer("pdf.extract.single_shard_fast", filename=filename):
-                parse_pdf(pdf_path, filename, output_dir, s3_key=s3_key)
+                parse_pdf(
+                    pdf_path,
+                    filename,
+                    output_dir,
+                    s3_key=s3_key,
+                    job_metadata=job_metadata,
+                )
             shard_output_dirs = [output_dir]
         else:
             # Physically split PDF when TOC pages must be excluded or multiple
@@ -222,7 +234,11 @@ def _parse_pdf_via_shards(
                     f"({shard_s3_key})"
                 )
                 parse_pdf(
-                    shard_pdf, shard_filename, shard_out, s3_key=shard_s3_key
+                    shard_pdf,
+                    shard_filename,
+                    shard_out,
+                    s3_key=shard_s3_key,
+                    job_metadata=job_metadata,
                 )
                 return shard_out
 

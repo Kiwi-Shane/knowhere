@@ -69,14 +69,21 @@ def _log_mineru_url_mode_ingestion_fallback(
     ).warning("MinerU URL-mode ingestion setup failed. Falling back to direct upload.")
 
 
-def _inspect_mineru_source_s3_key(s3_key: Optional[str]) -> tuple[Optional[str], bool]:
+def _inspect_mineru_source_s3_key(
+    s3_key: Optional[str],
+    *,
+    job_metadata: dict[str, object] | None = None,
+) -> tuple[Optional[str], bool]:
     """Inspect whether URL mode can reuse or prepare the requested S3 source key."""
     if not _should_use_mineru_s3_url_mode(s3_key):
         return None, False
 
     assert s3_key is not None
     try:
-        existing_file = JobFileStorage().verify_upload_exists(s3_key)
+        existing_file = JobFileStorage().verify_upload_exists(
+            s3_key,
+            job_metadata=job_metadata,
+        )
     except Exception as exc:
         _log_mineru_url_mode_storage_fallback(
             operation="verify_source_object",
@@ -96,18 +103,30 @@ def _inspect_mineru_source_s3_key(s3_key: Optional[str]) -> tuple[Optional[str],
     return None, True
 
 
-def get_existing_mineru_source_s3_key(s3_key: Optional[str]) -> Optional[str]:
+def get_existing_mineru_source_s3_key(
+    s3_key: Optional[str],
+    *,
+    job_metadata: dict[str, object] | None = None,
+) -> Optional[str]:
     """Return an existing S3 source key for URL mode, or None if it is unavailable."""
-    existing_s3_key, _ = _inspect_mineru_source_s3_key(s3_key)
+    existing_s3_key, _ = _inspect_mineru_source_s3_key(
+        s3_key,
+        job_metadata=job_metadata,
+    )
     return existing_s3_key
 
 
 def resolve_mineru_source_s3_key(
     s3_key: Optional[str],
     local_file_path: Optional[str] = None,
+    *,
+    job_metadata: dict[str, object] | None = None,
 ) -> Optional[str]:
     """Resolve an S3 source key for URL mode, uploading a local file if needed."""
-    existing_s3_key, can_prepare_url_mode = _inspect_mineru_source_s3_key(s3_key)
+    existing_s3_key, can_prepare_url_mode = _inspect_mineru_source_s3_key(
+        s3_key,
+        job_metadata=job_metadata,
+    )
     if existing_s3_key is not None:
         return existing_s3_key
 
@@ -119,7 +138,11 @@ def resolve_mineru_source_s3_key(
 
     assert s3_key is not None
     try:
-        JobFileStorage().upload_source_file(local_file_path, s3_key)
+        JobFileStorage().upload_source_file(
+            local_file_path,
+            s3_key,
+            job_metadata=job_metadata,
+        )
     except Exception as exc:
         _log_mineru_url_mode_storage_fallback(
             operation="upload_source_object",
@@ -454,6 +477,8 @@ def parse_via_full(
     filename: str,
     output_dir: str,
     s3_key: Optional[str] = None,
+    *,
+    job_metadata: dict[str, object] | None = None,
 ) -> None:
     settings.require_mineru_external_calls_enabled()
     settings.validate_mineru_endpoint()
@@ -462,12 +487,15 @@ def parse_via_full(
     resolved_s3_key = resolve_mineru_source_s3_key(
         s3_key=s3_key,
         local_file_path=None if is_remote(pdf_url) else pdf_url,
+        job_metadata=job_metadata,
     )
 
     if resolved_s3_key is not None:
         try:
             presigned = JobFileStorage().generate_upload_download_url(
-                resolved_s3_key, expires_in=settings.MINERU_URL_MODE_PRESIGN_EXPIRY
+                resolved_s3_key,
+                expires_in=settings.MINERU_URL_MODE_PRESIGN_EXPIRY,
+                job_metadata=job_metadata,
             )
             presigned_url = presigned["download_url"]
             mineru_logger("ingestion_mode", mode="s3_url").info(

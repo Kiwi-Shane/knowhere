@@ -15,11 +15,18 @@ def parse_pdf(
     output_dir: str,
     *,
     s3_key: str | None = None,
+    job_metadata: dict[str, object] | None = None,
 ) -> None:
     """Parse a PDF through the configured provider without silent fallback."""
 
     if settings.MINERU_PROVIDER == "cloud":
-        parse_via_full(pdf_path, filename, output_dir, s3_key=s3_key)
+        parse_via_full(
+            pdf_path,
+            filename,
+            output_dir,
+            s3_key=s3_key,
+            job_metadata=job_metadata,
+        )
         return
     if settings.MINERU_PROVIDER == "local":
         parse_via_local(pdf_path, filename, output_dir, s3_key=s3_key)

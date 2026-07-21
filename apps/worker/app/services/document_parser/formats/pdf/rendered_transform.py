@@ -37,7 +37,10 @@ def parse_cached_rendered_pdf(
     if rendered_pdf_s3_key is None:
         return None
 
-    cached_rendered_pdf_s3_key = get_existing_mineru_source_s3_key(rendered_pdf_s3_key)
+    cached_rendered_pdf_s3_key = get_existing_mineru_source_s3_key(
+        rendered_pdf_s3_key,
+        job_metadata=job_metadata,
+    )
     if cached_rendered_pdf_s3_key is None:
         return None
 
