@@ -65,16 +65,21 @@ def test_private_or_unknown_data_classification_is_not_authorized(
         )
 
 
+@pytest.mark.parametrize("provider", ["mineru", "iloveapi"])
 @pytest.mark.parametrize("data_classification", ["synthetic", "megaforce_test", "fda_test"])
 def test_approved_test_data_classification_is_returned(
+    provider: str,
     data_classification: str,
 ) -> None:
-    authorization = _authorization(data_classification=data_classification)
-    metadata = {"external_call_authorizations": {"mineru": authorization}}
+    authorization = _authorization(
+        provider=provider,
+        data_classification=data_classification,
+    )
+    metadata = {"external_call_authorizations": {provider: authorization}}
 
     assert JobMetadataHelper.require_external_call_authorization(
         metadata,
-        provider="mineru",
+        provider=provider,
     ) == authorization
 
 

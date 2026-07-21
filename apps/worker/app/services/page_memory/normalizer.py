@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from typing import Any
 
 from app.services.document_parser.formats.pptx.parser import (
     _pptx_bytes_to_pdf_bytes,
@@ -9,7 +10,9 @@ from app.services.document_parser.formats.pptx.parser import (
 from app.services.common.file_loading import load_file_bytes
 from loguru import logger
 
+from shared.core.config import settings
 from shared.core.exceptions.domain_exceptions import ValidationException
+from shared.models.schemas.job_metadata import JobMetadataHelper
 
 
 def normalize_to_pdf(
@@ -18,6 +21,7 @@ def normalize_to_pdf(
     filename: str,
     output_dir: str,
     base_url: str = "",
+    job_metadata: dict[str, Any] | None = None,
 ) -> tuple[str, str]:
     """Return a local PDF path and filename for page-memory processing."""
     extension = os.path.splitext(filename)[1].lower()
@@ -29,6 +33,7 @@ def normalize_to_pdf(
             filename=filename,
             output_dir=output_dir,
             base_url=base_url,
+            job_metadata=job_metadata,
         )
     raise ValidationException(
         user_message="page_memory parse track only supports PDF and PPTX",
@@ -47,7 +52,13 @@ def _normalize_pptx_to_pdf(
     filename: str,
     output_dir: str,
     base_url: str,
+    job_metadata: dict[str, Any] | None,
 ) -> tuple[str, str]:
+    if settings.ILOVEAPI_EXTERNAL_CALLS_ENABLED:
+        JobMetadataHelper.require_external_call_authorization(
+            job_metadata,
+            provider="iloveapi",
+        )
     pptx_data = load_file_bytes(file_path, file_url=base_url)
     pdf_filename = f"{os.path.splitext(filename)[0]}.pdf"
     pdf_path = os.path.join(output_dir, pdf_filename)

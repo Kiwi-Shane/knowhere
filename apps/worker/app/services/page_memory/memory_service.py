@@ -48,6 +48,7 @@ class PageMemoryInput:
     job_id: str | None = None
     internal_output_filename: str | None = None
     base_url: str = ""
+    job_metadata: dict[str, Any] | None = None
     page_memory_config: PageMemoryConfig = field(
         default_factory=PageMemoryConfig.default,
     )
@@ -87,6 +88,7 @@ def run(request: PageMemoryInput) -> tuple[str, pd.DataFrame]:
                 filename=request.filename,
                 output_dir=full_output_dir,
                 base_url=request.base_url,
+                job_metadata=request.job_metadata,
             )
         _persist_source_pdf(pdf_path=pdf_path, output_dir=full_output_dir)
         with stage_timer("page_memory.profile", filename=pdf_filename):

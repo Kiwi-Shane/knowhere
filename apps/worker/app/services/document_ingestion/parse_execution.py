@@ -76,6 +76,14 @@ def execute_document_parse(
                         job_context.job_metadata,
                         provider="mineru",
                     )
+                if (
+                    settings.ILOVEAPI_EXTERNAL_CALLS_ENABLED
+                    and prepared_source.file_extension.lower() == ".pptx"
+                ):
+                    JobMetadataHelper.require_external_call_authorization(
+                        job_context.job_metadata,
+                        provider="iloveapi",
+                    )
                 parse_output = parse_service.checkerboard_parse_output(
                     file_full_path=prepared_source.local_file_path,
                     filename=prepared_source.source_file_name,
@@ -149,6 +157,7 @@ def _execute_page_memory_parse(
             internal_output_filename=prepared_source.internal_parse_name,
             output_dir=output_dir,
             job_id=job_id,
+            job_metadata=job_context.job_metadata,
             page_memory_config=page_memory_config,
         )
     )
