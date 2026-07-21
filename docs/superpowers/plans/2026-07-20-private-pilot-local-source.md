@@ -128,5 +128,5 @@ Expected: focused contract tests pass and the verifier parses without errors.
 
 - [x] **Step 1: Record private source hashes/status counts only**
 - [x] **Step 2: Keep human baseline, host no-egress, and provider gates explicitly open**
-- [ ] **Step 3: Run project health/changed-scope validation**
-- [ ] **Step 4: Commit and push the Knowhere and RA documentation revisions**
+- [x] **Step 3: Run project health/changed-scope validation**
+- [x] **Step 4: Commit and push the Knowhere and RA documentation revisions**
