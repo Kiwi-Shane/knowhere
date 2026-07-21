@@ -45,6 +45,12 @@ class WorkerUrlUploadContract:
 
     def allow_private_url_sources(self, monkeypatch: MonkeyPatch) -> None:
         monkeypatch.setattr(self.settings, "ENVIRONMENT", "development")
+        monkeypatch.setattr(
+            self.settings,
+            "SOURCE_URL_EXTERNAL_CALLS_ENABLED",
+            True,
+            raising=False,
+        )
 
     def create_url_job(self, *, source_url: str) -> dict[str, str]:
         user_id = f"worker-url-contract-user-{uuid4().hex[:12]}"
@@ -62,11 +68,21 @@ class WorkerUrlUploadContract:
                 s3_key=s3_key,
                 job_metadata={
                     "namespace": "worker-contract",
-                    "source_type": "url",
-                    "source_url": source_url,
-                    "source_file_name": "contract-source.pdf",
+                "source_type": "url",
+                "source_url": source_url,
+                "source_file_name": "contract-source.pdf",
+                "external_call_authorizations": {
+                    "source_url": {
+                        "approved": True,
+                        "provider": "source_url",
+                        "data_classification": "synthetic",
+                        "source_scope": "worker-url-upload-contract",
+                        "authorization_id": "auth-worker-url-upload-contract",
+                        "approved_by": "qa-contract",
+                    }
                 },
-            )
+            },
+        )
 
         return {
             "job_id": job_id,

@@ -29,6 +29,21 @@ def _approved_object_storage_metadata() -> dict[str, object]:
     }
 
 
+def _approved_source_url_metadata() -> dict[str, object]:
+    return {
+        "external_call_authorizations": {
+            "source_url": {
+                "approved": True,
+                "provider": "source_url",
+                "data_classification": "synthetic",
+                "source_scope": "source-url-transfer-contract",
+                "authorization_id": "auth-source-url-transfer-contract",
+                "approved_by": "qa-contract",
+            }
+        }
+    }
+
+
 def test_source_preparation_forwards_job_metadata_to_storage_reads(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -128,3 +143,80 @@ def test_url_upload_source_transfer_forwards_job_metadata(
             "metadata": metadata,
         }
     ]
+
+
+def test_url_upload_download_forwards_job_metadata(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    from app.services.workload import url_upload_transfer
+
+    calls: list[dict[str, object]] = []
+
+    class RecordingJobFileStorage:
+        def download_file_from_url(
+            self,
+            file_url: str,
+            *,
+            temp_dir: str | None = None,
+            job_metadata: dict[str, object] | None = None,
+        ) -> str:
+            calls.append(
+                {
+                    "file_url": file_url,
+                    "temp_dir": temp_dir,
+                    "metadata": job_metadata,
+                }
+            )
+            source_path = tmp_path / "downloaded-source.pdf"
+            source_path.write_bytes(b"synthetic source")
+            return str(source_path)
+
+    monkeypatch.setattr(url_upload_transfer, "JobFileStorage", RecordingJobFileStorage)
+    metadata = _approved_source_url_metadata()
+
+    result = url_upload_transfer.download_source_url_to_temp(
+        "https://example.test/source.pdf",
+        job_metadata=metadata,
+    )
+
+    assert result == str(tmp_path / "downloaded-source.pdf")
+    assert calls == [
+        {
+            "file_url": "https://example.test/source.pdf",
+            "temp_dir": "/tmp/knowhere-test",
+            "metadata": metadata,
+        }
+    ]
+
+
+def test_url_upload_download_preserves_authorization_failures(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from app.services.workload import url_upload_transfer
+    from shared.core.exceptions.domain_exceptions import PermissionDeniedException
+
+    class RejectingJobFileStorage:
+        def download_file_from_url(
+            self,
+            _file_url: str,
+            *,
+            temp_dir: str | None = None,
+            job_metadata: dict[str, object] | None = None,
+        ) -> str:
+            del temp_dir, job_metadata
+            raise PermissionDeniedException(
+                required_permission="external_call:source_url"
+            )
+
+    monkeypatch.setattr(
+        url_upload_transfer,
+        "JobFileStorage",
+        RejectingJobFileStorage,
+    )
+
+    with pytest.raises(PermissionDeniedException, match="Permission denied"):
+        url_upload_transfer.download_source_url_to_temp(
+            "https://example.test/source.pdf",
+            job_metadata=_approved_source_url_metadata(),
+        )

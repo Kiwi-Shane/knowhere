@@ -9,15 +9,24 @@ from loguru import logger
 
 from shared.core.config import settings
 from shared.core.exceptions.domain_exceptions import (
+    PermissionDeniedException,
     StorageServiceException,
+    SystemSettingMissingException,
     ValidationException,
 )
 from shared.services.storage.job_file_storage import JobFileStorage
 from shared.services.http.url_file_type import resolve_file_extension_sync
 
 
-def resolve_supported_url_extension(source_url: str) -> str:
-    file_extension = resolve_file_extension_sync(source_url)
+def resolve_supported_url_extension(
+    source_url: str,
+    *,
+    job_metadata: dict[str, object] | None = None,
+) -> str:
+    file_extension = resolve_file_extension_sync(
+        source_url,
+        job_metadata=job_metadata,
+    )
     if file_extension:
         return file_extension
 
@@ -33,13 +42,20 @@ def resolve_supported_url_extension(source_url: str) -> str:
     )
 
 
-def download_source_url_to_temp(source_url: str) -> str:
+def download_source_url_to_temp(
+    source_url: str,
+    *,
+    job_metadata: dict[str, object] | None = None,
+) -> str:
     storage = JobFileStorage()
     try:
         return storage.download_file_from_url(
             source_url,
             temp_dir=getattr(settings, "TMP_PATH", "/tmp"),
+            job_metadata=job_metadata,
         )
+    except (PermissionDeniedException, SystemSettingMissingException):
+        raise
     except Exception as exc:
         raise ValidationException(
             user_message="Failed to download file from URL",

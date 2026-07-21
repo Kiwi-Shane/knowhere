@@ -6,6 +6,7 @@ Provides both async and sync variants.
 """
 
 import os
+from typing import Any
 from urllib.parse import urljoin, urlparse
 
 from loguru import logger
@@ -16,6 +17,9 @@ from shared.services.http.url_security import (
     HTTPURLValidationResult,
     SafePublicHTTPURL,
     validate_http_url_and_resolve_ip,
+)
+from shared.services.http.source_url_authorization import (
+    require_source_url_resolution_authorization,
 )
 
 CONTENT_TYPE_TO_EXTENSION: dict[str, str] = {
@@ -99,7 +103,11 @@ def _extension_from_content_type(content_type: str | None) -> str | None:
     return None
 
 
-async def resolve_file_extension_async(url: str) -> str | None:
+async def resolve_file_extension_async(
+    url: str,
+    *,
+    job_metadata: dict[str, Any] | None = None,
+) -> str | None:
     """
     Resolve file extension from a URL.
 
@@ -107,6 +115,7 @@ async def resolve_file_extension_async(url: str) -> str | None:
     2. If that fails, send a HEAD request and read Content-Type.
     3. Return None if neither method produces a supported extension.
     """
+    require_source_url_resolution_authorization(job_metadata)
     safe_url = _validate_source_url(url, field="source_url")
 
     ext = _extension_from_path(safe_url)
@@ -148,12 +157,17 @@ async def resolve_file_extension_async(url: str) -> str | None:
     return None
 
 
-def resolve_file_extension_sync(url: str) -> str | None:
+def resolve_file_extension_sync(
+    url: str,
+    *,
+    job_metadata: dict[str, Any] | None = None,
+) -> str | None:
     """
     Resolve file extension from a URL.
 
     Same logic as async variant but uses the shared sync httpx client.
     """
+    require_source_url_resolution_authorization(job_metadata)
     safe_url = _validate_source_url(url, field="source_url")
 
     ext = _extension_from_path(safe_url)

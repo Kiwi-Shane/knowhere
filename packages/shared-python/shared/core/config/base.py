@@ -85,6 +85,12 @@ class BaseConfig(BaseSettings):
     WEBHOOK_MASTER_KEY: str = Field(
         default="", description="Webhook encryption master key"
     )
+    SOURCE_URL_EXTERNAL_CALLS_ENABLED: bool = Field(
+        default=False,
+        description=(
+            "Explicit operator opt-in for outbound source URL downloads"
+        ),
+    )
     INTERNAL_DASHBOARD_ENDPOINT: str = Field(
         default="http://localhost:3000", description="Internal Dashboard endpoint"
     )

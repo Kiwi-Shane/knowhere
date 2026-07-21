@@ -10,6 +10,9 @@ from shared.core.exceptions.domain_exceptions import StorageServiceException
 from shared.models.schemas.job_metadata import JobMetadataHelper
 from shared.services.storage.storage_adapter import StorageAdapter
 from shared.services.http.pinned_outbound import download_pinned_outbound_file
+from shared.services.http.source_url_authorization import (
+    require_source_url_job_authorization,
+)
 from shared.services.http.url_security import validate_http_url_and_resolve_ip
 
 
@@ -334,7 +337,9 @@ class JobFileStorage:
         *,
         temp_dir: str | None = None,
         timeout_seconds: float = 300,
+        job_metadata: dict[str, Any] | None = None,
     ) -> str:
+        require_source_url_job_authorization(job_metadata)
         temp_file_path = ""
         try:
             validation = validate_http_url_and_resolve_ip(file_url)

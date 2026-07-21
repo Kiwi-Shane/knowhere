@@ -349,6 +349,7 @@ def configure_contract_environment(
         "DS_URL": "https://example.com/v1",
         "ILOVEAPI_EXTERNAL_CALLS_ENABLED": "true",
         "MINERU_EXTERNAL_CALLS_ENABLED": "true",
+        "SOURCE_URL_EXTERNAL_CALLS_ENABLED": "true",
         "QSTASH_WEBHOOK_ENABLED": "true",
         "QSTASH_CURRENT_SIGNING_KEY": "qstash-current-test-key",
         "QSTASH_NEXT_SIGNING_KEY": "qstash-next-test-key",

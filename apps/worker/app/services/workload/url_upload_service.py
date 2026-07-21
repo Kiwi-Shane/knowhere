@@ -35,7 +35,10 @@ def upload_url_file(
         message="Validating URL file type...",
         redis_service=redis_service,
     )
-    file_extension = resolve_supported_url_extension(source_url)
+    file_extension = resolve_supported_url_extension(
+        source_url,
+        job_metadata=upload_context.job_metadata,
+    )
 
     lifecycle_service.update_progress(
         job_id,
@@ -43,7 +46,10 @@ def upload_url_file(
         message="Downloading file from URL...",
         redis_service=redis_service,
     )
-    temp_file_path = download_source_url_to_temp(source_url)
+    temp_file_path = download_source_url_to_temp(
+        source_url,
+        job_metadata=upload_context.job_metadata,
+    )
 
     try:
         lifecycle_service.update_progress(
