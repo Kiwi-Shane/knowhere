@@ -26,6 +26,7 @@ from shared.core.exceptions.domain_exceptions import (
     FileSystemException,
 )
 from shared.core.logging import LogEvent
+from shared.models.schemas.job_metadata import JobMetadataHelper
 from app.services.common.file_loading import load_file_bytes
 from app.services.common.file_utils import path_handle
 
@@ -117,7 +118,12 @@ def pptx_to_pdf_api(pptx_path, outdir="."):
     return pdf_path, pdf_name
 
 
-def _pptx_bytes_to_pdf_bytes(pptx_bytes: bytes, filename: str) -> bytes:
+def _pptx_bytes_to_pdf_bytes(
+    pptx_bytes: bytes,
+    filename: str,
+    *,
+    job_metadata: dict[str, object] | None = None,
+) -> bytes:
     """
     Convert PPTX bytes → PDF bytes via iLoveAPI. Pure in-memory, no disk I/O.
 
@@ -126,6 +132,10 @@ def _pptx_bytes_to_pdf_bytes(pptx_bytes: bytes, filename: str) -> bytes:
     """
     settings.require_iloveapi_external_calls_enabled()
     base_url = settings.validate_iloveapi_base_url()
+    JobMetadataHelper.require_external_call_authorization(
+        job_metadata,
+        provider="iloveapi",
+    )
     from shared.services.ai.iloveapi_quota_manager import get_iloveapi_quota_manager
 
     quota_manager = get_iloveapi_quota_manager()
@@ -473,7 +483,11 @@ def _parse_pptx_via_api(
     worker-to-MinerU upload.
     """
     # Step 1: PPTX → PDF (in memory)
-    pdf_bytes = _pptx_bytes_to_pdf_bytes(pptx_data, filename)
+    pdf_bytes = _pptx_bytes_to_pdf_bytes(
+        pptx_data,
+        filename,
+        job_metadata=job_metadata,
+    )
 
     return parse_rendered_pdf_bytes(
         pdf_bytes=pdf_bytes,

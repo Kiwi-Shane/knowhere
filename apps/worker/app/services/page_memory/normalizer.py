@@ -67,7 +67,11 @@ def _normalize_pptx_to_pdf(
     pdf_filename = f"{os.path.splitext(filename)[0]}.pdf"
     pdf_path = os.path.join(output_dir, pdf_filename)
     try:
-        pdf_bytes = _pptx_bytes_to_pdf_bytes(pptx_data, filename)
+        pdf_bytes = _pptx_bytes_to_pdf_bytes(
+            pptx_data,
+            filename,
+            job_metadata=job_metadata,
+        )
         with open(pdf_path, "wb") as f:
             f.write(pdf_bytes)
         return pdf_path, pdf_filename
