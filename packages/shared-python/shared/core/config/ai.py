@@ -85,6 +85,18 @@ class AIConfig(BaseModel):
         default=False,
         description="Short-circuit all OpenAI-compatible LLM calls and return canned mock responses.",
     )
+    LLM_EXTERNAL_CALLS_ENABLED: bool = Field(
+        default=False,
+        description=(
+            "Explicit operator opt-in for outbound request-scoped BYOK LLM calls"
+        ),
+    )
+    LLM_ALLOWED_PROVIDER_ENDPOINTS: str = Field(
+        default="",
+        description=(
+            "Comma-separated exact normalized HTTPS endpoints allowed for BYOK"
+        ),
+    )
     OPENAI_CLIENT_TIMEOUT: int = Field(
         default=300, description="OpenAI-compatible client timeout in seconds"
     )

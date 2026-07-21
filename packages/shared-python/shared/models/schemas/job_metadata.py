@@ -7,7 +7,6 @@ from pydantic import BaseModel, ConfigDict, Field
 from shared.models.schemas.llm_config import LLMConfig, parse_llm_config
 from shared.models.schemas.page_memory_config import PageMemoryConfig
 from shared.models.schemas.retrieval_namespace import normalize_retrieval_namespace
-from shared.utils.security_utils import mask_api_key
 
 
 class JobMetadataBase(BaseModel):
@@ -20,8 +19,11 @@ class JobMetadataBase(BaseModel):
     parsing_params: Optional[Dict[str, Any]] = Field(
         None, description="Parsing parameters"
     )
-    llm_config: Optional[Dict[str, Any]] = Field(
-        None, description="BYOK OpenAI-compatible LLM credentials (v2)"
+    llm_credential_id: Optional[str] = Field(
+        None, description="Opaque reference to encrypted job-scoped BYOK credentials"
+    )
+    llm_config_present: Optional[bool] = Field(
+        None, description="Whether the request supplied a BYOK configuration"
     )
     data_id: Optional[str] = Field(None, description="User-defined ID")
     webhook: Optional[Dict[str, Any]] = Field(None, description="Webhook configuration")
@@ -72,13 +74,13 @@ class JobMetadataHelper:
             resolved_page_memory_config = page_memory_config.to_dict()
         else:
             resolved_page_memory_config = page_memory_config
-        # v2-only field; getattr keeps v1 JobCreate (no llm_config) safe.
-        raw_llm_config = getattr(request, "llm_config", None)
-        llm_config_payload: Dict[str, Any] | None = None
-        if isinstance(raw_llm_config, LLMConfig):
-            llm_config_payload = raw_llm_config.model_dump()
-        elif isinstance(raw_llm_config, dict):
-            llm_config_payload = dict(raw_llm_config)
+        # v2-only field; retain only a non-secret presence marker. The typed
+        # request configuration is staged in the encrypted credential table by
+        # the API service and is never copied into Job metadata or Redis.
+        raw_llm_config = (
+            getattr(request, "llm_config", None) if api_version == "v2" else None
+        )
+        parsed_llm_config = parse_llm_config(raw_llm_config)
         metadata = {
             "original_request": _dump_public_request(request),
             "api_version": api_version,
@@ -93,8 +95,8 @@ class JobMetadataHelper:
             "data_id": request.data_id,
             "webhook": request.webhook.model_dump() if request.webhook else None,
         }
-        if llm_config_payload is not None:
-            metadata["llm_config"] = llm_config_payload
+        if parsed_llm_config is not None:
+            metadata["llm_config_present"] = True
         if resolved_page_memory_config is not None:
             metadata["page_memory_config"] = resolved_page_memory_config
         metadata.update(kwargs)
@@ -254,39 +256,24 @@ class JobMetadataHelper:
         return JobMetadataHelper.get_field(metadata, "webhook")
 
     @staticmethod
-    def get_llm_config(metadata: Optional[Dict[str, Any]]) -> LLMConfig | None:
-        """Return the BYOK LLM config stored in metadata, if any."""
-        raw = JobMetadataHelper.get_field(metadata, "llm_config", None)
-        return parse_llm_config(raw)
+    @staticmethod
+    def get_request_llm_config(request: Any) -> LLMConfig | None:
+        """Return the typed request BYOK config before encrypted staging."""
+        return parse_llm_config(getattr(request, "llm_config", None))
 
-
-def _mask_llm_config_in_request(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """Redact api_key values inside llm_config for public request snapshots."""
-    llm_config = payload.get("llm_config")
-    if not isinstance(llm_config, dict):
-        return payload
-
-    masked = dict(payload)
-    masked_llm: Dict[str, Any] = dict(llm_config)
-    if isinstance(masked_llm.get("api_key"), str):
-        masked_llm["api_key"] = mask_api_key(masked_llm["api_key"])
-    for slot in ("text", "vision"):
-        provider = masked_llm.get(slot)
-        if isinstance(provider, dict):
-            provider_copy = dict(provider)
-            if "api_key" in provider_copy:
-                provider_copy["api_key"] = mask_api_key(
-                    provider_copy.get("api_key")
-                    if isinstance(provider_copy.get("api_key"), str)
-                    else None
-                )
-            masked_llm[slot] = provider_copy
-    masked["llm_config"] = masked_llm
-    return masked
+    @staticmethod
+    def set_llm_credential_reference(
+        metadata: Dict[str, Any],
+        *,
+        credential_id: str,
+    ) -> None:
+        """Store only the opaque encrypted-credential reference."""
+        metadata["llm_credential_id"] = credential_id
 
 
 def _dump_public_request(request) -> Dict[str, Any]:
-    """Dump declared public request fields without hidden compatibility extras."""
+    """Dump declared non-secret request fields without hidden extras."""
     extra_fields = getattr(request, "model_extra", None) or {}
-    payload = request.model_dump(exclude=set(extra_fields))
-    return _mask_llm_config_in_request(payload)
+    excluded_fields = set(extra_fields)
+    excluded_fields.add("llm_config")
+    return request.model_dump(exclude=excluded_fields)

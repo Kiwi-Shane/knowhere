@@ -49,13 +49,19 @@ class DocumentIngestionBaseTask(Task):
                 )
 
                 lifecycle_service = get_sync_job_lifecycle_service()
-                lifecycle_service.finalize_job_failure(
+                finalized = lifecycle_service.finalize_job_failure(
                     job_id=job_id,
                     error_message=error_info["message"],
                     error_code=error_info["code"],
                     error_details=error_info.get("details"),
                     should_refund=True,
                 )
+                if finalized:
+                    from shared.services.jobs.job_llm_credential_service import (
+                        JobLLMCredentialService,
+                    )
+
+                    JobLLMCredentialService.delete_for_job(job_id)
                 logger.info(
                     f"Job failure finalized: job_id={job_id}, error_code={error_info['code']}"
                 )

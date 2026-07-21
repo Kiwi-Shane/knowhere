@@ -21,6 +21,7 @@ from shared.core.state_machine.states import (
 )
 from shared.models.database.job import Job
 from shared.services.redis.periodic_task_lock import periodic_task_lock
+from shared.services.jobs.job_llm_credential_service import JobLLMCredentialService
 
 celery_app = get_celery_app()
 
@@ -97,10 +98,19 @@ def expire_stale_jobs() -> dict:
                     .limit(200)
                 )
                 expired_jobs = db.execute(stmt).scalars().all()
+                expired_credential_count = JobLLMCredentialService.delete_expired_sync(
+                    db,
+                    now=now,
+                )
 
                 if not expired_jobs:
                     logger.debug("Stale job sweeper: no expired jobs found")
-                    return {"status": "success", "expired": 0, "skipped": 0}
+                    return {
+                        "status": "success",
+                        "expired": 0,
+                        "skipped": 0,
+                        "expired_credentials": expired_credential_count,
+                    }
 
                 for job in expired_jobs:
                     outcome = state_machine.mark_failed_outcome(
@@ -112,6 +122,7 @@ def expire_stale_jobs() -> dict:
                     )
                     if outcome.succeeded:
                         expired_count += 1
+                        JobLLMCredentialService.delete_for_job_sync(db, job.job_id)
                         logger.info(
                             f"Expired stale job {job.job_id} (was {job.status})"
                         )
@@ -130,6 +141,7 @@ def expire_stale_jobs() -> dict:
                 "status": "success",
                 "expired": expired_count,
                 "skipped": skipped_count,
+                "expired_credentials": expired_credential_count,
             }
 
         except Exception as e:

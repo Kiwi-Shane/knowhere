@@ -36,6 +36,7 @@ from shared.core.exceptions.domain_exceptions import ValidationException
 from shared.models.schemas.job_metadata import JobMetadataHelper
 from shared.services.ai.llm_overrides import cleanup_llm_overrides, init_llm_overrides
 from shared.services.ai.token_tracking import cleanup_token_tracker, init_token_tracker
+from shared.services.jobs.job_llm_credential_service import JobLLMCredentialService
 from shared.services.jobs.lifecycle.service import get_sync_job_lifecycle_service
 from shared.services.redis.distributed_lock import RedisJobLock
 from shared.services.redis.redis_sync_service import (
@@ -57,6 +58,7 @@ class DocumentProcessingRun:
         should_process = mark_job_running(job_id, job_context.redis_service)
         if not should_process:
             logger.warning(f"Skipping parse_task for inactive job: job_id={job_id}")
+            JobLLMCredentialService.delete_for_job(job_id)
             return {
                 "status": "skipped",
                 "job_id": job_id,
@@ -75,6 +77,9 @@ class DocumentProcessingRun:
             finally:
                 task_workspace.cleanup()
 
+            if result.get("status") in {"success", "skipped"}:
+                JobLLMCredentialService.delete_for_job(job_id)
+
         return result
 
 
@@ -88,7 +93,7 @@ def _run_parse_job(
     lifecycle_service.update_progress(job_id, progress=10, message="Parsing document...")
     token_usage_dict = init_token_tracker()
     stage_timing_dict = init_stage_tracker()
-    init_llm_overrides(JobMetadataHelper.get_llm_config(job_context.job_metadata))
+    init_llm_overrides(job_context.llm_config)
 
     try:
         prepared_source = prepare_source_file(

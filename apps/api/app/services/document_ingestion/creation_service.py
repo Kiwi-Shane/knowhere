@@ -25,6 +25,7 @@ from shared.core.exceptions.domain_exceptions import (
 )
 from shared.core.state_machine.states import JobStatus
 from shared.models.database.job import Job
+from shared.models.database.job_llm_credential import JobLLMCredential
 from shared.models.schemas.job import JobCreateBase, JobResponse
 from shared.models.schemas.job_metadata import JobMetadataHelper
 from shared.services.redis import JobInfoRedisService, RedisServiceFactory
@@ -45,6 +46,7 @@ class ResolvedDocumentIngestionScope:
     job_metadata: JobMetadata
     document_id: str
     namespace: str
+    llm_credential: JobLLMCredential | None = None
 
 
 class DocumentIngestionCreationService:
@@ -94,8 +96,11 @@ class DocumentIngestionCreationService:
         job_metadata: JobMetadata,
         s3_key: str,
         document_id: str,
+        llm_credential: JobLLMCredential | None,
     ) -> Job:
         try:
+            if llm_credential is not None:
+                db.add(llm_credential)
             job = await self._job_repository.create_job(
                 db=db,
                 job_id=job_id,
@@ -171,6 +176,7 @@ class DocumentIngestionCreationService:
             job_metadata=scope.job_metadata,
             s3_key=s3_key,
             document_id=scope.document_id,
+            llm_credential=scope.llm_credential,
         )
 
         upload_info = await self._file_upload_service.generate_upload_url(
@@ -248,6 +254,7 @@ class DocumentIngestionCreationService:
             job_metadata=scope.job_metadata,
             s3_key=s3_key,
             document_id=scope.document_id,
+            llm_credential=scope.llm_credential,
         )
 
         await self._cache_job_creation_state(

@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import uuid
 from collections.abc import Callable
+from datetime import timedelta
 from typing import cast
 
 from app.services.document_ingestion.confirmation_service import (
@@ -41,8 +42,11 @@ from shared.core.exceptions.domain_exceptions import (
 from shared.core.exceptions.webhook_exceptions import WebhookConfigException
 from shared.models.schemas.job import ConfirmUploadRequest, JobCreateBase, JobResponse
 from shared.models.schemas.job_metadata import JobMetadataHelper
+from shared.services.ai.llm_endpoint_policy import LLMEndpointPolicyError, validate_llm_config_endpoint_policy
 from shared.services.http.url_file_type import resolve_file_extension_async
 from shared.services.http.url_security import validate_http_url_and_resolve_ip_async
+from shared.services.jobs.job_llm_credential_service import JobLLMCredentialService
+from shared.utils.utc_now import utc_now_naive
 
 JobMetadata = dict[str, object]
 _PUBLIC_MODE_SELECTOR_FIELDS = {"mode", "processing"}
@@ -119,6 +123,7 @@ class DocumentIngestionService:
             command = build_command(file_extension)
             scope = await self._resolve_scope(
                 db,
+                job_id=job_id,
                 command=command,
                 current_user=current_user,
             )
@@ -148,10 +153,13 @@ class DocumentIngestionService:
         except JobOperationException:
             raise
         except Exception as exc:
-            logger.error(f"Failed to create job: {exc}")
-            raise JobOperationException(
-                internal_message=f"Job creation failed: {str(exc)}"
+            logger.error(
+                "Failed to create job: unexpected error "
+                f"({type(exc).__name__})"
             )
+            raise JobOperationException(
+                internal_message="Job creation failed"
+            ) from None
 
     async def confirm_upload(
         self,
@@ -265,6 +273,7 @@ class DocumentIngestionService:
         self,
         db: AsyncSession,
         *,
+        job_id: str,
         command: DocumentIngestionCommand,
         current_user: CurrentUser,
     ) -> ResolvedDocumentIngestionScope:
@@ -279,6 +288,12 @@ class DocumentIngestionService:
                 page_memory_config=command.page_memory_config,
             ),
         )
+        llm_config = (
+            JobMetadataHelper.get_request_llm_config(payload)
+            if command.api_version == "v2"
+            else None
+        )
+        llm_credential = None
         requested_document_id = JobMetadataHelper.get_document_id(job_metadata)
         if requested_document_id:
             active_job = await find_active_job_for_document(
@@ -319,10 +334,44 @@ class DocumentIngestionService:
             document_id=effective_document_id,
             namespace=effective_namespace,
         )
+        if llm_config is not None:
+            try:
+                validate_llm_config_endpoint_policy(
+                    llm_config,
+                    external_calls_enabled=settings.LLM_EXTERNAL_CALLS_ENABLED,
+                    allowed_endpoints=settings.LLM_ALLOWED_PROVIDER_ENDPOINTS,
+                )
+            except LLMEndpointPolicyError as exc:
+                raise ValidationException(
+                    user_message="BYOK LLM endpoint is not authorized",
+                    violations=[
+                        {
+                            "field": "llm_config.base_url",
+                            "description": str(exc),
+                        }
+                    ],
+                ) from exc
+
+            credential_lifetime = max(
+                settings.JOB_WAITING_EXPIRE_SECONDS,
+                settings.JOB_PROCESSING_EXPIRE_SECONDS,
+            )
+            llm_credential = await JobLLMCredentialService.stage(
+                db,
+                job_id=job_id,
+                user_id=current_user.user_id,
+                config=llm_config,
+                expires_at=utc_now_naive() + timedelta(seconds=credential_lifetime),
+            )
+            JobMetadataHelper.set_llm_credential_reference(
+                job_metadata,
+                credential_id=llm_credential.id,
+            )
         return ResolvedDocumentIngestionScope(
             job_metadata=job_metadata,
             document_id=effective_document_id,
             namespace=effective_namespace,
+            llm_credential=llm_credential,
         )
 
 

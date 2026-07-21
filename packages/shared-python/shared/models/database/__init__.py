@@ -24,6 +24,7 @@ from .document_page_plan import DocumentPagePlan
 from .demo_materialization import DemoMaterialization
 from .guest_device import GuestDevice
 from .job import Job
+from .job_llm_credential import JobLLMCredential, JobLLMCredentialStatus
 from .job_result import JobChunk, JobResult
 from .parse_agent import ParseRun, ParseStep
 
@@ -51,6 +52,8 @@ __all__ = [
     "CreditsTransaction",
     "UserBalance",
     "Job",
+    "JobLLMCredential",
+    "JobLLMCredentialStatus",
     "JobResult",
     "JobChunk",
     "Document",

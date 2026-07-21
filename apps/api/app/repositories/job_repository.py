@@ -60,11 +60,17 @@ class JobRepository:
             return job
 
         except IntegrityError as e:
-            logger.error(f"Failed to create job: {e}")
+            logger.error(
+                "Failed to create job: integrity error "
+                f"({type(e).__name__})"
+            )
             await db.rollback()
             raise
         except Exception as e:
-            logger.error(f"Failed to create job: {e}")
+            logger.error(
+                "Failed to create job: unexpected error "
+                f"({type(e).__name__})"
+            )
             await db.rollback()
             return None
 

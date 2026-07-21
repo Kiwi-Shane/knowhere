@@ -12,6 +12,10 @@ from shared.core.exceptions.domain_exceptions import (
     NotFoundException,
 )
 from shared.models.database.job import Job
+from shared.models.schemas.llm_config import LLMConfig
+from shared.services.jobs.job_llm_credential_service import (
+    JobLLMCredentialService,
+)
 from shared.services.redis.redis_sync_service import (
     SyncJobInfoRedisService,
     SyncJobMetadataService,
@@ -25,6 +29,7 @@ class ParseJobContext:
     metadata_service: SyncJobMetadataService
     redis_service: Any
     s3_key: str
+    llm_config: LLMConfig | None = None
 
 
 def load_parse_job_context(
@@ -95,8 +100,16 @@ def load_parse_job_context(
                 internal_message=f"Job metadata not found for job_id={job_id}",
             )
 
+    safe_job_metadata = dict(raw_job_metadata)
+    llm_config = JobLLMCredentialService.resolve_for_job(
+        job_id=job_id,
+        requested_user_id=requested_user_id,
+        metadata=safe_job_metadata,
+    )
+
     return ParseJobContext(
-        job_metadata=dict(raw_job_metadata),
+        job_metadata=safe_job_metadata,
+        llm_config=llm_config,
         job_user_id=job_user_id,
         metadata_service=metadata_service,
         redis_service=redis_service,
