@@ -182,4 +182,9 @@ def test_d2_verifier_is_repeatable_and_does_not_teardown_the_harness() -> None:
     assert "source.pdf" in script
     assert "retrieval non-visibility" in script
     assert "-eq 5" in script
+    assert "LocalMineru" in script
+    assert "docker-compose.d2-local-mineru.yml" in script
+    assert "MINERU_PROVIDER=local" in script
+    assert "MINERU_LOCAL_MODEL_ROOT=/mnt/models/mineru" in script
+    assert "ReadonlyRootfs" in script
     assert " down" not in script

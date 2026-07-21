@@ -1,5 +1,7 @@
 [CmdletBinding()]
-param()
+param(
+    [switch] $LocalMineru
+)
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
@@ -7,6 +9,7 @@ Set-StrictMode -Version Latest
 $d2RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $d2BaseCompose = Join-Path $d2RepoRoot "deploy\local-dev\docker-compose.dev.yml"
 $d2OverrideCompose = Join-Path $d2RepoRoot "deploy\local-dev\docker-compose.d2.yml"
+$d2LocalMineruOverlay = Join-Path $d2RepoRoot "deploy\local-dev\docker-compose.d2-local-mineru.yml"
 $d2ComposeArgs = @(
     "compose"
     "-p"
@@ -16,6 +19,9 @@ $d2ComposeArgs = @(
     "-f"
     $d2OverrideCompose
 )
+if ($LocalMineru) {
+    $d2ComposeArgs += @("-f", $d2LocalMineruOverlay)
+}
 
 function Invoke-D2DockerText {
     param(
@@ -57,6 +63,22 @@ try {
     $effective = Invoke-D2ComposeText @("config", "--format", "json") | ConvertFrom-Json
     Assert-D2 ($effective.networks.knowhere_network.internal -eq $true) `
         "effective D2 network is not internal"
+
+    if ($LocalMineru) {
+        $effectiveWorker = $effective.services.worker
+        $effectiveWorkerEnvironment = $effectiveWorker.environment
+        Assert-D2 ($effectiveWorkerEnvironment.MINERU_PROVIDER -eq "local") `
+            "MINERU_PROVIDER=local is required for local verification"
+        Assert-D2 ($effectiveWorkerEnvironment.MINERU_LOCAL_MODEL_ROOT -eq "/mnt/models/mineru") `
+            "MINERU_LOCAL_MODEL_ROOT=/mnt/models/mineru is required for local verification"
+        $effectiveModelMount = @(
+            $effectiveWorker.volumes | Where-Object { $_.target -eq "/mnt/models/mineru" }
+        )
+        Assert-D2 ($effectiveModelMount.Count -eq 1) `
+            "local verification requires exactly one MinerU model mount"
+        Assert-D2 ($effectiveModelMount[0].read_only -eq $true) `
+            "local MinerU model mount is not read-only"
+    }
 
     $serviceNames = @("redis", "postgres", "localstack", "api", "worker")
     foreach ($serviceName in $serviceNames) {
@@ -107,6 +129,17 @@ try {
         if ($serviceName -eq "worker") {
             Assert-D2 ($environment -contains "WORKER_HEARTBEAT_FILE=/tmp/knowhere-worker-heartbeat.json") `
                 "$containerName does not expose the expected heartbeat path"
+            if ($LocalMineru) {
+                Assert-D2 ($environment -contains "MINERU_PROVIDER=local") `
+                    "$containerName does not have MINERU_PROVIDER=local"
+                Assert-D2 ($environment -contains "MINERU_LOCAL_MODEL_ROOT=/mnt/models/mineru") `
+                    "$containerName does not have MINERU_LOCAL_MODEL_ROOT=/mnt/models/mineru"
+                $modelMount = @(
+                    $inspect.Mounts | Where-Object { $_.Destination -eq "/mnt/models/mineru" }
+                )
+                Assert-D2 ($modelMount.Count -eq 1 -and $modelMount[0].RW -eq $false) `
+                    "$containerName MinerU model mount is not read-only"
+            }
         }
         $null = Invoke-D2DockerText @("exec", $containerName, "sh", "-c", "test -s /run/secrets/postgres_password")
     }
