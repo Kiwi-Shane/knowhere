@@ -15,6 +15,9 @@ import psutil
 
 RUNTIME_SCHEMA_VERSION = "local-mineru-runtime/1.0"
 _GIB = 1024**3
+# Importing the pinned MinerU adapter can exceed ten seconds on a cold
+# container start while remaining bounded and content-free.
+_ADAPTER_PROBE_TIMEOUT_SECONDS = 30
 _ERROR_CODES = {
     "project": "project_missing",
     "uv": "uv_missing",
@@ -76,9 +79,7 @@ class LocalMinerURuntimeError(RuntimeError):
 
     def __init__(self, error_codes: tuple[str, ...]) -> None:
         self.error_codes = error_codes
-        super().__init__(
-            "Local MinerU runtime is not ready: " + ",".join(error_codes)
-        )
+        super().__init__("Local MinerU runtime is not ready: " + ",".join(error_codes))
 
 
 def _resolve_uv(value: str) -> Path | None:
@@ -139,7 +140,9 @@ def _probe_model_layout(root: Path) -> bool:
 
     models_dir = root / "models"
     try:
-        return models_dir.is_dir() and any(child.is_dir() for child in models_dir.iterdir())
+        return models_dir.is_dir() and any(
+            child.is_dir() for child in models_dir.iterdir()
+        )
     except OSError:
         return False
 
@@ -169,7 +172,7 @@ def _probe_adapter(
                 capture_output=True,
                 text=True,
                 shell=False,
-                timeout=10,
+                timeout=_ADAPTER_PROBE_TIMEOUT_SECONDS,
                 env=environment,
             ).returncode
             == 0
@@ -207,13 +210,13 @@ def check_local_mineru_runtime(
         )
 
     project_value = config.MINERU_LOCAL_PROJECT_PATH.strip()
-    project = (
-        Path(project_value).expanduser().resolve() if project_value else Path()
-    )
+    project = Path(project_value).expanduser().resolve() if project_value else Path()
     uv_executable = _resolve_uv(config.MINERU_LOCAL_UV_EXECUTABLE)
     mineru_python = _resolve_mineru_python(config, project)
     model_root_value = getattr(config, "MINERU_LOCAL_MODEL_ROOT", "").strip()
-    model_root = Path(model_root_value).expanduser().resolve() if model_root_value else None
+    model_root = (
+        Path(model_root_value).expanduser().resolve() if model_root_value else None
+    )
     temp_root = Path(config.TMP_PATH).expanduser().resolve()
     temp_writable = write_probe(temp_root)
     try:
@@ -229,8 +232,7 @@ def check_local_mineru_runtime(
         "models": model_root is None or _probe_model_layout(model_root),
         "adapter": False,
         "temp_writable": temp_writable,
-        "disk": free_disk_bytes
-        >= config.MINERU_LOCAL_MIN_FREE_DISK_GB * _GIB,
+        "disk": free_disk_bytes >= config.MINERU_LOCAL_MIN_FREE_DISK_GB * _GIB,
         "memory": available_memory_bytes
         >= config.MINERU_LOCAL_MIN_AVAILABLE_MEMORY_GB * _GIB,
     }

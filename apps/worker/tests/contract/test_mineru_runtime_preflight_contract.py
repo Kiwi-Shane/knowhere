@@ -35,8 +35,11 @@ def _local_config(tmp_path: Path, **overrides: object) -> SimpleNamespace:
     uv = tmp_path / "private tools" / "uv.exe"
     uv.parent.mkdir()
     uv.write_bytes(b"uv")
-    python = project / ".venv" / ("Scripts" if os.name == "nt" else "bin") / (
-        "python.exe" if os.name == "nt" else "python"
+    python = (
+        project
+        / ".venv"
+        / ("Scripts" if os.name == "nt" else "bin")
+        / ("python.exe" if os.name == "nt" else "python")
     )
     python.parent.mkdir(parents=True)
     python.write_bytes(b"python")
@@ -61,7 +64,9 @@ class _Commands:
         self.adapter_return_code = adapter_return_code
         self.calls: list[tuple[list[str], dict[str, Any]]] = []
 
-    def __call__(self, argv: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+    def __call__(
+        self, argv: list[str], **kwargs: Any
+    ) -> subprocess.CompletedProcess[str]:
         self.calls.append((argv, kwargs))
         return_code = self.adapter_return_code if "-I" in argv else 0
         return subprocess.CompletedProcess(
@@ -128,8 +133,8 @@ def test_ready_local_runtime_is_content_free_and_uses_offline_argv(
         "error_codes": [],
     }
     project = Path(config.MINERU_LOCAL_PROJECT_PATH)
-    expected_python = project / ".venv" / (
-        "Scripts/python.exe" if os.name == "nt" else "bin/python"
+    expected_python = (
+        project / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
     )
     assert commands.calls[0][0] == [config.MINERU_LOCAL_UV_EXECUTABLE, "--version"]
     assert commands.calls[1][0] == [
@@ -139,7 +144,7 @@ def test_ready_local_runtime_is_content_free_and_uses_offline_argv(
         "import mineru.integrations.knowhere.cli",
     ]
     assert all(call[1]["shell"] is False for call in commands.calls)
-    assert all(call[1]["timeout"] == 10 for call in commands.calls)
+    assert all(call[1]["timeout"] == 30 for call in commands.calls)
     assert all(call[1]["env"]["HF_HUB_OFFLINE"] == "1" for call in commands.calls)
     serialized = json.dumps(status.to_dict())
     assert str(tmp_path) not in serialized
