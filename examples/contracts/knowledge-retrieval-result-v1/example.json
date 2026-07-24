@@ -1,0 +1,31 @@
+{
+  "contract_version": "knowledge-retrieval-result-v1",
+  "result_id": "RET-SYNTHETIC-001",
+  "request_id": "RET-REQ-SYNTHETIC-001",
+  "memory_snapshot_id": "MEM-SYNTHETIC-001",
+  "memory_snapshot_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "knowhere_repository_sha": "a184e08bbca89db0590cac37aa45af73ef173903",
+  "retrieval_configuration_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "source_id": "SRC-SYNTHETIC-001",
+  "source_version_id": "SRC-SYNTHETIC-001-V001",
+  "section_path": [
+    "1. Scope"
+  ],
+  "native_page_start": 1,
+  "native_page_end": 1,
+  "extraction_block_ids": [
+    "blk-synthetic-001"
+  ],
+  "linked_table_ids": [],
+  "linked_image_ids": [],
+  "retrieval_reason": "synthetic gold-question match",
+  "score_components": {
+    "lexical": 1.0
+  },
+  "citation": {
+    "native_reference": "SRC-SYNTHETIC-001-V001:p1"
+  },
+  "warnings": [],
+  "native_source_verification_status": "unverified",
+  "not_source_sufficiency_decision": true
+}
