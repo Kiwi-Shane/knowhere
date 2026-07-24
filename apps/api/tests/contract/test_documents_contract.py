@@ -503,6 +503,42 @@ async def _insert_document_revision_with_chunks(
     }
 
 
+async def _fetch_document_related_counts(document_id: str) -> dict[str, int]:
+    row = await ContractDatabase.fetch_one(
+        """
+        SELECT
+            (SELECT COUNT(*) FROM documents WHERE document_id = :document_id) AS documents,
+            (SELECT COUNT(*) FROM document_sections WHERE document_id = :document_id) AS sections,
+            (SELECT COUNT(*) FROM document_chunks WHERE document_id = :document_id) AS chunks,
+            (SELECT COUNT(*) FROM graph_nodes WHERE owner_document_id = :document_id) AS graph_nodes,
+            (SELECT COUNT(*) FROM graph_edges WHERE owner_document_id = :document_id) AS graph_edges,
+            (SELECT COUNT(*) FROM retrieval_hit_stats WHERE document_id = :document_id) AS hit_stats,
+            (SELECT COUNT(*) FROM job_results WHERE document_id = :document_id) AS job_results,
+            (SELECT COUNT(*) FROM jobs WHERE job_metadata ->> 'document_id' = :document_id) AS jobs
+        """,
+        {"document_id": document_id},
+    )
+    assert row is not None
+    return {key: int(value) for key, value in row.items()}
+
+
+async def _cleanup_document_fixture(document_id: str) -> None:
+    await ContractDatabase.execute(
+        """
+        DELETE FROM jobs
+        WHERE job_id IN (
+            SELECT job_id FROM job_results WHERE document_id = :document_id
+        )
+           OR job_metadata ->> 'document_id' = :document_id
+        """,
+        {"document_id": document_id},
+    )
+    await ContractDatabase.execute(
+        "DELETE FROM documents WHERE document_id = :document_id",
+        {"document_id": document_id},
+    )
+
+
 def _upload_page_citation_source(*, job_id: str) -> None:
     from shared.services.storage.result_storage import JobResultStorage
 
@@ -1334,3 +1370,192 @@ async def test_should_archive_a_document_via_the_legacy_archive_route(
     assert response_json["archived_at"]
     assert persisted_document["status"] == "archived"
     assert persisted_document["archived_at"] is not None
+
+
+@pytest.mark.asyncio
+async def test_should_refuse_hard_delete_while_document_ingestion_is_active(
+    developer_api_client_factory: Callable[
+        [], AbstractAsyncContextManager[AsyncClient]
+    ],
+) -> None:
+    document_id = f"doc_{uuid4().hex[:12]}"
+
+    try:
+        async with developer_api_client_factory() as api_client:
+            revision = await _insert_document_revision_with_chunks(
+                document_id=document_id,
+                chunks=[
+                    {
+                        "id": f"dchk_{uuid4().hex[:12]}",
+                        "chunk_id": f"hard-delete-active-{uuid4().hex[:8]}",
+                        "chunk_type": "text",
+                        "content": "active ingestion must block deletion",
+                        "source_chunk_path": "Chapter 1/Active",
+                        "metadata": {},
+                    }
+                ],
+            )
+            await ContractDatabase.execute(
+                "UPDATE jobs SET status = 'running' WHERE job_id = :job_id",
+                {"job_id": revision["job_id"]},
+            )
+
+            response = await api_client.delete(f"/api/v1/documents/{document_id}")
+
+        assert response.status_code == 409
+        response_json = cast(dict[str, object], response.json())
+        error = cast(dict[str, object], response_json["error"])
+        assert response_json["success"] is False
+        assert error["code"] == "ABORTED"
+        assert error["details"] == {
+            "reason": "ABORTED",
+            "resource": "Document",
+            "id": document_id,
+        }
+        assert (await _fetch_document(document_id))["status"] == "active"
+        assert (await _fetch_document_related_counts(document_id))["jobs"] == 1
+    finally:
+        await _cleanup_document_fixture(document_id)
+
+
+@pytest.mark.asyncio
+async def test_should_hard_delete_document_state_and_preserve_peer_retrieval(
+    developer_api_client_factory: Callable[
+        [], AbstractAsyncContextManager[AsyncClient]
+    ],
+) -> None:
+    from shared.services.storage.job_file_storage import JobFileStorage
+    from shared.services.storage.result_storage import JobResultStorage
+
+    document_id = f"doc_{uuid4().hex[:12]}"
+    peer_document_id = f"doc_{uuid4().hex[:12]}"
+    source_marker = f"hard-delete-marker-{uuid4().hex}"
+
+    try:
+        async with developer_api_client_factory() as api_client:
+            deleted_revision = await _insert_document_revision_with_chunks(
+                document_id=document_id,
+                chunks=[
+                    {
+                        "id": f"dchk_{uuid4().hex[:12]}",
+                        "chunk_id": f"hard-delete-{uuid4().hex[:8]}",
+                        "chunk_type": "text",
+                        "content": source_marker,
+                        "source_chunk_path": "Chapter 1/Deleted",
+                        "metadata": {"keywords": ["hard-delete"]},
+                    }
+                ],
+            )
+            await _insert_document_revision_with_chunks(
+                document_id=peer_document_id,
+                chunks=[
+                    {
+                        "id": f"dchk_{uuid4().hex[:12]}",
+                        "chunk_id": f"hard-delete-peer-{uuid4().hex[:8]}",
+                        "chunk_type": "text",
+                        "content": "peer document remains",
+                        "source_chunk_path": "Chapter 1/Peer",
+                        "metadata": {"keywords": ["peer"]},
+                    }
+                ],
+            )
+
+            from app.api.v1.routes.documents import _document_service
+
+            job_id = deleted_revision["job_id"]
+            storage_adapter = _document_service._file_storage.storage_adapter
+            upload_storage = JobFileStorage(
+                storage_adapter=storage_adapter,
+                uploads_bucket=_document_service._file_storage.uploads_bucket,
+            )
+            result_storage = JobResultStorage(
+                storage_adapter=storage_adapter,
+                results_bucket=_document_service._file_storage.results_bucket,
+            )
+            upload_key = f"uploads/{job_id}.pdf"
+            upload_path = Path("/tmp") / f"knowhere-d4-upload-{job_id}.pdf"
+            zip_path = Path("/tmp") / f"knowhere-d4-result-{job_id}.zip"
+            upload_path.write_bytes(b"D4 synthetic upload")
+            zip_path.write_bytes(b"D4 synthetic result")
+            try:
+                upload_storage.upload_local_file(
+                    str(upload_path),
+                    upload_key,
+                    bucket=upload_storage.uploads_bucket,
+                )
+                upload_storage.upload_local_file(
+                    str(zip_path),
+                    result_storage.build_zip_key(job_id=job_id),
+                    bucket=result_storage.results_bucket,
+                )
+                result_storage.upload_raw_file(
+                    job_id=job_id,
+                    relative_path="source.pdf",
+                    local_file_path=str(upload_path),
+                )
+                await ContractDatabase.execute(
+                    "UPDATE jobs SET s3_key = :s3_key WHERE job_id = :job_id",
+                    {"s3_key": upload_key, "job_id": job_id},
+                )
+
+                delete_response = await api_client.delete(
+                    f"/api/v1/documents/{document_id}"
+                )
+                get_response = await api_client.get(
+                    f"/api/v1/documents/{document_id}"
+                )
+                retrieval_response = await api_client.post(
+                    "/api/v1/retrieval/query",
+                    json={
+                        "namespace": "contract-documents",
+                        "query": source_marker,
+                        "top_k": 10,
+                    },
+                )
+
+                assert delete_response.status_code == 200
+                assert delete_response.json() == {
+                    "document_id": document_id,
+                    "deleted": True,
+                }
+                assert get_response.status_code == 404
+                assert retrieval_response.status_code == 200
+                retrieval_results = cast(
+                    list[dict[str, object]],
+                    cast(dict[str, object], retrieval_response.json())["results"],
+                )
+                assert all(
+                    cast(dict[str, object], result["source"])["document_id"]
+                    != document_id
+                    for result in retrieval_results
+                )
+                assert not upload_storage.verify_exists(
+                    upload_key,
+                    bucket=upload_storage.uploads_bucket,
+                )["exists"]
+                assert not result_storage.verify_raw_exists(
+                    job_id=job_id,
+                    relative_path="source.pdf",
+                )
+                assert not upload_storage.verify_exists(
+                    result_storage.build_zip_key(job_id=job_id),
+                    bucket=result_storage.results_bucket,
+                )["exists"]
+            finally:
+                upload_path.unlink(missing_ok=True)
+                zip_path.unlink(missing_ok=True)
+
+        assert await _fetch_document_related_counts(document_id) == {
+            "documents": 0,
+            "sections": 0,
+            "chunks": 0,
+            "graph_nodes": 0,
+            "graph_edges": 0,
+            "hit_stats": 0,
+            "job_results": 0,
+            "jobs": 0,
+        }
+        assert (await _fetch_document(peer_document_id))["status"] == "active"
+    finally:
+        await _cleanup_document_fixture(document_id)
+        await _cleanup_document_fixture(peer_document_id)

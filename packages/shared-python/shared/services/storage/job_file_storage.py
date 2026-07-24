@@ -175,6 +175,29 @@ class JobFileStorage:
     def delete_upload_file(self, storage_key: str) -> bool:
         return self.delete_object(storage_key, bucket=self.uploads_bucket)
 
+    def delete_result_bundle(self, *, job_id: str) -> int:
+        """Delete one job's result ZIP and every raw result artifact."""
+
+        normalized_job_id = str(job_id).strip()
+        if not normalized_job_id or any(
+            separator in normalized_job_id for separator in ("/", "\\")
+        ):
+            raise ValueError("A result bundle requires a safe job identifier.")
+
+        raw_prefix = self.build_result_raw_prefix(job_id=normalized_job_id)
+        raw_keys = list(
+            self.storage_adapter.list_objects(
+                prefix=raw_prefix,
+                bucket=self.results_bucket,
+            )
+        )
+        keys = [self.build_result_zip_key(job_id=normalized_job_id), *raw_keys]
+        deleted_count = 0
+        for key in dict.fromkeys(keys):
+            if self.delete_object(key, bucket=self.results_bucket):
+                deleted_count += 1
+        return deleted_count
+
     def upload_fileobj(
         self,
         file_obj: BinaryIO,
