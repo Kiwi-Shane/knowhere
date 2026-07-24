@@ -1,0 +1,135 @@
+evidence_type: knowhere_d4_qualification_evidence
+recorded_at: "2026-07-23"
+status: qualified_bounded
+scope:
+  - knowledge-retrieval-result-v1 contract edge
+  - source/version traceability
+  - extraction-block linkage
+  - source allowlist enforcement
+  - cross-case isolation
+  - citation and locator integrity
+  - stale-result invalidation
+  - scoped hard deletion
+  - synthetic backup/restore
+  - default-deny egress and disabled telemetry
+out_of_scope:
+  - private-data processing
+  - provider execution
+  - LLM/VLM execution
+  - upstream synchronization
+  - native-source verification
+  - RA acceptance or release authorization
+  - D5-D7 runtime edges
+  - D8/D9 private shadow or active release
+repository:
+  provider: github
+  publication_repository: Kiwi-Shane/knowhere-private
+  public_fork_remote: https://github.com/Kiwi-Shane/knowhere.git
+  default_branch: main
+  live_default_head: ade8595a79c1e0c02ea8de8f76b79250a464ba7b
+  qualification_branch: codex/d4-knowhere-qualification-20260723
+  qualification_source_revision: 68aa931363656424a3a37f34b7db95d67245bad9
+  merge_base_with_live_default: ade8595a79c1e0c02ea8de8f76b79250a464ba7b
+  branch_freshness:
+    checked_with: git ls-remote --symref origin HEAD; git ls-remote origin refs/heads/main
+    ahead_of_live_default: 1
+    behind_live_default: 0
+    result: fresh_feature_branch_one_commit_ahead
+contract_identity:
+  contract_id: knowledge-retrieval-result-v1
+  schema_path: schemas/knowledge-retrieval-result-v1.schema.json
+  fixture_path: examples/contracts/knowledge-retrieval-result-v1/example.json
+  d1_frozen_schema_sha256: 54307e0c42ebf737af897b691badda18fd6c673f64aef3cf7eb961dab0123c4a
+  d1_frozen_fixture_sha256: 14994fd3527301fd1da03c5ed9b867dcd145c3578b333f3bdc27e13dc1ea236c
+  d1_publication_revision: b9cd8004933690c2c33eb8c01a91874337a3b945
+  qualification_worktree_schema_sha256: 3c69977066ea81acc898de2354e2b19543564bbabbf74cfa02f08c65f1d2ccb9
+  qualification_worktree_fixture_sha256: 1f08ec822cba1b6e5b0cccf7ba42cce566146ed1e8e096d2a970bc661a674af6
+  qualification_schema_git_blob_sha1: 182f3197c8c629d055546ef74c5a4219b19600b2
+  qualification_fixture_git_blob_sha1: c1759a2ee18d88b9b05ac7be49c622575ac58df6
+  identity_reconciliation:
+    result: same_contract_content
+    note: >-
+      D1 frozen SHA-256 values are retained as the canonical publication
+      evidence. The D4 checkout has different raw SHA-256 values because the
+      two Windows worktrees have different checkout line endings; both files
+      resolve to the same Git blobs, and normalized fixture content is equal.
+      No contract content or schema meaning was changed for D4.
+qualification_runner:
+  command: uv run python scripts/run_d4_qualification.py
+  repository_sha_bound: 68aa931363656424a3a37f34b7db95d67245bad9
+  runner_technical_completion: qualified
+  controls_passed: 13
+  controls_failed: 0
+  synthetic_case_ids:
+    - CASE-SYN-A
+    - CASE-SYN-B
+  private_data: false
+  provider_execution: false
+  ra_evidence_state: deferred
+  release_decision: defer
+controls:
+  - contract_edge
+  - source_version_traceability
+  - extraction_block_linkage
+  - source_allowlist
+  - cross_case_isolation
+  - citation
+  - stale_invalidation
+  - scoped_deletion
+  - backup_restore
+  - egress_default_deny
+  - telemetry_disabled
+  - private_data_boundary
+  - ra_evidence_deferred
+verification:
+  focused_d4_tests_actual:
+    command: >-
+      uv run python -m pytest -q
+      packages/shared-python/shared/tests/test_knowledge_retrieval_result_serializer.py
+      packages/shared-python/shared/tests/test_retrieval_qualification.py
+      apps/worker/tests/qualification/test_knowhere_d4_qualification.py
+    result: 9 passed
+  api_hard_delete_contract:
+    result: 2 passed
+  dashboard_read_only_permission_contract:
+    result: 1 passed
+  telemetry_contract:
+    result: 23 passed
+  documents_contract:
+    result: 19 passed
+  dashboard_permission_contract:
+    result: 2 passed
+  retrieval_contract:
+    result: 15 passed
+  worker_d1_and_page_memory_contracts:
+    result: 14 passed
+  fault_injection:
+    command: uv run python scripts/run_d4_qualification.py --fault cross_case_isolation
+    expected_result: nonzero_exit_and_only_cross_case_isolation_failed
+    result: verified
+  static_checks:
+    ruff: passed
+    compileall: passed
+    git_diff_check: passed
+boundaries:
+  private_data_processing: not_started
+  provider_execution: not_started
+  llm_vlm_execution: not_started
+  upstream_sync: not_started
+  aiwb_direct_query: prohibited
+  native_source_verification: deferred_to_ra
+  release_authorization: deferred
+deferred_qualification:
+  - public active retrieval route remains opt-in to the serializer
+  - native MinerU extraction semantic gold cases
+  - RA native-source verification and acceptance
+  - remote/vector/memory-provider deletion behavior
+  - production backup retention and recovery
+  - production host firewall enforcement
+  - D5-D7 runtime edges and D8/D9 pilots
+remote_ci:
+  status: not_verified
+  reason: GitHub Actions billing or spending-limit failure; local contract evidence is recorded and remote CI is intentionally not used as a release gate for this bounded D4 task.
+handoff:
+  next_gate: RA D4 bounded consumer-edge synchronization
+  release_gate: remain_closed
