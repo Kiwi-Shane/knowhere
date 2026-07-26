@@ -6,6 +6,7 @@ from shared.services.retrieval.knowledge_retrieval_result import (
     serialize_knowledge_retrieval_result,
 )
 from shared.services.retrieval.qualification import (
+    validate_v3_structure_retrieval_result,
     validate_knowledge_retrieval_result,
 )
 
@@ -88,3 +89,18 @@ def test_result_qualification_rejects_stale_and_invalidated_snapshots() -> None:
     codes = {issue.code for issue in issues}
 
     assert {"stale_result", "invalidated_result"} <= codes
+
+
+def test_v3_result_rejects_missing_linked_assets() -> None:
+    result = _result()
+
+    issues = validate_v3_structure_retrieval_result(
+        result,
+        expected_table_ids={"TABLE-001"},
+        expected_image_ids={"IMAGE-001"},
+    )
+
+    assert {issue.code for issue in issues} == {
+        "linked_table_ids_mismatch",
+        "linked_image_ids_mismatch",
+    }
