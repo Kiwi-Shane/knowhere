@@ -19,6 +19,13 @@ FIXTURE_PATH = (
 FIXTURE_SHA256 = (
     "80d59fb7a12bc74be151786a50499b969a706d7974d6dd5c6e99295552fd7a9f"
 )
+REPORT_PATH = (
+    Path(__file__).resolve().parents[4]
+    / "examples"
+    / "qualification"
+    / "v3-structure-downstream"
+    / "qualification-report.json"
+)
 
 
 def _fixture() -> dict[str, object]:
@@ -98,3 +105,14 @@ def test_v3_profile_rejects_tampered_candidate_payload() -> None:
     assert report["technical_completion"] == "mechanical_fail"
     assert report["controls"]["fixture_sha"]["status"] == "fail"
     assert report["controls"]["candidate_payload_hash"]["status"] == "fail"
+
+
+def test_committed_v3_retrieval_report_is_qualified_and_hash_bound() -> None:
+    report = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
+
+    assert report["technical_completion"] == "qualified"
+    assert report["fixture_sha256"] == FIXTURE_SHA256
+    assert report["repository_sha"] == (
+        "34a7a3571c9b38fa97944a8ff12948adf6822b17"
+    )
+    assert len(report["retrieval_results"]) == 16
