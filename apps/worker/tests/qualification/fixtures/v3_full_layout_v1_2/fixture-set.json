@@ -19,6 +19,11 @@
           "asset_id": "VS4-REPEAT-001-TABLE-P01",
           "asset_type": "table_derivative",
           "sha256": "0801249fee2f745597f346fd68dda6740b20ea5a5d413b142fc14ecbe1845d32"
+        },
+        {
+          "asset_id": "VS4-REPEAT-001-P01-RENDER",
+          "asset_type": "page_render",
+          "sha256": "49e552c30a23baaed97243133df9d124324d8b7220ba56400740dae9aa3fed89"
         }
       ],
       "document_extraction_manifest": {
@@ -28,7 +33,16 @@
         "errors": [],
         "extraction_run_id": "v3-synthetic-vs4-repeat-001",
         "fallback_used": false,
-        "images": [],
+        "images": [
+          {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-REPEAT-001-P01-RENDER",
+            "page_number": 1,
+            "relative_path": "synthetic-assets/VS4-REPEAT-001-P01-RENDER.json",
+            "section_id": "VS4-REPEAT-001-SECTION-DOCUMENT",
+            "sha256": "49e552c30a23baaed97243133df9d124324d8b7220ba56400740dae9aa3fed89"
+          }
+        ],
         "input_sha256": "21f93e3d1cfb668cd3d0ebae8a1b64cc86d0f0fab55c77872d3119745b70d51f",
         "mineru_identity": {
           "backend": "pypdf_geometry",
@@ -379,6 +393,11 @@
           "asset_id": "VS4-REPEAT-002-TABLE-P01",
           "asset_type": "table_derivative",
           "sha256": "3c37a0d4970963198cbf0a53de819b9d564da60944216198a81381ab05ba48dd"
+        },
+        {
+          "asset_id": "VS4-REPEAT-002-P01-RENDER",
+          "asset_type": "page_render",
+          "sha256": "d7a77ba60c2e8f14fd2515d370f4da7e0e36b04a7c9e8616583a5c10d87afe6c"
         }
       ],
       "document_extraction_manifest": {
@@ -388,7 +407,16 @@
         "errors": [],
         "extraction_run_id": "v3-synthetic-vs4-repeat-002",
         "fallback_used": false,
-        "images": [],
+        "images": [
+          {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-REPEAT-002-P01-RENDER",
+            "page_number": 1,
+            "relative_path": "synthetic-assets/VS4-REPEAT-002-P01-RENDER.json",
+            "section_id": "VS4-REPEAT-002-SECTION-DOCUMENT",
+            "sha256": "d7a77ba60c2e8f14fd2515d370f4da7e0e36b04a7c9e8616583a5c10d87afe6c"
+          }
+        ],
         "input_sha256": "d6e7ca2314d399b5abebac225112cfff7c85a68a5e9b085b67723d46ba19382b",
         "mineru_identity": {
           "backend": "pypdf_geometry",
@@ -739,6 +767,11 @@
           "asset_id": "VS4-MERGED-001-TABLE-P01",
           "asset_type": "table_derivative",
           "sha256": "55f61aba64480ed97dea8831761d5efe17a2a96292d8934cbcd25334b99f5260"
+        },
+        {
+          "asset_id": "VS4-MERGED-001-P01-RENDER",
+          "asset_type": "page_render",
+          "sha256": "76da4a27c1521103bd0ed0f2f2ba9ebd15449e51412f65482554c3d795f0323a"
         }
       ],
       "document_extraction_manifest": {
@@ -748,7 +781,16 @@
         "errors": [],
         "extraction_run_id": "v3-synthetic-vs4-merged-001",
         "fallback_used": false,
-        "images": [],
+        "images": [
+          {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-MERGED-001-P01-RENDER",
+            "page_number": 1,
+            "relative_path": "synthetic-assets/VS4-MERGED-001-P01-RENDER.json",
+            "section_id": "VS4-MERGED-001-SECTION-DOCUMENT",
+            "sha256": "76da4a27c1521103bd0ed0f2f2ba9ebd15449e51412f65482554c3d795f0323a"
+          }
+        ],
         "input_sha256": "58ed831ca01bfb3dfa09220c5568c2c2fd99f3cee6001a2b4d66791367208a80",
         "mineru_identity": {
           "backend": "pypdf_geometry",
@@ -1079,6 +1121,11 @@
           "asset_id": "VS4-MERGED-002-TABLE-P01",
           "asset_type": "table_derivative",
           "sha256": "ae61664fa057d81ab048b62a0ab3ae2ff788398628e1c14120b64ca41af945f1"
+        },
+        {
+          "asset_id": "VS4-MERGED-002-P01-RENDER",
+          "asset_type": "page_render",
+          "sha256": "e973fcf87cf2b8bff3221d6d9201ed2ef54aca0d54bc03f305bc6197bd3de828"
         }
       ],
       "document_extraction_manifest": {
@@ -1088,7 +1135,16 @@
         "errors": [],
         "extraction_run_id": "v3-synthetic-vs4-merged-002",
         "fallback_used": false,
-        "images": [],
+        "images": [
+          {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-MERGED-002-P01-RENDER",
+            "page_number": 1,
+            "relative_path": "synthetic-assets/VS4-MERGED-002-P01-RENDER.json",
+            "section_id": "VS4-MERGED-002-SECTION-DOCUMENT",
+            "sha256": "e973fcf87cf2b8bff3221d6d9201ed2ef54aca0d54bc03f305bc6197bd3de828"
+          }
+        ],
         "input_sha256": "9d1b6c11d125094e89adb7aa8c1a38e5b67886506ff1bae7df18b073d249ac8f",
         "mineru_identity": {
           "backend": "pypdf_geometry",
@@ -1419,6 +1475,11 @@
           "asset_id": "VS4-HEADER-001-TABLE-P01",
           "asset_type": "table_derivative",
           "sha256": "e9e8554a611d1d0776c5c2df845dcff2be7d6d36952a8fedc26f90ef6eeb42d4"
+        },
+        {
+          "asset_id": "VS4-HEADER-001-P01-RENDER",
+          "asset_type": "page_render",
+          "sha256": "1952f96046168459a54c3acdb2f2ce25f3ce447ae4aff1652e941dd90a7b01db"
         }
       ],
       "document_extraction_manifest": {
@@ -1428,7 +1489,16 @@
         "errors": [],
         "extraction_run_id": "v3-synthetic-vs4-header-001",
         "fallback_used": false,
-        "images": [],
+        "images": [
+          {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-HEADER-001-P01-RENDER",
+            "page_number": 1,
+            "relative_path": "synthetic-assets/VS4-HEADER-001-P01-RENDER.json",
+            "section_id": "VS4-HEADER-001-SECTION-DOCUMENT",
+            "sha256": "1952f96046168459a54c3acdb2f2ce25f3ce447ae4aff1652e941dd90a7b01db"
+          }
+        ],
         "input_sha256": "c327c5622687418c6c7565c5e83401392125ecf220af73452d7ab91755c98d79",
         "mineru_identity": {
           "backend": "pypdf_geometry",
@@ -1799,6 +1869,11 @@
           "asset_id": "VS4-HEADER-002-TABLE-P01",
           "asset_type": "table_derivative",
           "sha256": "d26ea7c9fefbb6d77bf98375e94c592641f51e5e11604ed581386f8b65538620"
+        },
+        {
+          "asset_id": "VS4-HEADER-002-P01-RENDER",
+          "asset_type": "page_render",
+          "sha256": "063762672a9cf1f97db5e321636a397f4b622fb011f4927e7349c7726690aaf5"
         }
       ],
       "document_extraction_manifest": {
@@ -1808,7 +1883,16 @@
         "errors": [],
         "extraction_run_id": "v3-synthetic-vs4-header-002",
         "fallback_used": false,
-        "images": [],
+        "images": [
+          {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-HEADER-002-P01-RENDER",
+            "page_number": 1,
+            "relative_path": "synthetic-assets/VS4-HEADER-002-P01-RENDER.json",
+            "section_id": "VS4-HEADER-002-SECTION-DOCUMENT",
+            "sha256": "063762672a9cf1f97db5e321636a397f4b622fb011f4927e7349c7726690aaf5"
+          }
+        ],
         "input_sha256": "7e7c586a0ad018205e486950eef95f3392d32e6e01bc625053d41391bed0a6a8",
         "mineru_identity": {
           "backend": "pypdf_geometry",
@@ -2184,6 +2268,16 @@
           "asset_id": "VS4-CROSS-001-TABLE-P02",
           "asset_type": "table_derivative",
           "sha256": "b822163fbb5d8b65c31329a1dec092b9a53d0a5cfe9783513a216d24367a1747"
+        },
+        {
+          "asset_id": "VS4-CROSS-001-P01-RENDER",
+          "asset_type": "page_render",
+          "sha256": "c247426e319bb6c896881566e74943b6fc963cf94cf691c6038216aaeade3e3e"
+        },
+        {
+          "asset_id": "VS4-CROSS-001-P02-RENDER",
+          "asset_type": "page_render",
+          "sha256": "2d1af5631e994efaa0a8161ad699c47c921b3413d267af5fb32f570be66cbc6f"
         }
       ],
       "document_extraction_manifest": {
@@ -2193,7 +2287,24 @@
         "errors": [],
         "extraction_run_id": "v3-synthetic-vs4-cross-001",
         "fallback_used": false,
-        "images": [],
+        "images": [
+          {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-CROSS-001-P01-RENDER",
+            "page_number": 1,
+            "relative_path": "synthetic-assets/VS4-CROSS-001-P01-RENDER.json",
+            "section_id": "VS4-CROSS-001-SECTION-DOCUMENT",
+            "sha256": "c247426e319bb6c896881566e74943b6fc963cf94cf691c6038216aaeade3e3e"
+          },
+          {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-CROSS-001-P02-RENDER",
+            "page_number": 2,
+            "relative_path": "synthetic-assets/VS4-CROSS-001-P02-RENDER.json",
+            "section_id": "VS4-CROSS-001-SECTION-DOCUMENT",
+            "sha256": "2d1af5631e994efaa0a8161ad699c47c921b3413d267af5fb32f570be66cbc6f"
+          }
+        ],
         "input_sha256": "8d4964d46bc27478365b10cdeb1a0c9dd91fb36829bcf78f60e2f518446b8595",
         "mineru_identity": {
           "backend": "pypdf_geometry",
@@ -2591,6 +2702,16 @@
           "asset_id": "VS4-CROSS-002-TABLE-P02",
           "asset_type": "table_derivative",
           "sha256": "339c47d53557fcb687d3569fc5788de1cb46c62aaaec6e868173bccac3db735b"
+        },
+        {
+          "asset_id": "VS4-CROSS-002-P01-RENDER",
+          "asset_type": "page_render",
+          "sha256": "f82567e9147d856d8c3059378b9e6fc5a1a22ae782cef0ea78b3514abdf3dac4"
+        },
+        {
+          "asset_id": "VS4-CROSS-002-P02-RENDER",
+          "asset_type": "page_render",
+          "sha256": "aa367d3b5f321d87fbb06a3659ceceabb0c32e9da2f8d961113e591adcd834a5"
         }
       ],
       "document_extraction_manifest": {
@@ -2600,7 +2721,24 @@
         "errors": [],
         "extraction_run_id": "v3-synthetic-vs4-cross-002",
         "fallback_used": false,
-        "images": [],
+        "images": [
+          {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-CROSS-002-P01-RENDER",
+            "page_number": 1,
+            "relative_path": "synthetic-assets/VS4-CROSS-002-P01-RENDER.json",
+            "section_id": "VS4-CROSS-002-SECTION-DOCUMENT",
+            "sha256": "f82567e9147d856d8c3059378b9e6fc5a1a22ae782cef0ea78b3514abdf3dac4"
+          },
+          {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-CROSS-002-P02-RENDER",
+            "page_number": 2,
+            "relative_path": "synthetic-assets/VS4-CROSS-002-P02-RENDER.json",
+            "section_id": "VS4-CROSS-002-SECTION-DOCUMENT",
+            "sha256": "aa367d3b5f321d87fbb06a3659ceceabb0c32e9da2f8d961113e591adcd834a5"
+          }
+        ],
         "input_sha256": "b3c95cf4a0bb90a56b2e3c231cc28a95c587cb6b83935f9f1fce08f64b018dbe",
         "mineru_identity": {
           "backend": "pypdf_geometry",
@@ -2993,6 +3131,11 @@
           "asset_id": "VS4-FOOTNOTE-001-TABLE-P01",
           "asset_type": "table_derivative",
           "sha256": "d0f78c4ce8e7a97c11d1b8f0e279b5509104bf5cf3c1b607e930158897306390"
+        },
+        {
+          "asset_id": "VS4-FOOTNOTE-001-P01-RENDER",
+          "asset_type": "page_render",
+          "sha256": "62095e2139419fad06dff8dfb8c8f57b8e5ccb41892720021232a05fb3e6f269"
         }
       ],
       "document_extraction_manifest": {
@@ -3002,7 +3145,16 @@
         "errors": [],
         "extraction_run_id": "v3-synthetic-vs4-footnote-001",
         "fallback_used": false,
-        "images": [],
+        "images": [
+          {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-FOOTNOTE-001-P01-RENDER",
+            "page_number": 1,
+            "relative_path": "synthetic-assets/VS4-FOOTNOTE-001-P01-RENDER.json",
+            "section_id": "VS4-FOOTNOTE-001-SECTION-DOCUMENT",
+            "sha256": "62095e2139419fad06dff8dfb8c8f57b8e5ccb41892720021232a05fb3e6f269"
+          }
+        ],
         "input_sha256": "7f896fb06f5bf9079cbc25f8eb0c9087081a0a626e613d95bf1987ca09390afe",
         "mineru_identity": {
           "backend": "pypdf_geometry",
@@ -3358,6 +3510,11 @@
           "asset_id": "VS4-FOOTNOTE-002-TABLE-P01",
           "asset_type": "table_derivative",
           "sha256": "c1f77810ecfe5b116852c9f53a643905b5beb3ac3a8d6dbb91eac8cab5a49c94"
+        },
+        {
+          "asset_id": "VS4-FOOTNOTE-002-P01-RENDER",
+          "asset_type": "page_render",
+          "sha256": "cf99379aa2c054daeba391db57db0d2582bdc5d65e85d4e0ce70592931710ffe"
         }
       ],
       "document_extraction_manifest": {
@@ -3367,7 +3524,16 @@
         "errors": [],
         "extraction_run_id": "v3-synthetic-vs4-footnote-002",
         "fallback_used": false,
-        "images": [],
+        "images": [
+          {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-FOOTNOTE-002-P01-RENDER",
+            "page_number": 1,
+            "relative_path": "synthetic-assets/VS4-FOOTNOTE-002-P01-RENDER.json",
+            "section_id": "VS4-FOOTNOTE-002-SECTION-DOCUMENT",
+            "sha256": "cf99379aa2c054daeba391db57db0d2582bdc5d65e85d4e0ce70592931710ffe"
+          }
+        ],
         "input_sha256": "6afc61618bab763fa74ca8a5a05656f8f292510cc1998e062ad2c6e80d715959",
         "mineru_identity": {
           "backend": "pypdf_geometry",
@@ -3723,6 +3889,11 @@
           "asset_id": "VS4-COLUMN-001-TABLE-P01",
           "asset_type": "table_derivative",
           "sha256": "212ff8542a10051de26ac4d1979a80db31ca12802f337862b4d4a38d327b055a"
+        },
+        {
+          "asset_id": "VS4-COLUMN-001-P01-RENDER",
+          "asset_type": "page_render",
+          "sha256": "86e0e440051cb480bad9d15db61fdb99283f284c2efa62e49fdcb22ea095d901"
         }
       ],
       "document_extraction_manifest": {
@@ -3732,7 +3903,16 @@
         "errors": [],
         "extraction_run_id": "v3-synthetic-vs4-column-001",
         "fallback_used": false,
-        "images": [],
+        "images": [
+          {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-COLUMN-001-P01-RENDER",
+            "page_number": 1,
+            "relative_path": "synthetic-assets/VS4-COLUMN-001-P01-RENDER.json",
+            "section_id": "VS4-COLUMN-001-SECTION-DOCUMENT",
+            "sha256": "86e0e440051cb480bad9d15db61fdb99283f284c2efa62e49fdcb22ea095d901"
+          }
+        ],
         "input_sha256": "f6e3bef78e6930f2f6200451ac9122ce8e0d634aa95f2cdb3fcb549341f9e385",
         "mineru_identity": {
           "backend": "pypdf_geometry",
@@ -4083,6 +4263,11 @@
           "asset_id": "VS4-COLUMN-002-TABLE-P01",
           "asset_type": "table_derivative",
           "sha256": "551abded986a6b27e5170f46fda4cf69abac1e8c752eb3ad6897dda95858744d"
+        },
+        {
+          "asset_id": "VS4-COLUMN-002-P01-RENDER",
+          "asset_type": "page_render",
+          "sha256": "2cd3a43b62df65c4852b228ed1c037ffe3e48d49ce2515c67cb8b2589863bd8a"
         }
       ],
       "document_extraction_manifest": {
@@ -4092,7 +4277,16 @@
         "errors": [],
         "extraction_run_id": "v3-synthetic-vs4-column-002",
         "fallback_used": false,
-        "images": [],
+        "images": [
+          {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-COLUMN-002-P01-RENDER",
+            "page_number": 1,
+            "relative_path": "synthetic-assets/VS4-COLUMN-002-P01-RENDER.json",
+            "section_id": "VS4-COLUMN-002-SECTION-DOCUMENT",
+            "sha256": "2cd3a43b62df65c4852b228ed1c037ffe3e48d49ce2515c67cb8b2589863bd8a"
+          }
+        ],
         "input_sha256": "c055fc3e5e7f50a2e1cd559b0f7ccc1d406ba77b0a5232e49f18418cdc069b35",
         "mineru_identity": {
           "backend": "pypdf_geometry",
@@ -4443,6 +4637,11 @@
           "asset_id": "VS4-FORMULA-001-TABLE-P01",
           "asset_type": "table_derivative",
           "sha256": "9b9de972546ee14dc6bdd5f750ae0f48a5557823ad0c14642e91b11aab293924"
+        },
+        {
+          "asset_id": "VS4-FORMULA-001-P01-RENDER",
+          "asset_type": "page_render",
+          "sha256": "230eb1799b43fb9c9fd3510e8ced28c1fc2d491a093784baa9ccba84eaa6e206"
         }
       ],
       "document_extraction_manifest": {
@@ -4452,7 +4651,16 @@
         "errors": [],
         "extraction_run_id": "v3-synthetic-vs4-formula-001",
         "fallback_used": false,
-        "images": [],
+        "images": [
+          {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-FORMULA-001-P01-RENDER",
+            "page_number": 1,
+            "relative_path": "synthetic-assets/VS4-FORMULA-001-P01-RENDER.json",
+            "section_id": "VS4-FORMULA-001-SECTION-DOCUMENT",
+            "sha256": "230eb1799b43fb9c9fd3510e8ced28c1fc2d491a093784baa9ccba84eaa6e206"
+          }
+        ],
         "input_sha256": "2b5f50434c74ec5a3da6cfdd896744e6142c90a4579c5e59ed64460e7c03898b",
         "mineru_identity": {
           "backend": "pypdf_geometry",
@@ -4826,6 +5034,11 @@
           "asset_id": "VS4-FORMULA-002-TABLE-P01",
           "asset_type": "table_derivative",
           "sha256": "89206679d5ae91a7530982843d934bc78788d78c68347e46bc948197d1269a90"
+        },
+        {
+          "asset_id": "VS4-FORMULA-002-P01-RENDER",
+          "asset_type": "page_render",
+          "sha256": "47d83d3b387fd5123aef375d7caad56fcd13b22fce11f25932f769232544b2c4"
         }
       ],
       "document_extraction_manifest": {
@@ -4835,7 +5048,16 @@
         "errors": [],
         "extraction_run_id": "v3-synthetic-vs4-formula-002",
         "fallback_used": false,
-        "images": [],
+        "images": [
+          {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-FORMULA-002-P01-RENDER",
+            "page_number": 1,
+            "relative_path": "synthetic-assets/VS4-FORMULA-002-P01-RENDER.json",
+            "section_id": "VS4-FORMULA-002-SECTION-DOCUMENT",
+            "sha256": "47d83d3b387fd5123aef375d7caad56fcd13b22fce11f25932f769232544b2c4"
+          }
+        ],
         "input_sha256": "57d5bd77e5fef337cbd5ebe587e4b59ba1af9e022ab5462fee74f6c6fa7dc57a",
         "mineru_identity": {
           "backend": "pypdf_geometry",
@@ -5211,9 +5433,14 @@
           "sha256": "40205fb6bdbc6b982dfa9315f79abf170f0a8dd0eb9cf885dd6b635c33341676"
         },
         {
+          "asset_id": "VS4-CAPTION-001-P01-RENDER",
+          "asset_type": "page_render",
+          "sha256": "5ea7e55a0743e00efbe1c2592892a246463d52c8fc32dfd6e802e2003a13f1b4"
+        },
+        {
           "asset_id": "VS4-CAPTION-001-P01-ASSET-001",
           "asset_type": "page_render",
-          "sha256": "8d2d34ba4ac4eee58e0eba12a19b6a2e0853a8a4abb6cfd0d7ba124873b94615"
+          "sha256": "a4978d989292731cddbb2932fec5b5de26fea433cd574b381fd903a6f35e1ac7"
         }
       ],
       "document_extraction_manifest": {
@@ -5225,12 +5452,21 @@
         "fallback_used": false,
         "images": [
           {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-CAPTION-001-P01-RENDER",
+            "page_number": 1,
+            "relative_path": "synthetic-assets/VS4-CAPTION-001-P01-RENDER.json",
+            "section_id": "VS4-CAPTION-001-SECTION-DOCUMENT",
+            "sha256": "5ea7e55a0743e00efbe1c2592892a246463d52c8fc32dfd6e802e2003a13f1b4"
+          },
+          {
+            "asset_type": "synthetic_caption_asset",
             "caption_region_id": "VS4-CAPTION-001-P01-CAPTION-001",
             "image_id": "VS4-CAPTION-001-P01-ASSET-001",
             "page_number": 1,
             "relative_path": "synthetic-assets/VS4-CAPTION-001-P01-ASSET-001.json",
             "section_id": "VS4-CAPTION-001-SECTION-DOCUMENT",
-            "sha256": "8d2d34ba4ac4eee58e0eba12a19b6a2e0853a8a4abb6cfd0d7ba124873b94615"
+            "sha256": "a4978d989292731cddbb2932fec5b5de26fea433cd574b381fd903a6f35e1ac7"
           }
         ],
         "input_sha256": "7ce57e003fea0de1e02ed4a992dc73698bd419c81ecb2a151598054612868023",
@@ -5590,9 +5826,14 @@
           "sha256": "5b7dba966eb7a4d71459857ec655ccc2ba7372458ccc8f333d19ab5c6add78b3"
         },
         {
+          "asset_id": "VS4-CAPTION-002-P01-RENDER",
+          "asset_type": "page_render",
+          "sha256": "2d1f069d3eeee7d106314f43951c75f2dd11114489c00220de58834370e5884f"
+        },
+        {
           "asset_id": "VS4-CAPTION-002-P01-ASSET-001",
           "asset_type": "page_render",
-          "sha256": "1718e4c9b34ffd4a9098a0a6b093247f132d4a8288d0feb1e1d6f9c1cf94d937"
+          "sha256": "21902fc982b2edae01a400941988cbcdba5a8b557ba77f1ff6181bef98a16b9d"
         }
       ],
       "document_extraction_manifest": {
@@ -5604,12 +5845,21 @@
         "fallback_used": false,
         "images": [
           {
+            "asset_type": "synthetic_page_render",
+            "image_id": "VS4-CAPTION-002-P01-RENDER",
+            "page_number": 1,
+            "relative_path": "synthetic-assets/VS4-CAPTION-002-P01-RENDER.json",
+            "section_id": "VS4-CAPTION-002-SECTION-DOCUMENT",
+            "sha256": "2d1f069d3eeee7d106314f43951c75f2dd11114489c00220de58834370e5884f"
+          },
+          {
+            "asset_type": "synthetic_caption_asset",
             "caption_region_id": "VS4-CAPTION-002-P01-CAPTION-001",
             "image_id": "VS4-CAPTION-002-P01-ASSET-001",
             "page_number": 1,
             "relative_path": "synthetic-assets/VS4-CAPTION-002-P01-ASSET-001.json",
             "section_id": "VS4-CAPTION-002-SECTION-DOCUMENT",
-            "sha256": "1718e4c9b34ffd4a9098a0a6b093247f132d4a8288d0feb1e1d6f9c1cf94d937"
+            "sha256": "21902fc982b2edae01a400941988cbcdba5a8b557ba77f1ff6181bef98a16b9d"
           }
         ],
         "input_sha256": "36f55cc3ce64e2d730aa1a0894ad32c3515ea44ccf26e433ad2026a3c6defb45",

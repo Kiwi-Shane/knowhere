@@ -67,7 +67,7 @@
   },
   "family_count": 8,
   "fixture_count": 16,
-  "fixture_sha256": "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7",
+  "fixture_sha256": "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725",
   "issues": [],
   "private_data": false,
   "profile_id": "pypdf_geometry_full_layout_v1_2_candidate",
@@ -75,7 +75,7 @@
   "qualification_scope": "bounded_synthetic",
   "ra_evidence_state": "deferred",
   "release_decision": "defer",
-  "repository_sha": "bfdc49e044a5bf7f156019f42ee695528ca05ce8",
+  "repository_sha": "5ef35e145f7508b245c669a1e6f248d057d0ccff",
   "retrieval_results": [
     {
       "citation": {
@@ -87,9 +87,10 @@
         "VS4-CAPTION-001-TOKEN-002",
         "VS4-CAPTION-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "bfdc49e044a5bf7f156019f42ee695528ca05ce8",
+      "knowhere_repository_sha": "5ef35e145f7508b245c669a1e6f248d057d0ccff",
       "linked_image_ids": [
-        "VS4-CAPTION-001-P01-ASSET-001"
+        "VS4-CAPTION-001-P01-ASSET-001",
+        "VS4-CAPTION-001-P01-RENDER"
       ],
       "linked_table_ids": [
         "VS4-CAPTION-001-TABLE-P01"
@@ -102,7 +103,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-CAPTION-001",
       "result_id": "RET-VS4-CAPTION-001",
-      "retrieval_configuration_sha256": "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7",
+      "retrieval_configuration_sha256": "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -126,9 +127,10 @@
         "VS4-CAPTION-002-TOKEN-002",
         "VS4-CAPTION-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "bfdc49e044a5bf7f156019f42ee695528ca05ce8",
+      "knowhere_repository_sha": "5ef35e145f7508b245c669a1e6f248d057d0ccff",
       "linked_image_ids": [
-        "VS4-CAPTION-002-P01-ASSET-001"
+        "VS4-CAPTION-002-P01-ASSET-001",
+        "VS4-CAPTION-002-P01-RENDER"
       ],
       "linked_table_ids": [
         "VS4-CAPTION-002-TABLE-P01"
@@ -141,7 +143,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-CAPTION-002",
       "result_id": "RET-VS4-CAPTION-002",
-      "retrieval_configuration_sha256": "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7",
+      "retrieval_configuration_sha256": "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -165,8 +167,10 @@
         "VS4-COLUMN-001-TOKEN-002",
         "VS4-COLUMN-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "bfdc49e044a5bf7f156019f42ee695528ca05ce8",
-      "linked_image_ids": [],
+      "knowhere_repository_sha": "5ef35e145f7508b245c669a1e6f248d057d0ccff",
+      "linked_image_ids": [
+        "VS4-COLUMN-001-P01-RENDER"
+      ],
       "linked_table_ids": [
         "VS4-COLUMN-001-TABLE-P01"
       ],
@@ -178,7 +182,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-COLUMN-001",
       "result_id": "RET-VS4-COLUMN-001",
-      "retrieval_configuration_sha256": "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7",
+      "retrieval_configuration_sha256": "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -202,8 +206,10 @@
         "VS4-COLUMN-002-TOKEN-002",
         "VS4-COLUMN-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "bfdc49e044a5bf7f156019f42ee695528ca05ce8",
-      "linked_image_ids": [],
+      "knowhere_repository_sha": "5ef35e145f7508b245c669a1e6f248d057d0ccff",
+      "linked_image_ids": [
+        "VS4-COLUMN-002-P01-RENDER"
+      ],
       "linked_table_ids": [
         "VS4-COLUMN-002-TABLE-P01"
       ],
@@ -215,7 +221,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-COLUMN-002",
       "result_id": "RET-VS4-COLUMN-002",
-      "retrieval_configuration_sha256": "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7",
+      "retrieval_configuration_sha256": "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -240,8 +246,11 @@
         "VS4-CROSS-001-TOKEN-003",
         "VS4-CROSS-001-TOKEN-004"
       ],
-      "knowhere_repository_sha": "bfdc49e044a5bf7f156019f42ee695528ca05ce8",
-      "linked_image_ids": [],
+      "knowhere_repository_sha": "5ef35e145f7508b245c669a1e6f248d057d0ccff",
+      "linked_image_ids": [
+        "VS4-CROSS-001-P01-RENDER",
+        "VS4-CROSS-001-P02-RENDER"
+      ],
       "linked_table_ids": [
         "VS4-CROSS-001-TABLE-P01",
         "VS4-CROSS-001-TABLE-P02"
@@ -254,7 +263,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-CROSS-001",
       "result_id": "RET-VS4-CROSS-001",
-      "retrieval_configuration_sha256": "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7",
+      "retrieval_configuration_sha256": "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -279,8 +288,11 @@
         "VS4-CROSS-002-TOKEN-003",
         "VS4-CROSS-002-TOKEN-004"
       ],
-      "knowhere_repository_sha": "bfdc49e044a5bf7f156019f42ee695528ca05ce8",
-      "linked_image_ids": [],
+      "knowhere_repository_sha": "5ef35e145f7508b245c669a1e6f248d057d0ccff",
+      "linked_image_ids": [
+        "VS4-CROSS-002-P01-RENDER",
+        "VS4-CROSS-002-P02-RENDER"
+      ],
       "linked_table_ids": [
         "VS4-CROSS-002-TABLE-P01",
         "VS4-CROSS-002-TABLE-P02"
@@ -293,7 +305,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-CROSS-002",
       "result_id": "RET-VS4-CROSS-002",
-      "retrieval_configuration_sha256": "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7",
+      "retrieval_configuration_sha256": "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -317,8 +329,10 @@
         "VS4-FOOTNOTE-001-TOKEN-002",
         "VS4-FOOTNOTE-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "bfdc49e044a5bf7f156019f42ee695528ca05ce8",
-      "linked_image_ids": [],
+      "knowhere_repository_sha": "5ef35e145f7508b245c669a1e6f248d057d0ccff",
+      "linked_image_ids": [
+        "VS4-FOOTNOTE-001-P01-RENDER"
+      ],
       "linked_table_ids": [
         "VS4-FOOTNOTE-001-TABLE-P01"
       ],
@@ -330,7 +344,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-FOOTNOTE-001",
       "result_id": "RET-VS4-FOOTNOTE-001",
-      "retrieval_configuration_sha256": "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7",
+      "retrieval_configuration_sha256": "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -354,8 +368,10 @@
         "VS4-FOOTNOTE-002-TOKEN-002",
         "VS4-FOOTNOTE-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "bfdc49e044a5bf7f156019f42ee695528ca05ce8",
-      "linked_image_ids": [],
+      "knowhere_repository_sha": "5ef35e145f7508b245c669a1e6f248d057d0ccff",
+      "linked_image_ids": [
+        "VS4-FOOTNOTE-002-P01-RENDER"
+      ],
       "linked_table_ids": [
         "VS4-FOOTNOTE-002-TABLE-P01"
       ],
@@ -367,7 +383,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-FOOTNOTE-002",
       "result_id": "RET-VS4-FOOTNOTE-002",
-      "retrieval_configuration_sha256": "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7",
+      "retrieval_configuration_sha256": "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -392,8 +408,10 @@
         "VS4-FORMULA-001-TOKEN-003",
         "VS4-FORMULA-001-TOKEN-004"
       ],
-      "knowhere_repository_sha": "bfdc49e044a5bf7f156019f42ee695528ca05ce8",
-      "linked_image_ids": [],
+      "knowhere_repository_sha": "5ef35e145f7508b245c669a1e6f248d057d0ccff",
+      "linked_image_ids": [
+        "VS4-FORMULA-001-P01-RENDER"
+      ],
       "linked_table_ids": [
         "VS4-FORMULA-001-TABLE-P01"
       ],
@@ -405,7 +423,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-FORMULA-001",
       "result_id": "RET-VS4-FORMULA-001",
-      "retrieval_configuration_sha256": "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7",
+      "retrieval_configuration_sha256": "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -430,8 +448,10 @@
         "VS4-FORMULA-002-TOKEN-003",
         "VS4-FORMULA-002-TOKEN-004"
       ],
-      "knowhere_repository_sha": "bfdc49e044a5bf7f156019f42ee695528ca05ce8",
-      "linked_image_ids": [],
+      "knowhere_repository_sha": "5ef35e145f7508b245c669a1e6f248d057d0ccff",
+      "linked_image_ids": [
+        "VS4-FORMULA-002-P01-RENDER"
+      ],
       "linked_table_ids": [
         "VS4-FORMULA-002-TABLE-P01"
       ],
@@ -443,7 +463,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-FORMULA-002",
       "result_id": "RET-VS4-FORMULA-002",
-      "retrieval_configuration_sha256": "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7",
+      "retrieval_configuration_sha256": "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -467,8 +487,10 @@
         "VS4-HEADER-001-TOKEN-002",
         "VS4-HEADER-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "bfdc49e044a5bf7f156019f42ee695528ca05ce8",
-      "linked_image_ids": [],
+      "knowhere_repository_sha": "5ef35e145f7508b245c669a1e6f248d057d0ccff",
+      "linked_image_ids": [
+        "VS4-HEADER-001-P01-RENDER"
+      ],
       "linked_table_ids": [
         "VS4-HEADER-001-TABLE-P01"
       ],
@@ -480,7 +502,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-HEADER-001",
       "result_id": "RET-VS4-HEADER-001",
-      "retrieval_configuration_sha256": "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7",
+      "retrieval_configuration_sha256": "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -504,8 +526,10 @@
         "VS4-HEADER-002-TOKEN-002",
         "VS4-HEADER-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "bfdc49e044a5bf7f156019f42ee695528ca05ce8",
-      "linked_image_ids": [],
+      "knowhere_repository_sha": "5ef35e145f7508b245c669a1e6f248d057d0ccff",
+      "linked_image_ids": [
+        "VS4-HEADER-002-P01-RENDER"
+      ],
       "linked_table_ids": [
         "VS4-HEADER-002-TABLE-P01"
       ],
@@ -517,7 +541,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-HEADER-002",
       "result_id": "RET-VS4-HEADER-002",
-      "retrieval_configuration_sha256": "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7",
+      "retrieval_configuration_sha256": "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -541,8 +565,10 @@
         "VS4-MERGED-001-TOKEN-002",
         "VS4-MERGED-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "bfdc49e044a5bf7f156019f42ee695528ca05ce8",
-      "linked_image_ids": [],
+      "knowhere_repository_sha": "5ef35e145f7508b245c669a1e6f248d057d0ccff",
+      "linked_image_ids": [
+        "VS4-MERGED-001-P01-RENDER"
+      ],
       "linked_table_ids": [
         "VS4-MERGED-001-TABLE-P01"
       ],
@@ -554,7 +580,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-MERGED-001",
       "result_id": "RET-VS4-MERGED-001",
-      "retrieval_configuration_sha256": "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7",
+      "retrieval_configuration_sha256": "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -578,8 +604,10 @@
         "VS4-MERGED-002-TOKEN-002",
         "VS4-MERGED-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "bfdc49e044a5bf7f156019f42ee695528ca05ce8",
-      "linked_image_ids": [],
+      "knowhere_repository_sha": "5ef35e145f7508b245c669a1e6f248d057d0ccff",
+      "linked_image_ids": [
+        "VS4-MERGED-002-P01-RENDER"
+      ],
       "linked_table_ids": [
         "VS4-MERGED-002-TABLE-P01"
       ],
@@ -591,7 +619,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-MERGED-002",
       "result_id": "RET-VS4-MERGED-002",
-      "retrieval_configuration_sha256": "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7",
+      "retrieval_configuration_sha256": "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -615,8 +643,10 @@
         "VS4-REPEAT-001-TOKEN-002",
         "VS4-REPEAT-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "bfdc49e044a5bf7f156019f42ee695528ca05ce8",
-      "linked_image_ids": [],
+      "knowhere_repository_sha": "5ef35e145f7508b245c669a1e6f248d057d0ccff",
+      "linked_image_ids": [
+        "VS4-REPEAT-001-P01-RENDER"
+      ],
       "linked_table_ids": [
         "VS4-REPEAT-001-TABLE-P01"
       ],
@@ -628,7 +658,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-REPEAT-001",
       "result_id": "RET-VS4-REPEAT-001",
-      "retrieval_configuration_sha256": "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7",
+      "retrieval_configuration_sha256": "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -652,8 +682,10 @@
         "VS4-REPEAT-002-TOKEN-002",
         "VS4-REPEAT-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "bfdc49e044a5bf7f156019f42ee695528ca05ce8",
-      "linked_image_ids": [],
+      "knowhere_repository_sha": "5ef35e145f7508b245c669a1e6f248d057d0ccff",
+      "linked_image_ids": [
+        "VS4-REPEAT-002-P01-RENDER"
+      ],
       "linked_table_ids": [
         "VS4-REPEAT-002-TABLE-P01"
       ],
@@ -665,7 +697,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-REPEAT-002",
       "result_id": "RET-VS4-REPEAT-002",
-      "retrieval_configuration_sha256": "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7",
+      "retrieval_configuration_sha256": "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
