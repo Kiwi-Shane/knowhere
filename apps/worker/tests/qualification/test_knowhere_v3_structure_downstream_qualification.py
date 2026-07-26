@@ -17,7 +17,7 @@ FIXTURE_PATH = (
     / "fixture-set.json"
 )
 FIXTURE_SHA256 = (
-    "80d59fb7a12bc74be151786a50499b969a706d7974d6dd5c6e99295552fd7a9f"
+    "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7"
 )
 REPORT_PATH = (
     Path(__file__).resolve().parents[4]
@@ -113,6 +113,6 @@ def test_committed_v3_retrieval_report_is_qualified_and_hash_bound() -> None:
     assert report["technical_completion"] == "qualified"
     assert report["fixture_sha256"] == FIXTURE_SHA256
     assert report["repository_sha"] == (
-        "34a7a3571c9b38fa97944a8ff12948adf6822b17"
+        "bfdc49e044a5bf7f156019f42ee695528ca05ce8"
     )
     assert len(report["retrieval_results"]) == 16

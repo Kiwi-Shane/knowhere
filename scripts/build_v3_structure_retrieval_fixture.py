@@ -30,7 +30,7 @@ OUTPUT = (
     / "qualification-report.json"
 )
 FIXTURE_SHA256 = (
-    "80d59fb7a12bc74be151786a50499b969a706d7974d6dd5c6e99295552fd7a9f"
+    "03ddb569ed091bfcd785a24d8ba9179e2f286067b21d17b90c11e07f13a092c7"
 )
 
 
