@@ -29,9 +29,7 @@ OUTPUT = (
     / "v3-structure-downstream"
     / "qualification-report.json"
 )
-FIXTURE_SHA256 = (
-    "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320"
-)
+FIXTURE_SHA256 = "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320"
 
 
 def main() -> None:

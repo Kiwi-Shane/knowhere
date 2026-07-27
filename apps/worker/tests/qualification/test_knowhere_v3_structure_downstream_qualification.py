@@ -11,14 +11,9 @@ from shared.services.retrieval.qualification import (
 
 
 FIXTURE_PATH = (
-    Path(__file__).parent
-    / "fixtures"
-    / "v3_full_layout_v1_2"
-    / "fixture-set.json"
+    Path(__file__).parent / "fixtures" / "v3_full_layout_v1_2" / "fixture-set.json"
 )
-FIXTURE_SHA256 = (
-    "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320"
-)
+FIXTURE_SHA256 = "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320"
 REPORT_PATH = (
     Path(__file__).resolve().parents[4]
     / "examples"
@@ -43,9 +38,7 @@ def test_v3_profile_qualifies_exact_source_owned_fixture() -> None:
     assert canonical_fixture_sha256(fixture) == FIXTURE_SHA256
     assert report["technical_completion"] == "qualified"
     assert report["qualification_scope"] == "bounded_synthetic"
-    assert report["profile_id"] == (
-        "pypdf_geometry_full_layout_v1_2_candidate"
-    )
+    assert report["profile_id"] == ("pypdf_geometry_full_layout_v1_2_candidate")
     assert fixture["integration_release_id"] == "V3-INTEGRATED-20260727-008"
     assert fixture["controller_revision"] == (
         "f3c95923f1d9c82ad69b84f1be834c34dd6d0892"
@@ -56,8 +49,7 @@ def test_v3_profile_qualifies_exact_source_owned_fixture() -> None:
     assert report["fixture_count"] == 16
     assert len(report["retrieval_results"]) == 16
     assert all(
-        fixture["fixture_id"].startswith("VS9-")
-        for fixture in fixture["fixtures"]
+        fixture["fixture_id"].startswith("VS9-") for fixture in fixture["fixtures"]
     )
     assert all(
         result["contract_version"] == "knowledge-retrieval-result-v1"
@@ -70,10 +62,7 @@ def test_v3_profile_qualifies_exact_source_owned_fixture() -> None:
     assert report["provider_execution"] is False
     assert report["runtime_execution"] is False
     assert report["release_decision"] == "defer"
-    assert all(
-        control["status"] == "pass"
-        for control in report["controls"].values()
-    )
+    assert all(control["status"] == "pass" for control in report["controls"].values())
 
 
 def test_v3_profile_rejects_identity_structure_and_persistence_faults() -> None:
@@ -103,9 +92,9 @@ def test_v3_profile_rejects_identity_structure_and_persistence_faults() -> None:
 
 def test_v3_profile_rejects_tampered_candidate_payload() -> None:
     fixture = deepcopy(_fixture())
-    fixture["fixtures"][0]["structure_payload"]["critical_tokens"][0][
-        "value"
-    ] = "tampered"
+    fixture["fixtures"][0]["structure_payload"]["critical_tokens"][0]["value"] = (
+        "tampered"
+    )
 
     report = run_v3_structure_synthetic_qualification(
         fixture_set=fixture,
@@ -123,7 +112,5 @@ def test_committed_v3_retrieval_report_is_qualified_and_hash_bound() -> None:
 
     assert report["technical_completion"] == "qualified"
     assert report["fixture_sha256"] == FIXTURE_SHA256
-    assert report["repository_sha"] == (
-        "82fe13c16e6f4e1666be480d3e475a13509231a2"
-    )
+    assert report["repository_sha"] == ("82fe13c16e6f4e1666be480d3e475a13509231a2")
     assert len(report["retrieval_results"]) == 16
