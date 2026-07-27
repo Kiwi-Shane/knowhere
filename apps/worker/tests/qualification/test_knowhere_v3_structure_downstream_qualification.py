@@ -113,6 +113,6 @@ def test_committed_v3_retrieval_report_is_qualified_and_hash_bound() -> None:
     assert report["technical_completion"] == "qualified"
     assert report["fixture_sha256"] == FIXTURE_SHA256
     assert report["repository_sha"] == (
-        "5ef35e145f7508b245c669a1e6f248d057d0ccff"
+        "9bc2827e3e566b988651adfadd94198c3d9cd993"
     )
     assert len(report["retrieval_results"]) == 16
