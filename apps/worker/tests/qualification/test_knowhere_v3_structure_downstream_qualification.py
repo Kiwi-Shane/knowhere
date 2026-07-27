@@ -17,7 +17,7 @@ FIXTURE_PATH = (
     / "fixture-set.json"
 )
 FIXTURE_SHA256 = (
-    "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7"
+    "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7"
 )
 REPORT_PATH = (
     Path(__file__).resolve().parents[4]
@@ -45,6 +45,13 @@ def test_v3_profile_qualifies_exact_source_owned_fixture() -> None:
     assert report["qualification_scope"] == "bounded_synthetic"
     assert report["profile_id"] == (
         "pypdf_geometry_full_layout_v1_2_candidate"
+    )
+    assert fixture["integration_release_id"] == "V3-INTEGRATED-20260727-008"
+    assert fixture["controller_revision"] == (
+        "f3c95923f1d9c82ad69b84f1be834c34dd6d0892"
+    )
+    assert fixture["execution_attestation_sha256"] == (
+        "8f9e15ca23aaf7238b421a879a00f7902c56c117962e24f98dbf89cdba4d0783"
     )
     assert report["fixture_count"] == 16
     assert len(report["retrieval_results"]) == 16
@@ -113,6 +120,6 @@ def test_committed_v3_retrieval_report_is_qualified_and_hash_bound() -> None:
     assert report["technical_completion"] == "qualified"
     assert report["fixture_sha256"] == FIXTURE_SHA256
     assert report["repository_sha"] == (
-        "9bc2827e3e566b988651adfadd94198c3d9cd993"
+        "2f9d56a560939f15623f1d5e9d309b6a3396140b"
     )
     assert len(report["retrieval_results"]) == 16

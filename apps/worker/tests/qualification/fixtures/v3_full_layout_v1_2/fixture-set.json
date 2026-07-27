@@ -8,7 +8,9 @@
     "source_sufficiency_established": false,
     "synthetic_only": true
   },
+  "controller_revision": "f3c95923f1d9c82ad69b84f1be834c34dd6d0892",
   "document_extraction_manifest_schema_sha256": "5ab7227d0af99ac1d6ef77a5386b684f07c054863e13fe12f3acd9bd2cd55196",
+  "execution_attestation_sha256": "8f9e15ca23aaf7238b421a879a00f7902c56c117962e24f98dbf89cdba4d0783",
   "fixtures": [
     {
       "candidate_sha256": "975ec6aa307663a4adf1c89d5174885813b88f86722f0764b2c2bc9a205f68ac",
@@ -44,7 +46,7 @@
         "input_sha256": "21f93e3d1cfb668cd3d0ebae8a1b64cc86d0f0fab55c77872d3119745b70d51f",
         "mineru_identity": {
           "backend": "pypdf_geometry",
-          "configuration_sha256": "d4ff3cae756f6ea5ad6ba4f5a27e35f17983527c7976364085e43312bcc852c2",
+          "configuration_sha256": "b909d5e281e544dcc2066c61bf17cd30a64de7a5c5616a45c6b967e45dc014d9",
           "model_identifiers": {
             "model_required": false,
             "profile_id": "pypdf_geometry_full_layout_v1_2_candidate"
@@ -418,7 +420,7 @@
         "input_sha256": "d6e7ca2314d399b5abebac225112cfff7c85a68a5e9b085b67723d46ba19382b",
         "mineru_identity": {
           "backend": "pypdf_geometry",
-          "configuration_sha256": "d4ff3cae756f6ea5ad6ba4f5a27e35f17983527c7976364085e43312bcc852c2",
+          "configuration_sha256": "b909d5e281e544dcc2066c61bf17cd30a64de7a5c5616a45c6b967e45dc014d9",
           "model_identifiers": {
             "model_required": false,
             "profile_id": "pypdf_geometry_full_layout_v1_2_candidate"
@@ -792,7 +794,7 @@
         "input_sha256": "58ed831ca01bfb3dfa09220c5568c2c2fd99f3cee6001a2b4d66791367208a80",
         "mineru_identity": {
           "backend": "pypdf_geometry",
-          "configuration_sha256": "d4ff3cae756f6ea5ad6ba4f5a27e35f17983527c7976364085e43312bcc852c2",
+          "configuration_sha256": "b909d5e281e544dcc2066c61bf17cd30a64de7a5c5616a45c6b967e45dc014d9",
           "model_identifiers": {
             "model_required": false,
             "profile_id": "pypdf_geometry_full_layout_v1_2_candidate"
@@ -1146,7 +1148,7 @@
         "input_sha256": "9d1b6c11d125094e89adb7aa8c1a38e5b67886506ff1bae7df18b073d249ac8f",
         "mineru_identity": {
           "backend": "pypdf_geometry",
-          "configuration_sha256": "d4ff3cae756f6ea5ad6ba4f5a27e35f17983527c7976364085e43312bcc852c2",
+          "configuration_sha256": "b909d5e281e544dcc2066c61bf17cd30a64de7a5c5616a45c6b967e45dc014d9",
           "model_identifiers": {
             "model_required": false,
             "profile_id": "pypdf_geometry_full_layout_v1_2_candidate"
@@ -1500,7 +1502,7 @@
         "input_sha256": "c327c5622687418c6c7565c5e83401392125ecf220af73452d7ab91755c98d79",
         "mineru_identity": {
           "backend": "pypdf_geometry",
-          "configuration_sha256": "d4ff3cae756f6ea5ad6ba4f5a27e35f17983527c7976364085e43312bcc852c2",
+          "configuration_sha256": "b909d5e281e544dcc2066c61bf17cd30a64de7a5c5616a45c6b967e45dc014d9",
           "model_identifiers": {
             "model_required": false,
             "profile_id": "pypdf_geometry_full_layout_v1_2_candidate"
@@ -1894,7 +1896,7 @@
         "input_sha256": "7e7c586a0ad018205e486950eef95f3392d32e6e01bc625053d41391bed0a6a8",
         "mineru_identity": {
           "backend": "pypdf_geometry",
-          "configuration_sha256": "d4ff3cae756f6ea5ad6ba4f5a27e35f17983527c7976364085e43312bcc852c2",
+          "configuration_sha256": "b909d5e281e544dcc2066c61bf17cd30a64de7a5c5616a45c6b967e45dc014d9",
           "model_identifiers": {
             "model_required": false,
             "profile_id": "pypdf_geometry_full_layout_v1_2_candidate"
@@ -2306,7 +2308,7 @@
         "input_sha256": "8d4964d46bc27478365b10cdeb1a0c9dd91fb36829bcf78f60e2f518446b8595",
         "mineru_identity": {
           "backend": "pypdf_geometry",
-          "configuration_sha256": "d4ff3cae756f6ea5ad6ba4f5a27e35f17983527c7976364085e43312bcc852c2",
+          "configuration_sha256": "b909d5e281e544dcc2066c61bf17cd30a64de7a5c5616a45c6b967e45dc014d9",
           "model_identifiers": {
             "model_required": false,
             "profile_id": "pypdf_geometry_full_layout_v1_2_candidate"
@@ -2740,7 +2742,7 @@
         "input_sha256": "b3c95cf4a0bb90a56b2e3c231cc28a95c587cb6b83935f9f1fce08f64b018dbe",
         "mineru_identity": {
           "backend": "pypdf_geometry",
-          "configuration_sha256": "d4ff3cae756f6ea5ad6ba4f5a27e35f17983527c7976364085e43312bcc852c2",
+          "configuration_sha256": "b909d5e281e544dcc2066c61bf17cd30a64de7a5c5616a45c6b967e45dc014d9",
           "model_identifiers": {
             "model_required": false,
             "profile_id": "pypdf_geometry_full_layout_v1_2_candidate"
@@ -3156,7 +3158,7 @@
         "input_sha256": "7f896fb06f5bf9079cbc25f8eb0c9087081a0a626e613d95bf1987ca09390afe",
         "mineru_identity": {
           "backend": "pypdf_geometry",
-          "configuration_sha256": "d4ff3cae756f6ea5ad6ba4f5a27e35f17983527c7976364085e43312bcc852c2",
+          "configuration_sha256": "b909d5e281e544dcc2066c61bf17cd30a64de7a5c5616a45c6b967e45dc014d9",
           "model_identifiers": {
             "model_required": false,
             "profile_id": "pypdf_geometry_full_layout_v1_2_candidate"
@@ -3535,7 +3537,7 @@
         "input_sha256": "6afc61618bab763fa74ca8a5a05656f8f292510cc1998e062ad2c6e80d715959",
         "mineru_identity": {
           "backend": "pypdf_geometry",
-          "configuration_sha256": "d4ff3cae756f6ea5ad6ba4f5a27e35f17983527c7976364085e43312bcc852c2",
+          "configuration_sha256": "b909d5e281e544dcc2066c61bf17cd30a64de7a5c5616a45c6b967e45dc014d9",
           "model_identifiers": {
             "model_required": false,
             "profile_id": "pypdf_geometry_full_layout_v1_2_candidate"
@@ -3914,7 +3916,7 @@
         "input_sha256": "f6e3bef78e6930f2f6200451ac9122ce8e0d634aa95f2cdb3fcb549341f9e385",
         "mineru_identity": {
           "backend": "pypdf_geometry",
-          "configuration_sha256": "d4ff3cae756f6ea5ad6ba4f5a27e35f17983527c7976364085e43312bcc852c2",
+          "configuration_sha256": "b909d5e281e544dcc2066c61bf17cd30a64de7a5c5616a45c6b967e45dc014d9",
           "model_identifiers": {
             "model_required": false,
             "profile_id": "pypdf_geometry_full_layout_v1_2_candidate"
@@ -4288,7 +4290,7 @@
         "input_sha256": "c055fc3e5e7f50a2e1cd559b0f7ccc1d406ba77b0a5232e49f18418cdc069b35",
         "mineru_identity": {
           "backend": "pypdf_geometry",
-          "configuration_sha256": "d4ff3cae756f6ea5ad6ba4f5a27e35f17983527c7976364085e43312bcc852c2",
+          "configuration_sha256": "b909d5e281e544dcc2066c61bf17cd30a64de7a5c5616a45c6b967e45dc014d9",
           "model_identifiers": {
             "model_required": false,
             "profile_id": "pypdf_geometry_full_layout_v1_2_candidate"
@@ -4662,7 +4664,7 @@
         "input_sha256": "2b5f50434c74ec5a3da6cfdd896744e6142c90a4579c5e59ed64460e7c03898b",
         "mineru_identity": {
           "backend": "pypdf_geometry",
-          "configuration_sha256": "d4ff3cae756f6ea5ad6ba4f5a27e35f17983527c7976364085e43312bcc852c2",
+          "configuration_sha256": "b909d5e281e544dcc2066c61bf17cd30a64de7a5c5616a45c6b967e45dc014d9",
           "model_identifiers": {
             "model_required": false,
             "profile_id": "pypdf_geometry_full_layout_v1_2_candidate"
@@ -5059,7 +5061,7 @@
         "input_sha256": "57d5bd77e5fef337cbd5ebe587e4b59ba1af9e022ab5462fee74f6c6fa7dc57a",
         "mineru_identity": {
           "backend": "pypdf_geometry",
-          "configuration_sha256": "d4ff3cae756f6ea5ad6ba4f5a27e35f17983527c7976364085e43312bcc852c2",
+          "configuration_sha256": "b909d5e281e544dcc2066c61bf17cd30a64de7a5c5616a45c6b967e45dc014d9",
           "model_identifiers": {
             "model_required": false,
             "profile_id": "pypdf_geometry_full_layout_v1_2_candidate"
@@ -5470,7 +5472,7 @@
         "input_sha256": "7ce57e003fea0de1e02ed4a992dc73698bd419c81ecb2a151598054612868023",
         "mineru_identity": {
           "backend": "pypdf_geometry",
-          "configuration_sha256": "d4ff3cae756f6ea5ad6ba4f5a27e35f17983527c7976364085e43312bcc852c2",
+          "configuration_sha256": "b909d5e281e544dcc2066c61bf17cd30a64de7a5c5616a45c6b967e45dc014d9",
           "model_identifiers": {
             "model_required": false,
             "profile_id": "pypdf_geometry_full_layout_v1_2_candidate"
@@ -5863,7 +5865,7 @@
         "input_sha256": "36f55cc3ce64e2d730aa1a0894ad32c3515ea44ccf26e433ad2026a3c6defb45",
         "mineru_identity": {
           "backend": "pypdf_geometry",
-          "configuration_sha256": "d4ff3cae756f6ea5ad6ba4f5a27e35f17983527c7976364085e43312bcc852c2",
+          "configuration_sha256": "b909d5e281e544dcc2066c61bf17cd30a64de7a5c5616a45c6b967e45dc014d9",
           "model_identifiers": {
             "model_required": false,
             "profile_id": "pypdf_geometry_full_layout_v1_2_candidate"
@@ -6209,9 +6211,10 @@
       }
     }
   ],
+  "integration_release_id": "V3-INTEGRATED-20260727-008",
   "integration_revision": "bb94b38e156146fe4dd0dbfd2790c2d1780428a7",
-  "merged_replay_configuration_sha256": "d4ff3cae756f6ea5ad6ba4f5a27e35f17983527c7976364085e43312bcc852c2",
-  "merged_replay_report_sha256": "cd423579e1e9ba89e2f6732272b4b2c65dedde084ca0ff42d9ab7172b7178c4f",
+  "merged_replay_configuration_sha256": "b909d5e281e544dcc2066c61bf17cd30a64de7a5c5616a45c6b967e45dc014d9",
+  "merged_replay_report_sha256": "df45d15208581732076a6dd62667169f48a7dec9f6d036bc70403a2231283858",
   "profile_id": "pypdf_geometry_full_layout_v1_2_candidate",
   "schema": "mineru-v3-structure-downstream-fixture-set/1.0",
   "source_candidate_revision": "8ad649be443c40ab7e51d638ac9c98e78d5671d3"
