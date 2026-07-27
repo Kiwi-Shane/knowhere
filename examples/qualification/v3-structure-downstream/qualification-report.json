@@ -67,7 +67,7 @@
   },
   "family_count": 8,
   "fixture_count": 16,
-  "fixture_sha256": "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7",
+  "fixture_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
   "issues": [],
   "private_data": false,
   "profile_id": "pypdf_geometry_full_layout_v1_2_candidate",
@@ -75,7 +75,7 @@
   "qualification_scope": "bounded_synthetic",
   "ra_evidence_state": "deferred",
   "release_decision": "defer",
-  "repository_sha": "9bc2827e3e566b988651adfadd94198c3d9cd993",
+  "repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
   "retrieval_results": [
     {
       "citation": {
@@ -87,7 +87,7 @@
         "VS4-CAPTION-001-TOKEN-002",
         "VS4-CAPTION-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "9bc2827e3e566b988651adfadd94198c3d9cd993",
+      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
       "linked_image_ids": [
         "VS4-CAPTION-001-P01-ASSET-001",
         "VS4-CAPTION-001-P01-RENDER"
@@ -103,7 +103,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-CAPTION-001",
       "result_id": "RET-VS4-CAPTION-001",
-      "retrieval_configuration_sha256": "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7",
+      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -127,7 +127,7 @@
         "VS4-CAPTION-002-TOKEN-002",
         "VS4-CAPTION-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "9bc2827e3e566b988651adfadd94198c3d9cd993",
+      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
       "linked_image_ids": [
         "VS4-CAPTION-002-P01-ASSET-001",
         "VS4-CAPTION-002-P01-RENDER"
@@ -143,7 +143,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-CAPTION-002",
       "result_id": "RET-VS4-CAPTION-002",
-      "retrieval_configuration_sha256": "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7",
+      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -167,7 +167,7 @@
         "VS4-COLUMN-001-TOKEN-002",
         "VS4-COLUMN-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "9bc2827e3e566b988651adfadd94198c3d9cd993",
+      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
       "linked_image_ids": [
         "VS4-COLUMN-001-P01-RENDER"
       ],
@@ -182,7 +182,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-COLUMN-001",
       "result_id": "RET-VS4-COLUMN-001",
-      "retrieval_configuration_sha256": "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7",
+      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -206,7 +206,7 @@
         "VS4-COLUMN-002-TOKEN-002",
         "VS4-COLUMN-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "9bc2827e3e566b988651adfadd94198c3d9cd993",
+      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
       "linked_image_ids": [
         "VS4-COLUMN-002-P01-RENDER"
       ],
@@ -221,7 +221,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-COLUMN-002",
       "result_id": "RET-VS4-COLUMN-002",
-      "retrieval_configuration_sha256": "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7",
+      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -246,7 +246,7 @@
         "VS4-CROSS-001-TOKEN-003",
         "VS4-CROSS-001-TOKEN-004"
       ],
-      "knowhere_repository_sha": "9bc2827e3e566b988651adfadd94198c3d9cd993",
+      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
       "linked_image_ids": [
         "VS4-CROSS-001-P01-RENDER",
         "VS4-CROSS-001-P02-RENDER"
@@ -263,7 +263,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-CROSS-001",
       "result_id": "RET-VS4-CROSS-001",
-      "retrieval_configuration_sha256": "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7",
+      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -288,7 +288,7 @@
         "VS4-CROSS-002-TOKEN-003",
         "VS4-CROSS-002-TOKEN-004"
       ],
-      "knowhere_repository_sha": "9bc2827e3e566b988651adfadd94198c3d9cd993",
+      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
       "linked_image_ids": [
         "VS4-CROSS-002-P01-RENDER",
         "VS4-CROSS-002-P02-RENDER"
@@ -305,7 +305,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-CROSS-002",
       "result_id": "RET-VS4-CROSS-002",
-      "retrieval_configuration_sha256": "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7",
+      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -329,7 +329,7 @@
         "VS4-FOOTNOTE-001-TOKEN-002",
         "VS4-FOOTNOTE-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "9bc2827e3e566b988651adfadd94198c3d9cd993",
+      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
       "linked_image_ids": [
         "VS4-FOOTNOTE-001-P01-RENDER"
       ],
@@ -344,7 +344,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-FOOTNOTE-001",
       "result_id": "RET-VS4-FOOTNOTE-001",
-      "retrieval_configuration_sha256": "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7",
+      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -368,7 +368,7 @@
         "VS4-FOOTNOTE-002-TOKEN-002",
         "VS4-FOOTNOTE-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "9bc2827e3e566b988651adfadd94198c3d9cd993",
+      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
       "linked_image_ids": [
         "VS4-FOOTNOTE-002-P01-RENDER"
       ],
@@ -383,7 +383,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-FOOTNOTE-002",
       "result_id": "RET-VS4-FOOTNOTE-002",
-      "retrieval_configuration_sha256": "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7",
+      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -408,7 +408,7 @@
         "VS4-FORMULA-001-TOKEN-003",
         "VS4-FORMULA-001-TOKEN-004"
       ],
-      "knowhere_repository_sha": "9bc2827e3e566b988651adfadd94198c3d9cd993",
+      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
       "linked_image_ids": [
         "VS4-FORMULA-001-P01-RENDER"
       ],
@@ -423,7 +423,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-FORMULA-001",
       "result_id": "RET-VS4-FORMULA-001",
-      "retrieval_configuration_sha256": "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7",
+      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -448,7 +448,7 @@
         "VS4-FORMULA-002-TOKEN-003",
         "VS4-FORMULA-002-TOKEN-004"
       ],
-      "knowhere_repository_sha": "9bc2827e3e566b988651adfadd94198c3d9cd993",
+      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
       "linked_image_ids": [
         "VS4-FORMULA-002-P01-RENDER"
       ],
@@ -463,7 +463,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-FORMULA-002",
       "result_id": "RET-VS4-FORMULA-002",
-      "retrieval_configuration_sha256": "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7",
+      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -487,7 +487,7 @@
         "VS4-HEADER-001-TOKEN-002",
         "VS4-HEADER-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "9bc2827e3e566b988651adfadd94198c3d9cd993",
+      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
       "linked_image_ids": [
         "VS4-HEADER-001-P01-RENDER"
       ],
@@ -502,7 +502,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-HEADER-001",
       "result_id": "RET-VS4-HEADER-001",
-      "retrieval_configuration_sha256": "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7",
+      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -526,7 +526,7 @@
         "VS4-HEADER-002-TOKEN-002",
         "VS4-HEADER-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "9bc2827e3e566b988651adfadd94198c3d9cd993",
+      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
       "linked_image_ids": [
         "VS4-HEADER-002-P01-RENDER"
       ],
@@ -541,7 +541,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-HEADER-002",
       "result_id": "RET-VS4-HEADER-002",
-      "retrieval_configuration_sha256": "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7",
+      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -565,7 +565,7 @@
         "VS4-MERGED-001-TOKEN-002",
         "VS4-MERGED-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "9bc2827e3e566b988651adfadd94198c3d9cd993",
+      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
       "linked_image_ids": [
         "VS4-MERGED-001-P01-RENDER"
       ],
@@ -580,7 +580,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-MERGED-001",
       "result_id": "RET-VS4-MERGED-001",
-      "retrieval_configuration_sha256": "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7",
+      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -604,7 +604,7 @@
         "VS4-MERGED-002-TOKEN-002",
         "VS4-MERGED-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "9bc2827e3e566b988651adfadd94198c3d9cd993",
+      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
       "linked_image_ids": [
         "VS4-MERGED-002-P01-RENDER"
       ],
@@ -619,7 +619,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-MERGED-002",
       "result_id": "RET-VS4-MERGED-002",
-      "retrieval_configuration_sha256": "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7",
+      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -643,7 +643,7 @@
         "VS4-REPEAT-001-TOKEN-002",
         "VS4-REPEAT-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "9bc2827e3e566b988651adfadd94198c3d9cd993",
+      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
       "linked_image_ids": [
         "VS4-REPEAT-001-P01-RENDER"
       ],
@@ -658,7 +658,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-REPEAT-001",
       "result_id": "RET-VS4-REPEAT-001",
-      "retrieval_configuration_sha256": "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7",
+      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -682,7 +682,7 @@
         "VS4-REPEAT-002-TOKEN-002",
         "VS4-REPEAT-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "9bc2827e3e566b988651adfadd94198c3d9cd993",
+      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
       "linked_image_ids": [
         "VS4-REPEAT-002-P01-RENDER"
       ],
@@ -697,7 +697,7 @@
       "not_source_sufficiency_decision": true,
       "request_id": "REQ-VS4-REPEAT-002",
       "result_id": "RET-VS4-REPEAT-002",
-      "retrieval_configuration_sha256": "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7",
+      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
