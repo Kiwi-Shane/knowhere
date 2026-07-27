@@ -17,7 +17,7 @@ FIXTURE_PATH = (
     / "fixture-set.json"
 )
 FIXTURE_SHA256 = (
-    "a90c557f007bd40c5f5f42031eaca240b65573c3208a4405e2e78efc25dbc725"
+    "83b71c5922069208c1c7626dd9ab68dbabc4ba9f63bde253cfb2077e9d3d9cd7"
 )
 REPORT_PATH = (
     Path(__file__).resolve().parents[4]
