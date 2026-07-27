@@ -67,7 +67,7 @@
   },
   "family_count": 8,
   "fixture_count": 16,
-  "fixture_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
+  "fixture_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
   "issues": [],
   "private_data": false,
   "profile_id": "pypdf_geometry_full_layout_v1_2_candidate",
@@ -75,35 +75,35 @@
   "qualification_scope": "bounded_synthetic",
   "ra_evidence_state": "deferred",
   "release_decision": "defer",
-  "repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
+  "repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
   "retrieval_results": [
     {
       "citation": {
-        "native_reference": "7ce57e003fea0de1e02ed4a992dc73698bd419c81ecb2a151598054612868023:p1#VS4-CAPTION-001-TOKEN-001"
+        "native_reference": "5b214f7cfb902362089420841a498d11ecdfc0c5de6a37e700c47c949c238470:p1#VS9-CAPTION-001-TOKEN-001"
       },
       "contract_version": "knowledge-retrieval-result-v1",
       "extraction_block_ids": [
-        "VS4-CAPTION-001-TOKEN-001",
-        "VS4-CAPTION-001-TOKEN-002",
-        "VS4-CAPTION-001-TOKEN-003"
+        "VS9-CAPTION-001-TOKEN-001",
+        "VS9-CAPTION-001-TOKEN-002",
+        "VS9-CAPTION-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
       "linked_image_ids": [
-        "VS4-CAPTION-001-P01-ASSET-001",
-        "VS4-CAPTION-001-P01-RENDER"
+        "VS9-CAPTION-001-P01-ASSET-001",
+        "VS9-CAPTION-001-P01-RENDER"
       ],
       "linked_table_ids": [
-        "VS4-CAPTION-001-TABLE-P01"
+        "VS9-CAPTION-001-TABLE-P01"
       ],
-      "memory_snapshot_id": "MEM-VS4-CAPTION-001",
-      "memory_snapshot_sha256": "84f3df1e70e086f502c9330c5c6b8697e44bbe650b7788af69f5b39791238ba2",
+      "memory_snapshot_id": "MEM-VS9-CAPTION-001",
+      "memory_snapshot_sha256": "2ace791c83830620dbaf61da06a5296a1dcceadf7cc905f37c8e39f7f0f4351b",
       "native_page_end": 1,
       "native_page_start": 1,
       "native_source_verification_status": "unverified",
       "not_source_sufficiency_decision": true,
-      "request_id": "REQ-VS4-CAPTION-001",
-      "result_id": "RET-VS4-CAPTION-001",
-      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
+      "request_id": "REQ-VS9-CAPTION-001",
+      "result_id": "RET-VS9-CAPTION-001",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -111,39 +111,39 @@
       "section_path": [
         "synthetic-v3",
         "captions",
-        "VS4-CAPTION-001"
+        "VS9-CAPTION-001"
       ],
-      "source_id": "SYNTHETIC-VS4-CAPTION-001",
-      "source_version_id": "7ce57e003fea0de1e02ed4a992dc73698bd419c81ecb2a151598054612868023",
+      "source_id": "SYNTHETIC-VS9-CAPTION-001",
+      "source_version_id": "5b214f7cfb902362089420841a498d11ecdfc0c5de6a37e700c47c949c238470",
       "warnings": []
     },
     {
       "citation": {
-        "native_reference": "36f55cc3ce64e2d730aa1a0894ad32c3515ea44ccf26e433ad2026a3c6defb45:p1#VS4-CAPTION-002-TOKEN-001"
+        "native_reference": "e962ec8336257576664491c25e58ad7d45944f7f2f958085be8047d41f3a2330:p1#VS9-CAPTION-002-TOKEN-001"
       },
       "contract_version": "knowledge-retrieval-result-v1",
       "extraction_block_ids": [
-        "VS4-CAPTION-002-TOKEN-001",
-        "VS4-CAPTION-002-TOKEN-002",
-        "VS4-CAPTION-002-TOKEN-003"
+        "VS9-CAPTION-002-TOKEN-001",
+        "VS9-CAPTION-002-TOKEN-002",
+        "VS9-CAPTION-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
       "linked_image_ids": [
-        "VS4-CAPTION-002-P01-ASSET-001",
-        "VS4-CAPTION-002-P01-RENDER"
+        "VS9-CAPTION-002-P01-ASSET-001",
+        "VS9-CAPTION-002-P01-RENDER"
       ],
       "linked_table_ids": [
-        "VS4-CAPTION-002-TABLE-P01"
+        "VS9-CAPTION-002-TABLE-P01"
       ],
-      "memory_snapshot_id": "MEM-VS4-CAPTION-002",
-      "memory_snapshot_sha256": "e7d875d1201b27cec5dcc3107063e35f5b174e1ed692f8041eafc76d500b88cf",
+      "memory_snapshot_id": "MEM-VS9-CAPTION-002",
+      "memory_snapshot_sha256": "c9f0f1553bd2e7eaa43269a85dda2e1822101fdbf59e8f19be89ab0537730b42",
       "native_page_end": 1,
       "native_page_start": 1,
       "native_source_verification_status": "unverified",
       "not_source_sufficiency_decision": true,
-      "request_id": "REQ-VS4-CAPTION-002",
-      "result_id": "RET-VS4-CAPTION-002",
-      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
+      "request_id": "REQ-VS9-CAPTION-002",
+      "result_id": "RET-VS9-CAPTION-002",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -151,38 +151,38 @@
       "section_path": [
         "synthetic-v3",
         "captions",
-        "VS4-CAPTION-002"
+        "VS9-CAPTION-002"
       ],
-      "source_id": "SYNTHETIC-VS4-CAPTION-002",
-      "source_version_id": "36f55cc3ce64e2d730aa1a0894ad32c3515ea44ccf26e433ad2026a3c6defb45",
+      "source_id": "SYNTHETIC-VS9-CAPTION-002",
+      "source_version_id": "e962ec8336257576664491c25e58ad7d45944f7f2f958085be8047d41f3a2330",
       "warnings": []
     },
     {
       "citation": {
-        "native_reference": "f6e3bef78e6930f2f6200451ac9122ce8e0d634aa95f2cdb3fcb549341f9e385:p1#VS4-COLUMN-001-TOKEN-001"
+        "native_reference": "e85878e15180a385eafbd2e5cf07133e5962f713e77abaf9c93c3b302787fefb:p1#VS9-COLUMN-001-TOKEN-001"
       },
       "contract_version": "knowledge-retrieval-result-v1",
       "extraction_block_ids": [
-        "VS4-COLUMN-001-TOKEN-001",
-        "VS4-COLUMN-001-TOKEN-002",
-        "VS4-COLUMN-001-TOKEN-003"
+        "VS9-COLUMN-001-TOKEN-001",
+        "VS9-COLUMN-001-TOKEN-002",
+        "VS9-COLUMN-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
       "linked_image_ids": [
-        "VS4-COLUMN-001-P01-RENDER"
+        "VS9-COLUMN-001-P01-RENDER"
       ],
       "linked_table_ids": [
-        "VS4-COLUMN-001-TABLE-P01"
+        "VS9-COLUMN-001-TABLE-P01"
       ],
-      "memory_snapshot_id": "MEM-VS4-COLUMN-001",
-      "memory_snapshot_sha256": "bdeebded11f3da8280116cfd29a8f7cee44c780badc41c2b6ce9c55ae032be55",
+      "memory_snapshot_id": "MEM-VS9-COLUMN-001",
+      "memory_snapshot_sha256": "ea05fbd7b4dea94e5b5283f44edac7ae62d01d5921f62f05a424119fd0ae6281",
       "native_page_end": 1,
       "native_page_start": 1,
       "native_source_verification_status": "unverified",
       "not_source_sufficiency_decision": true,
-      "request_id": "REQ-VS4-COLUMN-001",
-      "result_id": "RET-VS4-COLUMN-001",
-      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
+      "request_id": "REQ-VS9-COLUMN-001",
+      "result_id": "RET-VS9-COLUMN-001",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -190,38 +190,38 @@
       "section_path": [
         "synthetic-v3",
         "multi_column_flow",
-        "VS4-COLUMN-001"
+        "VS9-COLUMN-001"
       ],
-      "source_id": "SYNTHETIC-VS4-COLUMN-001",
-      "source_version_id": "f6e3bef78e6930f2f6200451ac9122ce8e0d634aa95f2cdb3fcb549341f9e385",
+      "source_id": "SYNTHETIC-VS9-COLUMN-001",
+      "source_version_id": "e85878e15180a385eafbd2e5cf07133e5962f713e77abaf9c93c3b302787fefb",
       "warnings": []
     },
     {
       "citation": {
-        "native_reference": "c055fc3e5e7f50a2e1cd559b0f7ccc1d406ba77b0a5232e49f18418cdc069b35:p1#VS4-COLUMN-002-TOKEN-001"
+        "native_reference": "f39ff844e623d893b5ed4cdffa1832e29070d225425ae2b67f12b564e2cbaa8d:p1#VS9-COLUMN-002-TOKEN-001"
       },
       "contract_version": "knowledge-retrieval-result-v1",
       "extraction_block_ids": [
-        "VS4-COLUMN-002-TOKEN-001",
-        "VS4-COLUMN-002-TOKEN-002",
-        "VS4-COLUMN-002-TOKEN-003"
+        "VS9-COLUMN-002-TOKEN-001",
+        "VS9-COLUMN-002-TOKEN-002",
+        "VS9-COLUMN-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
       "linked_image_ids": [
-        "VS4-COLUMN-002-P01-RENDER"
+        "VS9-COLUMN-002-P01-RENDER"
       ],
       "linked_table_ids": [
-        "VS4-COLUMN-002-TABLE-P01"
+        "VS9-COLUMN-002-TABLE-P01"
       ],
-      "memory_snapshot_id": "MEM-VS4-COLUMN-002",
-      "memory_snapshot_sha256": "25523eb2d7a42099b6e85945f7499af838df6581605c7ca7a3e63833a47398c4",
+      "memory_snapshot_id": "MEM-VS9-COLUMN-002",
+      "memory_snapshot_sha256": "b23de085964320237823f69d0896543b5fe200d86fce20f401954a73f336c229",
       "native_page_end": 1,
       "native_page_start": 1,
       "native_source_verification_status": "unverified",
       "not_source_sufficiency_decision": true,
-      "request_id": "REQ-VS4-COLUMN-002",
-      "result_id": "RET-VS4-COLUMN-002",
-      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
+      "request_id": "REQ-VS9-COLUMN-002",
+      "result_id": "RET-VS9-COLUMN-002",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -229,41 +229,41 @@
       "section_path": [
         "synthetic-v3",
         "multi_column_flow",
-        "VS4-COLUMN-002"
+        "VS9-COLUMN-002"
       ],
-      "source_id": "SYNTHETIC-VS4-COLUMN-002",
-      "source_version_id": "c055fc3e5e7f50a2e1cd559b0f7ccc1d406ba77b0a5232e49f18418cdc069b35",
+      "source_id": "SYNTHETIC-VS9-COLUMN-002",
+      "source_version_id": "f39ff844e623d893b5ed4cdffa1832e29070d225425ae2b67f12b564e2cbaa8d",
       "warnings": []
     },
     {
       "citation": {
-        "native_reference": "8d4964d46bc27478365b10cdeb1a0c9dd91fb36829bcf78f60e2f518446b8595:p1#VS4-CROSS-001-TOKEN-001"
+        "native_reference": "840e895ff95d96eaed71d0a7c7f0ed888ca0d427c5d78771acc943bcfd8219e0:p1#VS9-CROSS-001-TOKEN-001"
       },
       "contract_version": "knowledge-retrieval-result-v1",
       "extraction_block_ids": [
-        "VS4-CROSS-001-TOKEN-001",
-        "VS4-CROSS-001-TOKEN-002",
-        "VS4-CROSS-001-TOKEN-003",
-        "VS4-CROSS-001-TOKEN-004"
+        "VS9-CROSS-001-TOKEN-001",
+        "VS9-CROSS-001-TOKEN-002",
+        "VS9-CROSS-001-TOKEN-003",
+        "VS9-CROSS-001-TOKEN-004"
       ],
-      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
       "linked_image_ids": [
-        "VS4-CROSS-001-P01-RENDER",
-        "VS4-CROSS-001-P02-RENDER"
+        "VS9-CROSS-001-P01-RENDER",
+        "VS9-CROSS-001-P02-RENDER"
       ],
       "linked_table_ids": [
-        "VS4-CROSS-001-TABLE-P01",
-        "VS4-CROSS-001-TABLE-P02"
+        "VS9-CROSS-001-TABLE-P01",
+        "VS9-CROSS-001-TABLE-P02"
       ],
-      "memory_snapshot_id": "MEM-VS4-CROSS-001",
-      "memory_snapshot_sha256": "ef9024b325dfd0963298079d1318408c9cdf56173ad25501229d74b753d820a1",
+      "memory_snapshot_id": "MEM-VS9-CROSS-001",
+      "memory_snapshot_sha256": "1a6ef90dc87ba5f18c6f8c473599567275ff1da846a583bad11ec7e3fe469cf3",
       "native_page_end": 2,
       "native_page_start": 1,
       "native_source_verification_status": "unverified",
       "not_source_sufficiency_decision": true,
-      "request_id": "REQ-VS4-CROSS-001",
-      "result_id": "RET-VS4-CROSS-001",
-      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
+      "request_id": "REQ-VS9-CROSS-001",
+      "result_id": "RET-VS9-CROSS-001",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -271,41 +271,41 @@
       "section_path": [
         "synthetic-v3",
         "cross_page_tables",
-        "VS4-CROSS-001"
+        "VS9-CROSS-001"
       ],
-      "source_id": "SYNTHETIC-VS4-CROSS-001",
-      "source_version_id": "8d4964d46bc27478365b10cdeb1a0c9dd91fb36829bcf78f60e2f518446b8595",
+      "source_id": "SYNTHETIC-VS9-CROSS-001",
+      "source_version_id": "840e895ff95d96eaed71d0a7c7f0ed888ca0d427c5d78771acc943bcfd8219e0",
       "warnings": []
     },
     {
       "citation": {
-        "native_reference": "b3c95cf4a0bb90a56b2e3c231cc28a95c587cb6b83935f9f1fce08f64b018dbe:p1#VS4-CROSS-002-TOKEN-001"
+        "native_reference": "7bde3e09a52e694407f83bd8bbb6be23e34b20898475c00b49b91a7839017633:p1#VS9-CROSS-002-TOKEN-001"
       },
       "contract_version": "knowledge-retrieval-result-v1",
       "extraction_block_ids": [
-        "VS4-CROSS-002-TOKEN-001",
-        "VS4-CROSS-002-TOKEN-002",
-        "VS4-CROSS-002-TOKEN-003",
-        "VS4-CROSS-002-TOKEN-004"
+        "VS9-CROSS-002-TOKEN-001",
+        "VS9-CROSS-002-TOKEN-002",
+        "VS9-CROSS-002-TOKEN-003",
+        "VS9-CROSS-002-TOKEN-004"
       ],
-      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
       "linked_image_ids": [
-        "VS4-CROSS-002-P01-RENDER",
-        "VS4-CROSS-002-P02-RENDER"
+        "VS9-CROSS-002-P01-RENDER",
+        "VS9-CROSS-002-P02-RENDER"
       ],
       "linked_table_ids": [
-        "VS4-CROSS-002-TABLE-P01",
-        "VS4-CROSS-002-TABLE-P02"
+        "VS9-CROSS-002-TABLE-P01",
+        "VS9-CROSS-002-TABLE-P02"
       ],
-      "memory_snapshot_id": "MEM-VS4-CROSS-002",
-      "memory_snapshot_sha256": "35c680a61eb398912b4d4695fe247e2fee58956d525213f21d91c757c5489df9",
+      "memory_snapshot_id": "MEM-VS9-CROSS-002",
+      "memory_snapshot_sha256": "712e9c828f4a0976a83f6b290a07b4fcbb230f9f013bd1aaac884b2af3204039",
       "native_page_end": 2,
       "native_page_start": 1,
       "native_source_verification_status": "unverified",
       "not_source_sufficiency_decision": true,
-      "request_id": "REQ-VS4-CROSS-002",
-      "result_id": "RET-VS4-CROSS-002",
-      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
+      "request_id": "REQ-VS9-CROSS-002",
+      "result_id": "RET-VS9-CROSS-002",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -313,38 +313,38 @@
       "section_path": [
         "synthetic-v3",
         "cross_page_tables",
-        "VS4-CROSS-002"
+        "VS9-CROSS-002"
       ],
-      "source_id": "SYNTHETIC-VS4-CROSS-002",
-      "source_version_id": "b3c95cf4a0bb90a56b2e3c231cc28a95c587cb6b83935f9f1fce08f64b018dbe",
+      "source_id": "SYNTHETIC-VS9-CROSS-002",
+      "source_version_id": "7bde3e09a52e694407f83bd8bbb6be23e34b20898475c00b49b91a7839017633",
       "warnings": []
     },
     {
       "citation": {
-        "native_reference": "7f896fb06f5bf9079cbc25f8eb0c9087081a0a626e613d95bf1987ca09390afe:p1#VS4-FOOTNOTE-001-TOKEN-001"
+        "native_reference": "6024d340d05b5ad886c60b8eda7cf30d913e37ce1e87f6ceeebe23f106017f1f:p1#VS9-FOOTNOTE-001-TOKEN-001"
       },
       "contract_version": "knowledge-retrieval-result-v1",
       "extraction_block_ids": [
-        "VS4-FOOTNOTE-001-TOKEN-001",
-        "VS4-FOOTNOTE-001-TOKEN-002",
-        "VS4-FOOTNOTE-001-TOKEN-003"
+        "VS9-FOOTNOTE-001-TOKEN-001",
+        "VS9-FOOTNOTE-001-TOKEN-002",
+        "VS9-FOOTNOTE-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
       "linked_image_ids": [
-        "VS4-FOOTNOTE-001-P01-RENDER"
+        "VS9-FOOTNOTE-001-P01-RENDER"
       ],
       "linked_table_ids": [
-        "VS4-FOOTNOTE-001-TABLE-P01"
+        "VS9-FOOTNOTE-001-TABLE-P01"
       ],
-      "memory_snapshot_id": "MEM-VS4-FOOTNOTE-001",
-      "memory_snapshot_sha256": "410d9645deeb128083a546cc7248c78d509c5a7d87e37dad4386244979fc2ca2",
+      "memory_snapshot_id": "MEM-VS9-FOOTNOTE-001",
+      "memory_snapshot_sha256": "947ea803918361b89871ad084cf5927fd1a976768868dbec633c46e838ed52ef",
       "native_page_end": 1,
       "native_page_start": 1,
       "native_source_verification_status": "unverified",
       "not_source_sufficiency_decision": true,
-      "request_id": "REQ-VS4-FOOTNOTE-001",
-      "result_id": "RET-VS4-FOOTNOTE-001",
-      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
+      "request_id": "REQ-VS9-FOOTNOTE-001",
+      "result_id": "RET-VS9-FOOTNOTE-001",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -352,38 +352,38 @@
       "section_path": [
         "synthetic-v3",
         "footnotes",
-        "VS4-FOOTNOTE-001"
+        "VS9-FOOTNOTE-001"
       ],
-      "source_id": "SYNTHETIC-VS4-FOOTNOTE-001",
-      "source_version_id": "7f896fb06f5bf9079cbc25f8eb0c9087081a0a626e613d95bf1987ca09390afe",
+      "source_id": "SYNTHETIC-VS9-FOOTNOTE-001",
+      "source_version_id": "6024d340d05b5ad886c60b8eda7cf30d913e37ce1e87f6ceeebe23f106017f1f",
       "warnings": []
     },
     {
       "citation": {
-        "native_reference": "6afc61618bab763fa74ca8a5a05656f8f292510cc1998e062ad2c6e80d715959:p1#VS4-FOOTNOTE-002-TOKEN-001"
+        "native_reference": "49c3bf2d3fdb1bf3f674ceb43c80604607584c7d047c8030c5ee862ed9cc4216:p1#VS9-FOOTNOTE-002-TOKEN-001"
       },
       "contract_version": "knowledge-retrieval-result-v1",
       "extraction_block_ids": [
-        "VS4-FOOTNOTE-002-TOKEN-001",
-        "VS4-FOOTNOTE-002-TOKEN-002",
-        "VS4-FOOTNOTE-002-TOKEN-003"
+        "VS9-FOOTNOTE-002-TOKEN-001",
+        "VS9-FOOTNOTE-002-TOKEN-002",
+        "VS9-FOOTNOTE-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
       "linked_image_ids": [
-        "VS4-FOOTNOTE-002-P01-RENDER"
+        "VS9-FOOTNOTE-002-P01-RENDER"
       ],
       "linked_table_ids": [
-        "VS4-FOOTNOTE-002-TABLE-P01"
+        "VS9-FOOTNOTE-002-TABLE-P01"
       ],
-      "memory_snapshot_id": "MEM-VS4-FOOTNOTE-002",
-      "memory_snapshot_sha256": "56cc724ada608e2eaaca9ccfb30c6a1a4aacd0e3421f952ede6c8115fea4c667",
+      "memory_snapshot_id": "MEM-VS9-FOOTNOTE-002",
+      "memory_snapshot_sha256": "c4383c4edc2063d7850512e6f9fcb26c7b3ef740cc1070fc7c491113ac1b6195",
       "native_page_end": 1,
       "native_page_start": 1,
       "native_source_verification_status": "unverified",
       "not_source_sufficiency_decision": true,
-      "request_id": "REQ-VS4-FOOTNOTE-002",
-      "result_id": "RET-VS4-FOOTNOTE-002",
-      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
+      "request_id": "REQ-VS9-FOOTNOTE-002",
+      "result_id": "RET-VS9-FOOTNOTE-002",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -391,39 +391,39 @@
       "section_path": [
         "synthetic-v3",
         "footnotes",
-        "VS4-FOOTNOTE-002"
+        "VS9-FOOTNOTE-002"
       ],
-      "source_id": "SYNTHETIC-VS4-FOOTNOTE-002",
-      "source_version_id": "6afc61618bab763fa74ca8a5a05656f8f292510cc1998e062ad2c6e80d715959",
+      "source_id": "SYNTHETIC-VS9-FOOTNOTE-002",
+      "source_version_id": "49c3bf2d3fdb1bf3f674ceb43c80604607584c7d047c8030c5ee862ed9cc4216",
       "warnings": []
     },
     {
       "citation": {
-        "native_reference": "2b5f50434c74ec5a3da6cfdd896744e6142c90a4579c5e59ed64460e7c03898b:p1#VS4-FORMULA-001-TOKEN-001"
+        "native_reference": "ecda67a4f1ae10cceeb6fc9d0e61f58be04e9a9a80d15252bfc226b10de44030:p1#VS9-FORMULA-001-TOKEN-001"
       },
       "contract_version": "knowledge-retrieval-result-v1",
       "extraction_block_ids": [
-        "VS4-FORMULA-001-TOKEN-001",
-        "VS4-FORMULA-001-TOKEN-002",
-        "VS4-FORMULA-001-TOKEN-003",
-        "VS4-FORMULA-001-TOKEN-004"
+        "VS9-FORMULA-001-TOKEN-001",
+        "VS9-FORMULA-001-TOKEN-002",
+        "VS9-FORMULA-001-TOKEN-003",
+        "VS9-FORMULA-001-TOKEN-004"
       ],
-      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
       "linked_image_ids": [
-        "VS4-FORMULA-001-P01-RENDER"
+        "VS9-FORMULA-001-P01-RENDER"
       ],
       "linked_table_ids": [
-        "VS4-FORMULA-001-TABLE-P01"
+        "VS9-FORMULA-001-TABLE-P01"
       ],
-      "memory_snapshot_id": "MEM-VS4-FORMULA-001",
-      "memory_snapshot_sha256": "e70c5aa98c0a6bc9ee363b7d2ca92078b9497c507177bf5fae77185ab62c90d0",
+      "memory_snapshot_id": "MEM-VS9-FORMULA-001",
+      "memory_snapshot_sha256": "509940d2c776e360cd68ea5e375d3fe27447136a2081949d694088f0c61f3fdb",
       "native_page_end": 1,
       "native_page_start": 1,
       "native_source_verification_status": "unverified",
       "not_source_sufficiency_decision": true,
-      "request_id": "REQ-VS4-FORMULA-001",
-      "result_id": "RET-VS4-FORMULA-001",
-      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
+      "request_id": "REQ-VS9-FORMULA-001",
+      "result_id": "RET-VS9-FORMULA-001",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -431,39 +431,39 @@
       "section_path": [
         "synthetic-v3",
         "formulas_signs",
-        "VS4-FORMULA-001"
+        "VS9-FORMULA-001"
       ],
-      "source_id": "SYNTHETIC-VS4-FORMULA-001",
-      "source_version_id": "2b5f50434c74ec5a3da6cfdd896744e6142c90a4579c5e59ed64460e7c03898b",
+      "source_id": "SYNTHETIC-VS9-FORMULA-001",
+      "source_version_id": "ecda67a4f1ae10cceeb6fc9d0e61f58be04e9a9a80d15252bfc226b10de44030",
       "warnings": []
     },
     {
       "citation": {
-        "native_reference": "57d5bd77e5fef337cbd5ebe587e4b59ba1af9e022ab5462fee74f6c6fa7dc57a:p1#VS4-FORMULA-002-TOKEN-001"
+        "native_reference": "1029eebc5c3bedf00bd6bf50b1dd57ab79c29a2afa171ef5463397e52fb1a487:p1#VS9-FORMULA-002-TOKEN-001"
       },
       "contract_version": "knowledge-retrieval-result-v1",
       "extraction_block_ids": [
-        "VS4-FORMULA-002-TOKEN-001",
-        "VS4-FORMULA-002-TOKEN-002",
-        "VS4-FORMULA-002-TOKEN-003",
-        "VS4-FORMULA-002-TOKEN-004"
+        "VS9-FORMULA-002-TOKEN-001",
+        "VS9-FORMULA-002-TOKEN-002",
+        "VS9-FORMULA-002-TOKEN-003",
+        "VS9-FORMULA-002-TOKEN-004"
       ],
-      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
       "linked_image_ids": [
-        "VS4-FORMULA-002-P01-RENDER"
+        "VS9-FORMULA-002-P01-RENDER"
       ],
       "linked_table_ids": [
-        "VS4-FORMULA-002-TABLE-P01"
+        "VS9-FORMULA-002-TABLE-P01"
       ],
-      "memory_snapshot_id": "MEM-VS4-FORMULA-002",
-      "memory_snapshot_sha256": "84a96f972129ffefe3447705ad18a0652128f4c42062546d68e9af2acc7fcc2e",
+      "memory_snapshot_id": "MEM-VS9-FORMULA-002",
+      "memory_snapshot_sha256": "bcf6c9c3a01acdd486190e816ed8d12c27ac5c76fcb7fa82ef8bf42096167b7a",
       "native_page_end": 1,
       "native_page_start": 1,
       "native_source_verification_status": "unverified",
       "not_source_sufficiency_decision": true,
-      "request_id": "REQ-VS4-FORMULA-002",
-      "result_id": "RET-VS4-FORMULA-002",
-      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
+      "request_id": "REQ-VS9-FORMULA-002",
+      "result_id": "RET-VS9-FORMULA-002",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -471,38 +471,38 @@
       "section_path": [
         "synthetic-v3",
         "formulas_signs",
-        "VS4-FORMULA-002"
+        "VS9-FORMULA-002"
       ],
-      "source_id": "SYNTHETIC-VS4-FORMULA-002",
-      "source_version_id": "57d5bd77e5fef337cbd5ebe587e4b59ba1af9e022ab5462fee74f6c6fa7dc57a",
+      "source_id": "SYNTHETIC-VS9-FORMULA-002",
+      "source_version_id": "1029eebc5c3bedf00bd6bf50b1dd57ab79c29a2afa171ef5463397e52fb1a487",
       "warnings": []
     },
     {
       "citation": {
-        "native_reference": "c327c5622687418c6c7565c5e83401392125ecf220af73452d7ab91755c98d79:p1#VS4-HEADER-001-TOKEN-001"
+        "native_reference": "a0b697385475d0c1186bc445c9f5f1f5e8d89d317b89e333ad526872d03b55c0:p1#VS9-HEADER-001-TOKEN-001"
       },
       "contract_version": "knowledge-retrieval-result-v1",
       "extraction_block_ids": [
-        "VS4-HEADER-001-TOKEN-001",
-        "VS4-HEADER-001-TOKEN-002",
-        "VS4-HEADER-001-TOKEN-003"
+        "VS9-HEADER-001-TOKEN-001",
+        "VS9-HEADER-001-TOKEN-002",
+        "VS9-HEADER-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
       "linked_image_ids": [
-        "VS4-HEADER-001-P01-RENDER"
+        "VS9-HEADER-001-P01-RENDER"
       ],
       "linked_table_ids": [
-        "VS4-HEADER-001-TABLE-P01"
+        "VS9-HEADER-001-TABLE-P01"
       ],
-      "memory_snapshot_id": "MEM-VS4-HEADER-001",
-      "memory_snapshot_sha256": "552940ddc2aeca4afae9060d6c3823dbfa8b0df63f2c0aaf544f11f70d276b35",
+      "memory_snapshot_id": "MEM-VS9-HEADER-001",
+      "memory_snapshot_sha256": "05e3305f10a3527fbb0e642cc8d11cc7ad19ea1605d4a40df6b81742ef17a561",
       "native_page_end": 1,
       "native_page_start": 1,
       "native_source_verification_status": "unverified",
       "not_source_sufficiency_decision": true,
-      "request_id": "REQ-VS4-HEADER-001",
-      "result_id": "RET-VS4-HEADER-001",
-      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
+      "request_id": "REQ-VS9-HEADER-001",
+      "result_id": "RET-VS9-HEADER-001",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -510,38 +510,38 @@
       "section_path": [
         "synthetic-v3",
         "multi_level_headers",
-        "VS4-HEADER-001"
+        "VS9-HEADER-001"
       ],
-      "source_id": "SYNTHETIC-VS4-HEADER-001",
-      "source_version_id": "c327c5622687418c6c7565c5e83401392125ecf220af73452d7ab91755c98d79",
+      "source_id": "SYNTHETIC-VS9-HEADER-001",
+      "source_version_id": "a0b697385475d0c1186bc445c9f5f1f5e8d89d317b89e333ad526872d03b55c0",
       "warnings": []
     },
     {
       "citation": {
-        "native_reference": "7e7c586a0ad018205e486950eef95f3392d32e6e01bc625053d41391bed0a6a8:p1#VS4-HEADER-002-TOKEN-001"
+        "native_reference": "2c04f966f0d9c626843ddef449400b6614c51ec5579cbca72843f36f9ec27762:p1#VS9-HEADER-002-TOKEN-001"
       },
       "contract_version": "knowledge-retrieval-result-v1",
       "extraction_block_ids": [
-        "VS4-HEADER-002-TOKEN-001",
-        "VS4-HEADER-002-TOKEN-002",
-        "VS4-HEADER-002-TOKEN-003"
+        "VS9-HEADER-002-TOKEN-001",
+        "VS9-HEADER-002-TOKEN-002",
+        "VS9-HEADER-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
       "linked_image_ids": [
-        "VS4-HEADER-002-P01-RENDER"
+        "VS9-HEADER-002-P01-RENDER"
       ],
       "linked_table_ids": [
-        "VS4-HEADER-002-TABLE-P01"
+        "VS9-HEADER-002-TABLE-P01"
       ],
-      "memory_snapshot_id": "MEM-VS4-HEADER-002",
-      "memory_snapshot_sha256": "463f4a188a1850d0791eb740f41d414969d92c8f3e8b63cc4b6336ede321ec67",
+      "memory_snapshot_id": "MEM-VS9-HEADER-002",
+      "memory_snapshot_sha256": "4af126323f9a82398a7c818c5b81a7dd3fe0774fbe661a24cd1e692525509880",
       "native_page_end": 1,
       "native_page_start": 1,
       "native_source_verification_status": "unverified",
       "not_source_sufficiency_decision": true,
-      "request_id": "REQ-VS4-HEADER-002",
-      "result_id": "RET-VS4-HEADER-002",
-      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
+      "request_id": "REQ-VS9-HEADER-002",
+      "result_id": "RET-VS9-HEADER-002",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -549,38 +549,38 @@
       "section_path": [
         "synthetic-v3",
         "multi_level_headers",
-        "VS4-HEADER-002"
+        "VS9-HEADER-002"
       ],
-      "source_id": "SYNTHETIC-VS4-HEADER-002",
-      "source_version_id": "7e7c586a0ad018205e486950eef95f3392d32e6e01bc625053d41391bed0a6a8",
+      "source_id": "SYNTHETIC-VS9-HEADER-002",
+      "source_version_id": "2c04f966f0d9c626843ddef449400b6614c51ec5579cbca72843f36f9ec27762",
       "warnings": []
     },
     {
       "citation": {
-        "native_reference": "58ed831ca01bfb3dfa09220c5568c2c2fd99f3cee6001a2b4d66791367208a80:p1#VS4-MERGED-001-TOKEN-001"
+        "native_reference": "ff2fe64b9f730148fd93beb11576d9c6c76c0273044e8cb051e115a04441931c:p1#VS9-MERGED-001-TOKEN-001"
       },
       "contract_version": "knowledge-retrieval-result-v1",
       "extraction_block_ids": [
-        "VS4-MERGED-001-TOKEN-001",
-        "VS4-MERGED-001-TOKEN-002",
-        "VS4-MERGED-001-TOKEN-003"
+        "VS9-MERGED-001-TOKEN-001",
+        "VS9-MERGED-001-TOKEN-002",
+        "VS9-MERGED-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
       "linked_image_ids": [
-        "VS4-MERGED-001-P01-RENDER"
+        "VS9-MERGED-001-P01-RENDER"
       ],
       "linked_table_ids": [
-        "VS4-MERGED-001-TABLE-P01"
+        "VS9-MERGED-001-TABLE-P01"
       ],
-      "memory_snapshot_id": "MEM-VS4-MERGED-001",
-      "memory_snapshot_sha256": "1a45a786a0e883f684f55dca6d785d0491524971adc1969984a085331ab7c784",
+      "memory_snapshot_id": "MEM-VS9-MERGED-001",
+      "memory_snapshot_sha256": "29ef13996ec4430fa6c0864c18beb92a36666566757a05e49e2f09413316249c",
       "native_page_end": 1,
       "native_page_start": 1,
       "native_source_verification_status": "unverified",
       "not_source_sufficiency_decision": true,
-      "request_id": "REQ-VS4-MERGED-001",
-      "result_id": "RET-VS4-MERGED-001",
-      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
+      "request_id": "REQ-VS9-MERGED-001",
+      "result_id": "RET-VS9-MERGED-001",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -588,38 +588,38 @@
       "section_path": [
         "synthetic-v3",
         "merged_cells",
-        "VS4-MERGED-001"
+        "VS9-MERGED-001"
       ],
-      "source_id": "SYNTHETIC-VS4-MERGED-001",
-      "source_version_id": "58ed831ca01bfb3dfa09220c5568c2c2fd99f3cee6001a2b4d66791367208a80",
+      "source_id": "SYNTHETIC-VS9-MERGED-001",
+      "source_version_id": "ff2fe64b9f730148fd93beb11576d9c6c76c0273044e8cb051e115a04441931c",
       "warnings": []
     },
     {
       "citation": {
-        "native_reference": "9d1b6c11d125094e89adb7aa8c1a38e5b67886506ff1bae7df18b073d249ac8f:p1#VS4-MERGED-002-TOKEN-001"
+        "native_reference": "c1468c20a4df1916f3522f1f4eb540a629074f60b6fa3a23d15181afc3e47ef8:p1#VS9-MERGED-002-TOKEN-001"
       },
       "contract_version": "knowledge-retrieval-result-v1",
       "extraction_block_ids": [
-        "VS4-MERGED-002-TOKEN-001",
-        "VS4-MERGED-002-TOKEN-002",
-        "VS4-MERGED-002-TOKEN-003"
+        "VS9-MERGED-002-TOKEN-001",
+        "VS9-MERGED-002-TOKEN-002",
+        "VS9-MERGED-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
       "linked_image_ids": [
-        "VS4-MERGED-002-P01-RENDER"
+        "VS9-MERGED-002-P01-RENDER"
       ],
       "linked_table_ids": [
-        "VS4-MERGED-002-TABLE-P01"
+        "VS9-MERGED-002-TABLE-P01"
       ],
-      "memory_snapshot_id": "MEM-VS4-MERGED-002",
-      "memory_snapshot_sha256": "1d85771fd7c434069b5bb28f76fa3f56458a6b4ef188cb2b7c796c0caf2223e8",
+      "memory_snapshot_id": "MEM-VS9-MERGED-002",
+      "memory_snapshot_sha256": "53ddb13aee16c1be1bda2e4bf5a418002c43712e4b25a4df3b285a4cf99c1b69",
       "native_page_end": 1,
       "native_page_start": 1,
       "native_source_verification_status": "unverified",
       "not_source_sufficiency_decision": true,
-      "request_id": "REQ-VS4-MERGED-002",
-      "result_id": "RET-VS4-MERGED-002",
-      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
+      "request_id": "REQ-VS9-MERGED-002",
+      "result_id": "RET-VS9-MERGED-002",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -627,38 +627,38 @@
       "section_path": [
         "synthetic-v3",
         "merged_cells",
-        "VS4-MERGED-002"
+        "VS9-MERGED-002"
       ],
-      "source_id": "SYNTHETIC-VS4-MERGED-002",
-      "source_version_id": "9d1b6c11d125094e89adb7aa8c1a38e5b67886506ff1bae7df18b073d249ac8f",
+      "source_id": "SYNTHETIC-VS9-MERGED-002",
+      "source_version_id": "c1468c20a4df1916f3522f1f4eb540a629074f60b6fa3a23d15181afc3e47ef8",
       "warnings": []
     },
     {
       "citation": {
-        "native_reference": "21f93e3d1cfb668cd3d0ebae8a1b64cc86d0f0fab55c77872d3119745b70d51f:p1#VS4-REPEAT-001-TOKEN-001"
+        "native_reference": "bcfc4358ffb2b54b41ac0bd7971b775ff6bb5b4fb631247bb34fbbfa55d56e94:p1#VS9-REPEAT-001-TOKEN-001"
       },
       "contract_version": "knowledge-retrieval-result-v1",
       "extraction_block_ids": [
-        "VS4-REPEAT-001-TOKEN-001",
-        "VS4-REPEAT-001-TOKEN-002",
-        "VS4-REPEAT-001-TOKEN-003"
+        "VS9-REPEAT-001-TOKEN-001",
+        "VS9-REPEAT-001-TOKEN-002",
+        "VS9-REPEAT-001-TOKEN-003"
       ],
-      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
       "linked_image_ids": [
-        "VS4-REPEAT-001-P01-RENDER"
+        "VS9-REPEAT-001-P01-RENDER"
       ],
       "linked_table_ids": [
-        "VS4-REPEAT-001-TABLE-P01"
+        "VS9-REPEAT-001-TABLE-P01"
       ],
-      "memory_snapshot_id": "MEM-VS4-REPEAT-001",
-      "memory_snapshot_sha256": "975ec6aa307663a4adf1c89d5174885813b88f86722f0764b2c2bc9a205f68ac",
+      "memory_snapshot_id": "MEM-VS9-REPEAT-001",
+      "memory_snapshot_sha256": "6513341bda237138aa25bf56705e5ee2bf27e2c7df10f64d3e670161d8e00636",
       "native_page_end": 1,
       "native_page_start": 1,
       "native_source_verification_status": "unverified",
       "not_source_sufficiency_decision": true,
-      "request_id": "REQ-VS4-REPEAT-001",
-      "result_id": "RET-VS4-REPEAT-001",
-      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
+      "request_id": "REQ-VS9-REPEAT-001",
+      "result_id": "RET-VS9-REPEAT-001",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -666,38 +666,38 @@
       "section_path": [
         "synthetic-v3",
         "repeated_values",
-        "VS4-REPEAT-001"
+        "VS9-REPEAT-001"
       ],
-      "source_id": "SYNTHETIC-VS4-REPEAT-001",
-      "source_version_id": "21f93e3d1cfb668cd3d0ebae8a1b64cc86d0f0fab55c77872d3119745b70d51f",
+      "source_id": "SYNTHETIC-VS9-REPEAT-001",
+      "source_version_id": "bcfc4358ffb2b54b41ac0bd7971b775ff6bb5b4fb631247bb34fbbfa55d56e94",
       "warnings": []
     },
     {
       "citation": {
-        "native_reference": "d6e7ca2314d399b5abebac225112cfff7c85a68a5e9b085b67723d46ba19382b:p1#VS4-REPEAT-002-TOKEN-001"
+        "native_reference": "eebd3a5e17c3198e0cde09307536405e88e5a6ba245bc1a2dcaae43a05809161:p1#VS9-REPEAT-002-TOKEN-001"
       },
       "contract_version": "knowledge-retrieval-result-v1",
       "extraction_block_ids": [
-        "VS4-REPEAT-002-TOKEN-001",
-        "VS4-REPEAT-002-TOKEN-002",
-        "VS4-REPEAT-002-TOKEN-003"
+        "VS9-REPEAT-002-TOKEN-001",
+        "VS9-REPEAT-002-TOKEN-002",
+        "VS9-REPEAT-002-TOKEN-003"
       ],
-      "knowhere_repository_sha": "c63006f6cf81be7743496ec30dc5924a57afedf8",
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
       "linked_image_ids": [
-        "VS4-REPEAT-002-P01-RENDER"
+        "VS9-REPEAT-002-P01-RENDER"
       ],
       "linked_table_ids": [
-        "VS4-REPEAT-002-TABLE-P01"
+        "VS9-REPEAT-002-TABLE-P01"
       ],
-      "memory_snapshot_id": "MEM-VS4-REPEAT-002",
-      "memory_snapshot_sha256": "ecefdb6aefeaa009cf1263ef1c0de8b152f745710bb08728696a247a76165b31",
+      "memory_snapshot_id": "MEM-VS9-REPEAT-002",
+      "memory_snapshot_sha256": "3a53cd521a0983d98f79199156b524029f809b607ea187927d4b1608aac773b0",
       "native_page_end": 1,
       "native_page_start": 1,
       "native_source_verification_status": "unverified",
       "not_source_sufficiency_decision": true,
-      "request_id": "REQ-VS4-REPEAT-002",
-      "result_id": "RET-VS4-REPEAT-002",
-      "retrieval_configuration_sha256": "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7",
+      "request_id": "REQ-VS9-REPEAT-002",
+      "result_id": "RET-VS9-REPEAT-002",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
       "retrieval_reason": "bounded V3 synthetic structure qualification",
       "score_components": {
         "score": 1.0
@@ -705,10 +705,10 @@
       "section_path": [
         "synthetic-v3",
         "repeated_values",
-        "VS4-REPEAT-002"
+        "VS9-REPEAT-002"
       ],
-      "source_id": "SYNTHETIC-VS4-REPEAT-002",
-      "source_version_id": "d6e7ca2314d399b5abebac225112cfff7c85a68a5e9b085b67723d46ba19382b",
+      "source_id": "SYNTHETIC-VS9-REPEAT-002",
+      "source_version_id": "eebd3a5e17c3198e0cde09307536405e88e5a6ba245bc1a2dcaae43a05809161",
       "warnings": []
     }
   ],
