@@ -17,7 +17,7 @@ FIXTURE_PATH = (
     / "fixture-set.json"
 )
 FIXTURE_SHA256 = (
-    "c8f9b84434bac2b64976cb1adec51db26c31f1ae74fcac61585ea60df429f8a7"
+    "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320"
 )
 REPORT_PATH = (
     Path(__file__).resolve().parents[4]
@@ -55,6 +55,10 @@ def test_v3_profile_qualifies_exact_source_owned_fixture() -> None:
     )
     assert report["fixture_count"] == 16
     assert len(report["retrieval_results"]) == 16
+    assert all(
+        fixture["fixture_id"].startswith("VS9-")
+        for fixture in fixture["fixtures"]
+    )
     assert all(
         result["contract_version"] == "knowledge-retrieval-result-v1"
         and result["native_source_verification_status"] == "unverified"
