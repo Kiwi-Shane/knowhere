@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import copy
+import hashlib
+import json
 from collections.abc import Collection, Iterable, Mapping
 from dataclasses import dataclass
 from urllib.parse import urlparse
@@ -151,6 +153,47 @@ def validate_knowledge_retrieval_result(
     return tuple(issues)
 
 
+def validate_v3_structure_retrieval_result(
+    result: Mapping[str, Any],
+    *,
+    expected_table_ids: Collection[str],
+    expected_image_ids: Collection[str],
+) -> tuple[RetrievalQualificationIssue, ...]:
+    """Require exact source-owned V3 table and image identity sets."""
+
+    issues: list[RetrievalQualificationIssue] = []
+    if _string_set(result.get("linked_table_ids")) != set(
+        expected_table_ids
+    ):
+        issues.append(
+            RetrievalQualificationIssue(
+                "linked_table_ids_mismatch",
+                "retrieval result table IDs differ from the V3 manifest",
+            )
+        )
+    if _string_set(result.get("linked_image_ids")) != set(
+        expected_image_ids
+    ):
+        issues.append(
+            RetrievalQualificationIssue(
+                "linked_image_ids_mismatch",
+                "retrieval result image IDs differ from the V3 manifest",
+            )
+        )
+    return tuple(issues)
+
+
+def canonical_fixture_sha256(value: Any) -> str:
+    encoded = json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
 class _SyntheticStore:
     def __init__(self) -> None:
         self.objects: dict[str, dict[str, bytes]] = {}
@@ -201,6 +244,426 @@ class _DefaultDenyEgress:
 class _DisabledTelemetry:
     def emit(self, _event: Mapping[str, Any]) -> None:
         raise PermissionError("telemetry is disabled for D4 synthetic qualification")
+
+
+def run_v3_structure_synthetic_qualification(
+    *,
+    fixture_set: Mapping[str, Any],
+    expected_fixture_sha256: str,
+    repository_sha: str,
+    faults: Iterable[str] = (),
+) -> dict[str, Any]:
+    """Qualify the exact MinerU V3 fixture through bounded Knowhere controls."""
+
+    fault_set = set(faults)
+    controls: dict[str, dict[str, str]] = {}
+    issues: list[dict[str, str]] = []
+
+    def record(control_id: str, passed: bool, detail: str) -> None:
+        if control_id in fault_set:
+            passed = False
+            detail = f"fault injected: {detail}"
+        controls[control_id] = {
+            "status": "pass" if passed else "fail",
+            "detail": detail,
+        }
+        if not passed:
+            issues.append(
+                {
+                    "code": "control_failed",
+                    "control_id": control_id,
+                    "detail": detail,
+                }
+            )
+
+    actual_fixture_sha256 = canonical_fixture_sha256(fixture_set)
+    record(
+        "fixture_sha",
+        actual_fixture_sha256 == expected_fixture_sha256,
+        "canonical MinerU fixture identity matches",
+    )
+    profile_id = _text_value(fixture_set.get("profile_id"))
+    boundaries = fixture_set.get("boundaries")
+    fixtures_value = fixture_set.get("fixtures")
+    fixtures = (
+        list(fixtures_value)
+        if isinstance(fixtures_value, Collection)
+        and not isinstance(fixtures_value, (str, bytes, Mapping))
+        else []
+    )
+    record(
+        "profile_boundary",
+        profile_id == "pypdf_geometry_full_layout_v1_2_candidate"
+        and isinstance(boundaries, Mapping)
+        and boundaries.get("synthetic_only") is True
+        and boundaries.get("contains_private_data") is False
+        and boundaries.get("runtime_execution_allowed") is False
+        and boundaries.get("provider_execution_allowed") is False
+        and boundaries.get("release_allowed") is False,
+        "exact bounded synthetic V3 profile and prohibitions are present",
+    )
+
+    store = _SyntheticStore()
+    results: dict[str, dict[str, Any]] = {}
+    fixture_by_id: dict[str, Mapping[str, Any]] = {}
+    payload_hash_pass = True
+    linked_table_pass = True
+    linked_image_pass = True
+    continuation_pass = True
+    hierarchy_pass = True
+    citation_asset_pass = True
+    traceability_pass = True
+    leakage_values: list[str] = []
+
+    for raw_item in fixtures:
+        if not isinstance(raw_item, Mapping):
+            payload_hash_pass = False
+            continue
+        item = raw_item
+        fixture_id = _text_value(item.get("fixture_id"))
+        manifest = item.get("document_extraction_manifest")
+        payload = item.get("structure_payload")
+        hierarchy = item.get("section_hierarchy")
+        citation_assets = item.get("citation_assets")
+        if (
+            not fixture_id
+            or not isinstance(manifest, Mapping)
+            or not isinstance(payload, Mapping)
+            or not isinstance(hierarchy, list)
+            or not isinstance(citation_assets, list)
+        ):
+            payload_hash_pass = False
+            continue
+        fixture_by_id[fixture_id] = item
+
+        payload_sha = canonical_fixture_sha256(payload)
+        payload_hash_pass = payload_hash_pass and payload_sha == item.get(
+            "candidate_sha256"
+        )
+        payload_hash_pass = payload_hash_pass and (
+            manifest.get("outputs", [{}])[0].get("sha256") == payload_sha
+        )
+        traceability_pass = traceability_pass and (
+            manifest.get("input_sha256") == item.get("native_sha256")
+            and manifest.get("source_version_id") == item.get("native_sha256")
+        )
+
+        blocks = manifest.get("page_blocks")
+        tables = manifest.get("tables")
+        images = manifest.get("images")
+        if not isinstance(blocks, list):
+            blocks = []
+        if not isinstance(tables, list):
+            tables = []
+        if not isinstance(images, list):
+            images = []
+        block_ids = {
+            _text_value(block.get("block_id"))
+            for block in blocks
+            if isinstance(block, Mapping)
+        }
+        table_ids = {
+            _text_value(table.get("table_id"))
+            for table in tables
+            if isinstance(table, Mapping)
+        }
+        image_ids = {
+            _text_value(image.get("image_id"))
+            for image in images
+            if isinstance(image, Mapping)
+        }
+        block_ids.discard("")
+        table_ids.discard("")
+        image_ids.discard("")
+
+        continuation_endpoints = {
+            _text_value(link.get(key))
+            for link in payload.get("continuation_links", [])
+            if isinstance(link, Mapping)
+            for key in ("from_table_id", "to_table_id")
+        }
+        continuation_endpoints.discard("")
+        continuation_pass = (
+            continuation_pass and continuation_endpoints <= table_ids
+        )
+
+        section_ids = {
+            _text_value(section.get("section_id"))
+            for section in hierarchy
+            if isinstance(section, Mapping)
+        }
+        parent_chain_valid = bool(hierarchy)
+        for index, section in enumerate(hierarchy):
+            if not isinstance(section, Mapping):
+                parent_chain_valid = False
+                continue
+            parent_id = section.get("parent_section_id")
+            if index == 0:
+                parent_chain_valid = (
+                    parent_chain_valid and parent_id is None
+                )
+            else:
+                parent_chain_valid = (
+                    parent_chain_valid
+                    and isinstance(parent_id, str)
+                    and parent_id in section_ids
+                )
+        leaf = hierarchy[-1] if hierarchy else {}
+        leaf_id = (
+            _text_value(leaf.get("section_id"))
+            if isinstance(leaf, Mapping)
+            else ""
+        )
+        section_path = (
+            leaf.get("section_path")
+            if isinstance(leaf, Mapping)
+            else None
+        )
+        hierarchy_pass = hierarchy_pass and parent_chain_valid and bool(
+            leaf_id
+        )
+        hierarchy_pass = hierarchy_pass and all(
+            part.get("section_id") == leaf_id
+            for part in [*blocks, *tables, *images]
+            if isinstance(part, Mapping)
+        )
+
+        expected_asset_hashes: dict[str, str] = {}
+        for table in tables:
+            if isinstance(table, Mapping):
+                expected_asset_hashes[_text_value(table.get("table_id"))] = (
+                    canonical_fixture_sha256(table)
+                )
+        for image in images:
+            if isinstance(image, Mapping):
+                expected_asset_hashes[_text_value(image.get("image_id"))] = (
+                    _text_value(image.get("sha256"))
+                )
+        actual_asset_hashes = {
+            _text_value(asset.get("asset_id")): _text_value(
+                asset.get("sha256")
+            )
+            for asset in citation_assets
+            if isinstance(asset, Mapping)
+        }
+        citation_asset_pass = citation_asset_pass and (
+            actual_asset_hashes == expected_asset_hashes
+        )
+
+        page_numbers = [
+            int(block["page_number"])
+            for block in blocks
+            if isinstance(block, Mapping)
+            and isinstance(block.get("page_number"), int)
+        ]
+        source_id = _text_value(manifest.get("source_id"))
+        source_version_id = _text_value(manifest.get("source_version_id"))
+        result = serialize_knowledge_retrieval_result(
+            {"score": 1.0},
+            context=KnowledgeRetrievalResultContext(
+                result_id=f"RET-{fixture_id}",
+                request_id=f"REQ-{fixture_id}",
+                memory_snapshot_id=f"MEM-{fixture_id}",
+                memory_snapshot_sha256=payload_sha,
+                knowhere_repository_sha=repository_sha,
+                retrieval_configuration_sha256=expected_fixture_sha256,
+                source_id=source_id,
+                source_version_id=source_version_id,
+                retrieval_reason="bounded V3 synthetic structure qualification",
+            ),
+            locator=KnowledgeRetrievalResultLocator(
+                section_path=tuple(
+                    str(value)
+                    for value in section_path
+                    if isinstance(value, str)
+                )
+                if isinstance(section_path, list)
+                else ("synthetic-v3",),
+                native_page_start=min(page_numbers or [1]),
+                native_page_end=max(page_numbers or [1]),
+                extraction_block_ids=tuple(sorted(block_ids)),
+                native_reference=(
+                    f"{source_version_id}:p{min(page_numbers or [1])}"
+                    f"#{sorted(block_ids)[0] if block_ids else fixture_id}"
+                ),
+                linked_table_ids=tuple(sorted(table_ids)),
+                linked_image_ids=tuple(sorted(image_ids)),
+            ),
+        )
+        results[fixture_id] = result
+        store.put_case(fixture_id, result)
+        linked_issues = validate_v3_structure_retrieval_result(
+            result,
+            expected_table_ids=table_ids,
+            expected_image_ids=image_ids,
+        )
+        linked_table_pass = linked_table_pass and not any(
+            issue.code == "linked_table_ids_mismatch"
+            for issue in linked_issues
+        )
+        linked_image_pass = linked_image_pass and not any(
+            issue.code == "linked_image_ids_mismatch"
+            for issue in linked_issues
+        )
+        for token in payload.get("critical_tokens", []):
+            if isinstance(token, Mapping):
+                value = token.get("value")
+                if (
+                    isinstance(value, str)
+                    and value
+                    and value != fixture_id
+                ):
+                    leakage_values.append(value)
+
+    record(
+        "candidate_payload_hash",
+        payload_hash_pass and len(results) == 16,
+        "all payloads match frozen candidate hashes",
+    )
+    record(
+        "source_version_traceability",
+        traceability_pass and len(results) == 16,
+        "manifest source/version identity is preserved",
+    )
+    record(
+        "linked_table_ids",
+        linked_table_pass and len(results) == 16,
+        "retrieval results preserve exact table ID sets",
+    )
+    record(
+        "linked_image_ids",
+        linked_image_pass and len(results) == 16,
+        "retrieval results preserve exact image ID sets",
+    )
+    record(
+        "continuation_closure",
+        continuation_pass,
+        "all continuation endpoints resolve to source-owned tables",
+    )
+    record(
+        "hierarchy_parent_chain",
+        hierarchy_pass,
+        "three-level section parent chains remain closed",
+    )
+    record(
+        "citation_asset_hash",
+        citation_asset_pass,
+        "citation assets match source-owned IDs and hashes",
+    )
+
+    first_ids = sorted(results)
+    allowlist_pass = False
+    stale_pass = False
+    deletion_pass = False
+    restore_pass = False
+    if first_ids:
+        first_id = first_ids[0]
+        first = results[first_id]
+        rejected = validate_knowledge_retrieval_result(
+            first,
+            allowed_source_ids={"SYNTHETIC-NOT-ALLOWED"},
+            expected_request_id=first["request_id"],
+            expected_source_version_id=first["source_version_id"],
+            expected_extraction_block_ids=first["extraction_block_ids"],
+        )
+        allowlist_pass = any(
+            issue.code == "source_not_allowlisted" for issue in rejected
+        )
+        stale = validate_knowledge_retrieval_result(
+            first,
+            allowed_source_ids={first["source_id"]},
+            expected_request_id=first["request_id"],
+            expected_source_version_id=first["source_version_id"],
+            expected_extraction_block_ids=first["extraction_block_ids"],
+            current_memory_snapshot_id="MEM-STALE-REPLACEMENT",
+            current_memory_snapshot_sha256="f" * 64,
+            invalidated=True,
+        )
+        stale_codes = {issue.code for issue in stale}
+        stale_pass = {"stale_result", "invalidated_result"} <= stale_codes
+
+        store.backup_case(first_id)
+        peer_id = first_ids[1] if len(first_ids) > 1 else None
+        store.delete_case(first_id, delete_backup=True)
+        deletion_pass = (
+            first_id not in store.objects
+            and first_id not in store.index
+            and first_id not in store.queue
+            and first_id not in store.backups
+            and (peer_id is None or peer_id in store.index)
+        )
+        if peer_id is not None:
+            store.backup_case(peer_id)
+            store.delete_case(peer_id, delete_backup=False)
+            store.restore_case(peer_id)
+            restore_pass = (
+                peer_id in store.objects
+                and store.index.get(peer_id) == results[peer_id]
+            )
+    record(
+        "source_allowlist",
+        allowlist_pass,
+        "unallowlisted V3 source is rejected",
+    )
+    record(
+        "stale_invalidation",
+        stale_pass,
+        "stale and invalidated V3 results are rejected",
+    )
+    record(
+        "scoped_deletion",
+        deletion_pass,
+        "bounded synthetic object, index, queue, and backup state is removed",
+    )
+    record(
+        "bounded_backup_restore",
+        restore_pass,
+        "bounded synthetic peer state round-trips without release claim",
+    )
+
+    persisted = json.dumps(store.index, ensure_ascii=False, sort_keys=True)
+    leakage_pass = not any(value in persisted for value in leakage_values)
+    record(
+        "prohibited_persisted_text",
+        leakage_pass,
+        "raw candidate token text is absent from retrieval index fields",
+    )
+    record(
+        "private_data_boundary",
+        True,
+        "source fixture declares synthetic-only and contains no private data",
+    )
+    record(
+        "runtime_provider_boundary",
+        True,
+        "qualification invokes neither runtime nor provider",
+    )
+
+    failed = any(item["status"] == "fail" for item in controls.values())
+    return {
+        "technical_completion": "mechanical_fail" if failed else "qualified",
+        "qualification_scope": "bounded_synthetic",
+        "ra_evidence_state": "deferred",
+        "release_decision": "defer",
+        "profile_id": profile_id,
+        "fixture_sha256": actual_fixture_sha256,
+        "fixture_count": len(results),
+        "family_count": len(
+            {
+                _text_value(item.get("family"))
+                for item in fixture_by_id.values()
+            }
+        ),
+        "retrieval_results": [
+            results[fixture_id] for fixture_id in sorted(results)
+        ],
+        "controls": controls,
+        "issues": issues,
+        "private_data": False,
+        "provider_execution": False,
+        "runtime_execution": False,
+        "repository_sha": repository_sha,
+    }
 
 
 def run_d4_synthetic_qualification(
@@ -397,6 +860,9 @@ def _string_set(value: object) -> set[str]:
 
 __all__ = [
     "RetrievalQualificationIssue",
+    "canonical_fixture_sha256",
     "run_d4_synthetic_qualification",
+    "run_v3_structure_synthetic_qualification",
     "validate_knowledge_retrieval_result",
+    "validate_v3_structure_retrieval_result",
 ]

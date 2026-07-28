@@ -1,0 +1,717 @@
+{
+  "controls": {
+    "bounded_backup_restore": {
+      "detail": "bounded synthetic peer state round-trips without release claim",
+      "status": "pass"
+    },
+    "candidate_payload_hash": {
+      "detail": "all payloads match frozen candidate hashes",
+      "status": "pass"
+    },
+    "citation_asset_hash": {
+      "detail": "citation assets match source-owned IDs and hashes",
+      "status": "pass"
+    },
+    "continuation_closure": {
+      "detail": "all continuation endpoints resolve to source-owned tables",
+      "status": "pass"
+    },
+    "fixture_sha": {
+      "detail": "canonical MinerU fixture identity matches",
+      "status": "pass"
+    },
+    "hierarchy_parent_chain": {
+      "detail": "three-level section parent chains remain closed",
+      "status": "pass"
+    },
+    "linked_image_ids": {
+      "detail": "retrieval results preserve exact image ID sets",
+      "status": "pass"
+    },
+    "linked_table_ids": {
+      "detail": "retrieval results preserve exact table ID sets",
+      "status": "pass"
+    },
+    "private_data_boundary": {
+      "detail": "source fixture declares synthetic-only and contains no private data",
+      "status": "pass"
+    },
+    "profile_boundary": {
+      "detail": "exact bounded synthetic V3 profile and prohibitions are present",
+      "status": "pass"
+    },
+    "prohibited_persisted_text": {
+      "detail": "raw candidate token text is absent from retrieval index fields",
+      "status": "pass"
+    },
+    "runtime_provider_boundary": {
+      "detail": "qualification invokes neither runtime nor provider",
+      "status": "pass"
+    },
+    "scoped_deletion": {
+      "detail": "bounded synthetic object, index, queue, and backup state is removed",
+      "status": "pass"
+    },
+    "source_allowlist": {
+      "detail": "unallowlisted V3 source is rejected",
+      "status": "pass"
+    },
+    "source_version_traceability": {
+      "detail": "manifest source/version identity is preserved",
+      "status": "pass"
+    },
+    "stale_invalidation": {
+      "detail": "stale and invalidated V3 results are rejected",
+      "status": "pass"
+    }
+  },
+  "family_count": 8,
+  "fixture_count": 16,
+  "fixture_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
+  "issues": [],
+  "private_data": false,
+  "profile_id": "pypdf_geometry_full_layout_v1_2_candidate",
+  "provider_execution": false,
+  "qualification_scope": "bounded_synthetic",
+  "ra_evidence_state": "deferred",
+  "release_decision": "defer",
+  "repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
+  "retrieval_results": [
+    {
+      "citation": {
+        "native_reference": "5b214f7cfb902362089420841a498d11ecdfc0c5de6a37e700c47c949c238470:p1#VS9-CAPTION-001-TOKEN-001"
+      },
+      "contract_version": "knowledge-retrieval-result-v1",
+      "extraction_block_ids": [
+        "VS9-CAPTION-001-TOKEN-001",
+        "VS9-CAPTION-001-TOKEN-002",
+        "VS9-CAPTION-001-TOKEN-003"
+      ],
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
+      "linked_image_ids": [
+        "VS9-CAPTION-001-P01-ASSET-001",
+        "VS9-CAPTION-001-P01-RENDER"
+      ],
+      "linked_table_ids": [
+        "VS9-CAPTION-001-TABLE-P01"
+      ],
+      "memory_snapshot_id": "MEM-VS9-CAPTION-001",
+      "memory_snapshot_sha256": "2ace791c83830620dbaf61da06a5296a1dcceadf7cc905f37c8e39f7f0f4351b",
+      "native_page_end": 1,
+      "native_page_start": 1,
+      "native_source_verification_status": "unverified",
+      "not_source_sufficiency_decision": true,
+      "request_id": "REQ-VS9-CAPTION-001",
+      "result_id": "RET-VS9-CAPTION-001",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
+      "retrieval_reason": "bounded V3 synthetic structure qualification",
+      "score_components": {
+        "score": 1.0
+      },
+      "section_path": [
+        "synthetic-v3",
+        "captions",
+        "VS9-CAPTION-001"
+      ],
+      "source_id": "SYNTHETIC-VS9-CAPTION-001",
+      "source_version_id": "5b214f7cfb902362089420841a498d11ecdfc0c5de6a37e700c47c949c238470",
+      "warnings": []
+    },
+    {
+      "citation": {
+        "native_reference": "e962ec8336257576664491c25e58ad7d45944f7f2f958085be8047d41f3a2330:p1#VS9-CAPTION-002-TOKEN-001"
+      },
+      "contract_version": "knowledge-retrieval-result-v1",
+      "extraction_block_ids": [
+        "VS9-CAPTION-002-TOKEN-001",
+        "VS9-CAPTION-002-TOKEN-002",
+        "VS9-CAPTION-002-TOKEN-003"
+      ],
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
+      "linked_image_ids": [
+        "VS9-CAPTION-002-P01-ASSET-001",
+        "VS9-CAPTION-002-P01-RENDER"
+      ],
+      "linked_table_ids": [
+        "VS9-CAPTION-002-TABLE-P01"
+      ],
+      "memory_snapshot_id": "MEM-VS9-CAPTION-002",
+      "memory_snapshot_sha256": "c9f0f1553bd2e7eaa43269a85dda2e1822101fdbf59e8f19be89ab0537730b42",
+      "native_page_end": 1,
+      "native_page_start": 1,
+      "native_source_verification_status": "unverified",
+      "not_source_sufficiency_decision": true,
+      "request_id": "REQ-VS9-CAPTION-002",
+      "result_id": "RET-VS9-CAPTION-002",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
+      "retrieval_reason": "bounded V3 synthetic structure qualification",
+      "score_components": {
+        "score": 1.0
+      },
+      "section_path": [
+        "synthetic-v3",
+        "captions",
+        "VS9-CAPTION-002"
+      ],
+      "source_id": "SYNTHETIC-VS9-CAPTION-002",
+      "source_version_id": "e962ec8336257576664491c25e58ad7d45944f7f2f958085be8047d41f3a2330",
+      "warnings": []
+    },
+    {
+      "citation": {
+        "native_reference": "e85878e15180a385eafbd2e5cf07133e5962f713e77abaf9c93c3b302787fefb:p1#VS9-COLUMN-001-TOKEN-001"
+      },
+      "contract_version": "knowledge-retrieval-result-v1",
+      "extraction_block_ids": [
+        "VS9-COLUMN-001-TOKEN-001",
+        "VS9-COLUMN-001-TOKEN-002",
+        "VS9-COLUMN-001-TOKEN-003"
+      ],
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
+      "linked_image_ids": [
+        "VS9-COLUMN-001-P01-RENDER"
+      ],
+      "linked_table_ids": [
+        "VS9-COLUMN-001-TABLE-P01"
+      ],
+      "memory_snapshot_id": "MEM-VS9-COLUMN-001",
+      "memory_snapshot_sha256": "ea05fbd7b4dea94e5b5283f44edac7ae62d01d5921f62f05a424119fd0ae6281",
+      "native_page_end": 1,
+      "native_page_start": 1,
+      "native_source_verification_status": "unverified",
+      "not_source_sufficiency_decision": true,
+      "request_id": "REQ-VS9-COLUMN-001",
+      "result_id": "RET-VS9-COLUMN-001",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
+      "retrieval_reason": "bounded V3 synthetic structure qualification",
+      "score_components": {
+        "score": 1.0
+      },
+      "section_path": [
+        "synthetic-v3",
+        "multi_column_flow",
+        "VS9-COLUMN-001"
+      ],
+      "source_id": "SYNTHETIC-VS9-COLUMN-001",
+      "source_version_id": "e85878e15180a385eafbd2e5cf07133e5962f713e77abaf9c93c3b302787fefb",
+      "warnings": []
+    },
+    {
+      "citation": {
+        "native_reference": "f39ff844e623d893b5ed4cdffa1832e29070d225425ae2b67f12b564e2cbaa8d:p1#VS9-COLUMN-002-TOKEN-001"
+      },
+      "contract_version": "knowledge-retrieval-result-v1",
+      "extraction_block_ids": [
+        "VS9-COLUMN-002-TOKEN-001",
+        "VS9-COLUMN-002-TOKEN-002",
+        "VS9-COLUMN-002-TOKEN-003"
+      ],
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
+      "linked_image_ids": [
+        "VS9-COLUMN-002-P01-RENDER"
+      ],
+      "linked_table_ids": [
+        "VS9-COLUMN-002-TABLE-P01"
+      ],
+      "memory_snapshot_id": "MEM-VS9-COLUMN-002",
+      "memory_snapshot_sha256": "b23de085964320237823f69d0896543b5fe200d86fce20f401954a73f336c229",
+      "native_page_end": 1,
+      "native_page_start": 1,
+      "native_source_verification_status": "unverified",
+      "not_source_sufficiency_decision": true,
+      "request_id": "REQ-VS9-COLUMN-002",
+      "result_id": "RET-VS9-COLUMN-002",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
+      "retrieval_reason": "bounded V3 synthetic structure qualification",
+      "score_components": {
+        "score": 1.0
+      },
+      "section_path": [
+        "synthetic-v3",
+        "multi_column_flow",
+        "VS9-COLUMN-002"
+      ],
+      "source_id": "SYNTHETIC-VS9-COLUMN-002",
+      "source_version_id": "f39ff844e623d893b5ed4cdffa1832e29070d225425ae2b67f12b564e2cbaa8d",
+      "warnings": []
+    },
+    {
+      "citation": {
+        "native_reference": "840e895ff95d96eaed71d0a7c7f0ed888ca0d427c5d78771acc943bcfd8219e0:p1#VS9-CROSS-001-TOKEN-001"
+      },
+      "contract_version": "knowledge-retrieval-result-v1",
+      "extraction_block_ids": [
+        "VS9-CROSS-001-TOKEN-001",
+        "VS9-CROSS-001-TOKEN-002",
+        "VS9-CROSS-001-TOKEN-003",
+        "VS9-CROSS-001-TOKEN-004"
+      ],
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
+      "linked_image_ids": [
+        "VS9-CROSS-001-P01-RENDER",
+        "VS9-CROSS-001-P02-RENDER"
+      ],
+      "linked_table_ids": [
+        "VS9-CROSS-001-TABLE-P01",
+        "VS9-CROSS-001-TABLE-P02"
+      ],
+      "memory_snapshot_id": "MEM-VS9-CROSS-001",
+      "memory_snapshot_sha256": "1a6ef90dc87ba5f18c6f8c473599567275ff1da846a583bad11ec7e3fe469cf3",
+      "native_page_end": 2,
+      "native_page_start": 1,
+      "native_source_verification_status": "unverified",
+      "not_source_sufficiency_decision": true,
+      "request_id": "REQ-VS9-CROSS-001",
+      "result_id": "RET-VS9-CROSS-001",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
+      "retrieval_reason": "bounded V3 synthetic structure qualification",
+      "score_components": {
+        "score": 1.0
+      },
+      "section_path": [
+        "synthetic-v3",
+        "cross_page_tables",
+        "VS9-CROSS-001"
+      ],
+      "source_id": "SYNTHETIC-VS9-CROSS-001",
+      "source_version_id": "840e895ff95d96eaed71d0a7c7f0ed888ca0d427c5d78771acc943bcfd8219e0",
+      "warnings": []
+    },
+    {
+      "citation": {
+        "native_reference": "7bde3e09a52e694407f83bd8bbb6be23e34b20898475c00b49b91a7839017633:p1#VS9-CROSS-002-TOKEN-001"
+      },
+      "contract_version": "knowledge-retrieval-result-v1",
+      "extraction_block_ids": [
+        "VS9-CROSS-002-TOKEN-001",
+        "VS9-CROSS-002-TOKEN-002",
+        "VS9-CROSS-002-TOKEN-003",
+        "VS9-CROSS-002-TOKEN-004"
+      ],
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
+      "linked_image_ids": [
+        "VS9-CROSS-002-P01-RENDER",
+        "VS9-CROSS-002-P02-RENDER"
+      ],
+      "linked_table_ids": [
+        "VS9-CROSS-002-TABLE-P01",
+        "VS9-CROSS-002-TABLE-P02"
+      ],
+      "memory_snapshot_id": "MEM-VS9-CROSS-002",
+      "memory_snapshot_sha256": "712e9c828f4a0976a83f6b290a07b4fcbb230f9f013bd1aaac884b2af3204039",
+      "native_page_end": 2,
+      "native_page_start": 1,
+      "native_source_verification_status": "unverified",
+      "not_source_sufficiency_decision": true,
+      "request_id": "REQ-VS9-CROSS-002",
+      "result_id": "RET-VS9-CROSS-002",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
+      "retrieval_reason": "bounded V3 synthetic structure qualification",
+      "score_components": {
+        "score": 1.0
+      },
+      "section_path": [
+        "synthetic-v3",
+        "cross_page_tables",
+        "VS9-CROSS-002"
+      ],
+      "source_id": "SYNTHETIC-VS9-CROSS-002",
+      "source_version_id": "7bde3e09a52e694407f83bd8bbb6be23e34b20898475c00b49b91a7839017633",
+      "warnings": []
+    },
+    {
+      "citation": {
+        "native_reference": "6024d340d05b5ad886c60b8eda7cf30d913e37ce1e87f6ceeebe23f106017f1f:p1#VS9-FOOTNOTE-001-TOKEN-001"
+      },
+      "contract_version": "knowledge-retrieval-result-v1",
+      "extraction_block_ids": [
+        "VS9-FOOTNOTE-001-TOKEN-001",
+        "VS9-FOOTNOTE-001-TOKEN-002",
+        "VS9-FOOTNOTE-001-TOKEN-003"
+      ],
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
+      "linked_image_ids": [
+        "VS9-FOOTNOTE-001-P01-RENDER"
+      ],
+      "linked_table_ids": [
+        "VS9-FOOTNOTE-001-TABLE-P01"
+      ],
+      "memory_snapshot_id": "MEM-VS9-FOOTNOTE-001",
+      "memory_snapshot_sha256": "947ea803918361b89871ad084cf5927fd1a976768868dbec633c46e838ed52ef",
+      "native_page_end": 1,
+      "native_page_start": 1,
+      "native_source_verification_status": "unverified",
+      "not_source_sufficiency_decision": true,
+      "request_id": "REQ-VS9-FOOTNOTE-001",
+      "result_id": "RET-VS9-FOOTNOTE-001",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
+      "retrieval_reason": "bounded V3 synthetic structure qualification",
+      "score_components": {
+        "score": 1.0
+      },
+      "section_path": [
+        "synthetic-v3",
+        "footnotes",
+        "VS9-FOOTNOTE-001"
+      ],
+      "source_id": "SYNTHETIC-VS9-FOOTNOTE-001",
+      "source_version_id": "6024d340d05b5ad886c60b8eda7cf30d913e37ce1e87f6ceeebe23f106017f1f",
+      "warnings": []
+    },
+    {
+      "citation": {
+        "native_reference": "49c3bf2d3fdb1bf3f674ceb43c80604607584c7d047c8030c5ee862ed9cc4216:p1#VS9-FOOTNOTE-002-TOKEN-001"
+      },
+      "contract_version": "knowledge-retrieval-result-v1",
+      "extraction_block_ids": [
+        "VS9-FOOTNOTE-002-TOKEN-001",
+        "VS9-FOOTNOTE-002-TOKEN-002",
+        "VS9-FOOTNOTE-002-TOKEN-003"
+      ],
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
+      "linked_image_ids": [
+        "VS9-FOOTNOTE-002-P01-RENDER"
+      ],
+      "linked_table_ids": [
+        "VS9-FOOTNOTE-002-TABLE-P01"
+      ],
+      "memory_snapshot_id": "MEM-VS9-FOOTNOTE-002",
+      "memory_snapshot_sha256": "c4383c4edc2063d7850512e6f9fcb26c7b3ef740cc1070fc7c491113ac1b6195",
+      "native_page_end": 1,
+      "native_page_start": 1,
+      "native_source_verification_status": "unverified",
+      "not_source_sufficiency_decision": true,
+      "request_id": "REQ-VS9-FOOTNOTE-002",
+      "result_id": "RET-VS9-FOOTNOTE-002",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
+      "retrieval_reason": "bounded V3 synthetic structure qualification",
+      "score_components": {
+        "score": 1.0
+      },
+      "section_path": [
+        "synthetic-v3",
+        "footnotes",
+        "VS9-FOOTNOTE-002"
+      ],
+      "source_id": "SYNTHETIC-VS9-FOOTNOTE-002",
+      "source_version_id": "49c3bf2d3fdb1bf3f674ceb43c80604607584c7d047c8030c5ee862ed9cc4216",
+      "warnings": []
+    },
+    {
+      "citation": {
+        "native_reference": "ecda67a4f1ae10cceeb6fc9d0e61f58be04e9a9a80d15252bfc226b10de44030:p1#VS9-FORMULA-001-TOKEN-001"
+      },
+      "contract_version": "knowledge-retrieval-result-v1",
+      "extraction_block_ids": [
+        "VS9-FORMULA-001-TOKEN-001",
+        "VS9-FORMULA-001-TOKEN-002",
+        "VS9-FORMULA-001-TOKEN-003",
+        "VS9-FORMULA-001-TOKEN-004"
+      ],
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
+      "linked_image_ids": [
+        "VS9-FORMULA-001-P01-RENDER"
+      ],
+      "linked_table_ids": [
+        "VS9-FORMULA-001-TABLE-P01"
+      ],
+      "memory_snapshot_id": "MEM-VS9-FORMULA-001",
+      "memory_snapshot_sha256": "509940d2c776e360cd68ea5e375d3fe27447136a2081949d694088f0c61f3fdb",
+      "native_page_end": 1,
+      "native_page_start": 1,
+      "native_source_verification_status": "unverified",
+      "not_source_sufficiency_decision": true,
+      "request_id": "REQ-VS9-FORMULA-001",
+      "result_id": "RET-VS9-FORMULA-001",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
+      "retrieval_reason": "bounded V3 synthetic structure qualification",
+      "score_components": {
+        "score": 1.0
+      },
+      "section_path": [
+        "synthetic-v3",
+        "formulas_signs",
+        "VS9-FORMULA-001"
+      ],
+      "source_id": "SYNTHETIC-VS9-FORMULA-001",
+      "source_version_id": "ecda67a4f1ae10cceeb6fc9d0e61f58be04e9a9a80d15252bfc226b10de44030",
+      "warnings": []
+    },
+    {
+      "citation": {
+        "native_reference": "1029eebc5c3bedf00bd6bf50b1dd57ab79c29a2afa171ef5463397e52fb1a487:p1#VS9-FORMULA-002-TOKEN-001"
+      },
+      "contract_version": "knowledge-retrieval-result-v1",
+      "extraction_block_ids": [
+        "VS9-FORMULA-002-TOKEN-001",
+        "VS9-FORMULA-002-TOKEN-002",
+        "VS9-FORMULA-002-TOKEN-003",
+        "VS9-FORMULA-002-TOKEN-004"
+      ],
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
+      "linked_image_ids": [
+        "VS9-FORMULA-002-P01-RENDER"
+      ],
+      "linked_table_ids": [
+        "VS9-FORMULA-002-TABLE-P01"
+      ],
+      "memory_snapshot_id": "MEM-VS9-FORMULA-002",
+      "memory_snapshot_sha256": "bcf6c9c3a01acdd486190e816ed8d12c27ac5c76fcb7fa82ef8bf42096167b7a",
+      "native_page_end": 1,
+      "native_page_start": 1,
+      "native_source_verification_status": "unverified",
+      "not_source_sufficiency_decision": true,
+      "request_id": "REQ-VS9-FORMULA-002",
+      "result_id": "RET-VS9-FORMULA-002",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
+      "retrieval_reason": "bounded V3 synthetic structure qualification",
+      "score_components": {
+        "score": 1.0
+      },
+      "section_path": [
+        "synthetic-v3",
+        "formulas_signs",
+        "VS9-FORMULA-002"
+      ],
+      "source_id": "SYNTHETIC-VS9-FORMULA-002",
+      "source_version_id": "1029eebc5c3bedf00bd6bf50b1dd57ab79c29a2afa171ef5463397e52fb1a487",
+      "warnings": []
+    },
+    {
+      "citation": {
+        "native_reference": "a0b697385475d0c1186bc445c9f5f1f5e8d89d317b89e333ad526872d03b55c0:p1#VS9-HEADER-001-TOKEN-001"
+      },
+      "contract_version": "knowledge-retrieval-result-v1",
+      "extraction_block_ids": [
+        "VS9-HEADER-001-TOKEN-001",
+        "VS9-HEADER-001-TOKEN-002",
+        "VS9-HEADER-001-TOKEN-003"
+      ],
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
+      "linked_image_ids": [
+        "VS9-HEADER-001-P01-RENDER"
+      ],
+      "linked_table_ids": [
+        "VS9-HEADER-001-TABLE-P01"
+      ],
+      "memory_snapshot_id": "MEM-VS9-HEADER-001",
+      "memory_snapshot_sha256": "05e3305f10a3527fbb0e642cc8d11cc7ad19ea1605d4a40df6b81742ef17a561",
+      "native_page_end": 1,
+      "native_page_start": 1,
+      "native_source_verification_status": "unverified",
+      "not_source_sufficiency_decision": true,
+      "request_id": "REQ-VS9-HEADER-001",
+      "result_id": "RET-VS9-HEADER-001",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
+      "retrieval_reason": "bounded V3 synthetic structure qualification",
+      "score_components": {
+        "score": 1.0
+      },
+      "section_path": [
+        "synthetic-v3",
+        "multi_level_headers",
+        "VS9-HEADER-001"
+      ],
+      "source_id": "SYNTHETIC-VS9-HEADER-001",
+      "source_version_id": "a0b697385475d0c1186bc445c9f5f1f5e8d89d317b89e333ad526872d03b55c0",
+      "warnings": []
+    },
+    {
+      "citation": {
+        "native_reference": "2c04f966f0d9c626843ddef449400b6614c51ec5579cbca72843f36f9ec27762:p1#VS9-HEADER-002-TOKEN-001"
+      },
+      "contract_version": "knowledge-retrieval-result-v1",
+      "extraction_block_ids": [
+        "VS9-HEADER-002-TOKEN-001",
+        "VS9-HEADER-002-TOKEN-002",
+        "VS9-HEADER-002-TOKEN-003"
+      ],
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
+      "linked_image_ids": [
+        "VS9-HEADER-002-P01-RENDER"
+      ],
+      "linked_table_ids": [
+        "VS9-HEADER-002-TABLE-P01"
+      ],
+      "memory_snapshot_id": "MEM-VS9-HEADER-002",
+      "memory_snapshot_sha256": "4af126323f9a82398a7c818c5b81a7dd3fe0774fbe661a24cd1e692525509880",
+      "native_page_end": 1,
+      "native_page_start": 1,
+      "native_source_verification_status": "unverified",
+      "not_source_sufficiency_decision": true,
+      "request_id": "REQ-VS9-HEADER-002",
+      "result_id": "RET-VS9-HEADER-002",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
+      "retrieval_reason": "bounded V3 synthetic structure qualification",
+      "score_components": {
+        "score": 1.0
+      },
+      "section_path": [
+        "synthetic-v3",
+        "multi_level_headers",
+        "VS9-HEADER-002"
+      ],
+      "source_id": "SYNTHETIC-VS9-HEADER-002",
+      "source_version_id": "2c04f966f0d9c626843ddef449400b6614c51ec5579cbca72843f36f9ec27762",
+      "warnings": []
+    },
+    {
+      "citation": {
+        "native_reference": "ff2fe64b9f730148fd93beb11576d9c6c76c0273044e8cb051e115a04441931c:p1#VS9-MERGED-001-TOKEN-001"
+      },
+      "contract_version": "knowledge-retrieval-result-v1",
+      "extraction_block_ids": [
+        "VS9-MERGED-001-TOKEN-001",
+        "VS9-MERGED-001-TOKEN-002",
+        "VS9-MERGED-001-TOKEN-003"
+      ],
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
+      "linked_image_ids": [
+        "VS9-MERGED-001-P01-RENDER"
+      ],
+      "linked_table_ids": [
+        "VS9-MERGED-001-TABLE-P01"
+      ],
+      "memory_snapshot_id": "MEM-VS9-MERGED-001",
+      "memory_snapshot_sha256": "29ef13996ec4430fa6c0864c18beb92a36666566757a05e49e2f09413316249c",
+      "native_page_end": 1,
+      "native_page_start": 1,
+      "native_source_verification_status": "unverified",
+      "not_source_sufficiency_decision": true,
+      "request_id": "REQ-VS9-MERGED-001",
+      "result_id": "RET-VS9-MERGED-001",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
+      "retrieval_reason": "bounded V3 synthetic structure qualification",
+      "score_components": {
+        "score": 1.0
+      },
+      "section_path": [
+        "synthetic-v3",
+        "merged_cells",
+        "VS9-MERGED-001"
+      ],
+      "source_id": "SYNTHETIC-VS9-MERGED-001",
+      "source_version_id": "ff2fe64b9f730148fd93beb11576d9c6c76c0273044e8cb051e115a04441931c",
+      "warnings": []
+    },
+    {
+      "citation": {
+        "native_reference": "c1468c20a4df1916f3522f1f4eb540a629074f60b6fa3a23d15181afc3e47ef8:p1#VS9-MERGED-002-TOKEN-001"
+      },
+      "contract_version": "knowledge-retrieval-result-v1",
+      "extraction_block_ids": [
+        "VS9-MERGED-002-TOKEN-001",
+        "VS9-MERGED-002-TOKEN-002",
+        "VS9-MERGED-002-TOKEN-003"
+      ],
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
+      "linked_image_ids": [
+        "VS9-MERGED-002-P01-RENDER"
+      ],
+      "linked_table_ids": [
+        "VS9-MERGED-002-TABLE-P01"
+      ],
+      "memory_snapshot_id": "MEM-VS9-MERGED-002",
+      "memory_snapshot_sha256": "53ddb13aee16c1be1bda2e4bf5a418002c43712e4b25a4df3b285a4cf99c1b69",
+      "native_page_end": 1,
+      "native_page_start": 1,
+      "native_source_verification_status": "unverified",
+      "not_source_sufficiency_decision": true,
+      "request_id": "REQ-VS9-MERGED-002",
+      "result_id": "RET-VS9-MERGED-002",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
+      "retrieval_reason": "bounded V3 synthetic structure qualification",
+      "score_components": {
+        "score": 1.0
+      },
+      "section_path": [
+        "synthetic-v3",
+        "merged_cells",
+        "VS9-MERGED-002"
+      ],
+      "source_id": "SYNTHETIC-VS9-MERGED-002",
+      "source_version_id": "c1468c20a4df1916f3522f1f4eb540a629074f60b6fa3a23d15181afc3e47ef8",
+      "warnings": []
+    },
+    {
+      "citation": {
+        "native_reference": "bcfc4358ffb2b54b41ac0bd7971b775ff6bb5b4fb631247bb34fbbfa55d56e94:p1#VS9-REPEAT-001-TOKEN-001"
+      },
+      "contract_version": "knowledge-retrieval-result-v1",
+      "extraction_block_ids": [
+        "VS9-REPEAT-001-TOKEN-001",
+        "VS9-REPEAT-001-TOKEN-002",
+        "VS9-REPEAT-001-TOKEN-003"
+      ],
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
+      "linked_image_ids": [
+        "VS9-REPEAT-001-P01-RENDER"
+      ],
+      "linked_table_ids": [
+        "VS9-REPEAT-001-TABLE-P01"
+      ],
+      "memory_snapshot_id": "MEM-VS9-REPEAT-001",
+      "memory_snapshot_sha256": "6513341bda237138aa25bf56705e5ee2bf27e2c7df10f64d3e670161d8e00636",
+      "native_page_end": 1,
+      "native_page_start": 1,
+      "native_source_verification_status": "unverified",
+      "not_source_sufficiency_decision": true,
+      "request_id": "REQ-VS9-REPEAT-001",
+      "result_id": "RET-VS9-REPEAT-001",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
+      "retrieval_reason": "bounded V3 synthetic structure qualification",
+      "score_components": {
+        "score": 1.0
+      },
+      "section_path": [
+        "synthetic-v3",
+        "repeated_values",
+        "VS9-REPEAT-001"
+      ],
+      "source_id": "SYNTHETIC-VS9-REPEAT-001",
+      "source_version_id": "bcfc4358ffb2b54b41ac0bd7971b775ff6bb5b4fb631247bb34fbbfa55d56e94",
+      "warnings": []
+    },
+    {
+      "citation": {
+        "native_reference": "eebd3a5e17c3198e0cde09307536405e88e5a6ba245bc1a2dcaae43a05809161:p1#VS9-REPEAT-002-TOKEN-001"
+      },
+      "contract_version": "knowledge-retrieval-result-v1",
+      "extraction_block_ids": [
+        "VS9-REPEAT-002-TOKEN-001",
+        "VS9-REPEAT-002-TOKEN-002",
+        "VS9-REPEAT-002-TOKEN-003"
+      ],
+      "knowhere_repository_sha": "82fe13c16e6f4e1666be480d3e475a13509231a2",
+      "linked_image_ids": [
+        "VS9-REPEAT-002-P01-RENDER"
+      ],
+      "linked_table_ids": [
+        "VS9-REPEAT-002-TABLE-P01"
+      ],
+      "memory_snapshot_id": "MEM-VS9-REPEAT-002",
+      "memory_snapshot_sha256": "3a53cd521a0983d98f79199156b524029f809b607ea187927d4b1608aac773b0",
+      "native_page_end": 1,
+      "native_page_start": 1,
+      "native_source_verification_status": "unverified",
+      "not_source_sufficiency_decision": true,
+      "request_id": "REQ-VS9-REPEAT-002",
+      "result_id": "RET-VS9-REPEAT-002",
+      "retrieval_configuration_sha256": "1b1993ba0adb923620a90f2fe504133e41dc5ecf7f02df0fcddd37eb9347e320",
+      "retrieval_reason": "bounded V3 synthetic structure qualification",
+      "score_components": {
+        "score": 1.0
+      },
+      "section_path": [
+        "synthetic-v3",
+        "repeated_values",
+        "VS9-REPEAT-002"
+      ],
+      "source_id": "SYNTHETIC-VS9-REPEAT-002",
+      "source_version_id": "eebd3a5e17c3198e0cde09307536405e88e5a6ba245bc1a2dcaae43a05809161",
+      "warnings": []
+    }
+  ],
+  "runtime_execution": false,
+  "technical_completion": "qualified"
+}
