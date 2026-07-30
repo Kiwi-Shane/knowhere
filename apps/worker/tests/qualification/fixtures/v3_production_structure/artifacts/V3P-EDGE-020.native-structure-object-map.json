@@ -1,0 +1,222 @@
+{
+  "artifact_sha256": "0f5d3af34e1db1a517d1f601b5ecac72c082547257284ca7639f49f2885ae916",
+  "contract_version": "native-structure-object-map-v1",
+  "derivative_not_native_source_evidence": true,
+  "errors": [],
+  "extractor_identity": {
+    "configuration_sha256": "c4da5b51cac32588885c840bc4e0dc942d3fe4e3c74fa548d4f5eb98f7271f82",
+    "package_lock_sha256": "f0cf0243997894e46fb1e8a26e0eafaa8867f6c947c78831fb299618a3eff1c6",
+    "repository_sha": "7ffbbb7ca545553c9aa4e5d620a3b85da8654de8",
+    "runtime_image_digest": "sha256:a3fc8b2a7bc60098b2be37b158d4fcf58dc3e4a5bd80fea5b27ff7bab196f63e",
+    "source_blob_sha256": "e134dc40dd051fa2385bbc1c3dac0b7edb5403226da92d4a4e88c63f7c4956c7"
+  },
+  "fallback_used": false,
+  "input_sha256": "e134dc40dd051fa2385bbc1c3dac0b7edb5403226da92d4a4e88c63f7c4956c7",
+  "objects": [
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        0.0,
+        0.0,
+        583.0,
+        699.0
+      ],
+      "normalized_bbox": [
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "object_id": "NSO-416aa98886c54c27c42250759e0c1afd",
+      "object_type": "page_region",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "1d921149063f6634167682b31e13c0f404cef1173494a37c430cf4793023b13b",
+      "source_locator": {
+        "object_ordinal": 1,
+        "page_number": 1
+      },
+      "text_sha256": null,
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        47.0,
+        451.963,
+        60.442,
+        461.863
+      ],
+      "normalized_bbox": [
+        0.080617,
+        0.339252,
+        0.103674,
+        0.353415
+      ],
+      "object_id": "NSO-6ab73c16f9ba10cc51255507a38d7c6a",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "7561e85d477ccaa92b9222c9e454124470600ebeef148b9f1da05c28975a598b",
+      "source_locator": {
+        "object_ordinal": 2,
+        "page_number": 1
+      },
+      "text_sha256": "16a36e86f6fed5d465ff332511a0ce1a863b55d364b25a7cdaa25db19abf9648",
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        66.0,
+        451.963,
+        72.204,
+        461.863
+      ],
+      "normalized_bbox": [
+        0.113208,
+        0.339252,
+        0.123849,
+        0.353415
+      ],
+      "object_id": "NSO-a54722099d4b18664f4c32f52b836c18",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "a1a50bbbf1e9c6d6c8b0d335b5b5c22befa550324e56a0ceef52f72596b7085c",
+      "source_locator": {
+        "object_ordinal": 3,
+        "page_number": 1
+      },
+      "text_sha256": "a318c24216defe206feeb73ef5be00033fa9c4a74d0b967f6532a26ca5906d3b",
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        85.0,
+        451.963,
+        97.837,
+        461.863
+      ],
+      "normalized_bbox": [
+        0.145798,
+        0.339252,
+        0.167816,
+        0.353415
+      ],
+      "object_id": "NSO-d877386128c902ac9037472429bd0d57",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "349b769cc16a8d1f300a6015956d0ecbd183b2b5889f2d8b64b0d747f4a79b89",
+      "source_locator": {
+        "object_ordinal": 4,
+        "page_number": 1
+      },
+      "text_sha256": "5b950e77941d01cdf246d00b1ece546bc95234b77d98b44c9187e2733afa696a",
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        104.0,
+        454.35,
+        109.5,
+        454.35
+      ],
+      "normalized_bbox": [
+        0.178388,
+        0.35,
+        0.187822,
+        0.35
+      ],
+      "object_id": "NSO-6929b2bb7371f5f37893e53c3c7e5dfc",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "62239c54d33e8f0b2aa277923995e43e86fe3b9da3b5fd178a2a4066a61c4b35",
+      "source_locator": {
+        "object_ordinal": 5,
+        "page_number": 1
+      },
+      "text_sha256": "d79629340b6fda9d491df489dfc57e048e6b3dedadf666d32cca9559560a9bc2",
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        123.0,
+        451.963,
+        135.837,
+        461.863
+      ],
+      "normalized_bbox": [
+        0.210978,
+        0.339252,
+        0.232997,
+        0.353415
+      ],
+      "object_id": "NSO-e00f001cf783402568afb7af600df7c0",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "3e650fceedaddb2829884e59a9fb23ab15878c8094dca819784818ea936e7848",
+      "source_locator": {
+        "object_ordinal": 6,
+        "page_number": 1
+      },
+      "text_sha256": "ab861dc170dc2e43224e45278d3d31a675b9ebc34c9b0f48c066ca1eeaed8ee6",
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        544.0,
+        650.0,
+        563.0,
+        663.0
+      ],
+      "normalized_bbox": [
+        0.933105,
+        0.051502,
+        0.965695,
+        0.0701
+      ],
+      "object_id": "NSO-9e8512e53da6506392c8a4240442f45a",
+      "object_type": "vector_rectangle",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "dbe2146ac4c9c8a4e08cc7bd57cb5e5b2bf5d7101cbde3fa3323d33bfca9eccb",
+      "source_locator": {
+        "object_ordinal": 7,
+        "page_number": 1
+      },
+      "text_sha256": null,
+      "warning_codes": []
+    }
+  ],
+  "page_geometry": [
+    {
+      "crop_box": [
+        0.0,
+        0.0,
+        583.0,
+        699.0
+      ],
+      "media_box": [
+        0.0,
+        0.0,
+        583.0,
+        699.0
+      ],
+      "normalized_height": 699.0,
+      "normalized_width": 583.0,
+      "page_number": 1,
+      "source_rotation": 0
+    }
+  ],
+  "source_id": "V3P-EDGE-020",
+  "source_version_id": "e134dc40dd051fa2385bbc1c3dac0b7edb5403226da92d4a4e88c63f7c4956c7",
+  "warnings": []
+}

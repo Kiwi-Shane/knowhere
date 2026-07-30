@@ -1,0 +1,41 @@
+{
+  "abstentions": [],
+  "caption_links": [],
+  "continuation_links": [],
+  "contract_version": "structure-association-result-v1",
+  "fallback_used": false,
+  "footnote_links": [],
+  "input_sha256": "e134dc40dd051fa2385bbc1c3dac0b7edb5403226da92d4a4e88c63f7c4956c7",
+  "native_object_map_sha256": "0f5d3af34e1db1a517d1f601b5ecac72c082547257284ca7639f49f2885ae916",
+  "profile_id": "mineru_complex_layout_structural_v2",
+  "profile_release_id": "v3-production-synthetic-edge-v1",
+  "reading_order": [
+    "NST-8869909843ae2c69e27f5a0a87c49b53"
+  ],
+  "regions": [
+    {
+      "confidence": 1.0,
+      "member_object_ids": [
+        "NSO-6929b2bb7371f5f37893e53c3c7e5dfc",
+        "NSO-6ab73c16f9ba10cc51255507a38d7c6a",
+        "NSO-a54722099d4b18664f4c32f52b836c18",
+        "NSO-d877386128c902ac9037472429bd0d57",
+        "NSO-e00f001cf783402568afb7af600df7c0"
+      ],
+      "normalized_bbox": [
+        0.080617,
+        0.339252,
+        0.232997,
+        0.353415
+      ],
+      "page_end": 1,
+      "page_start": 1,
+      "region_id": "NST-8869909843ae2c69e27f5a0a87c49b53",
+      "region_type": "text_line_group"
+    }
+  ],
+  "source_id": "V3P-EDGE-020",
+  "source_version_id": "e134dc40dd051fa2385bbc1c3dac0b7edb5403226da92d4a4e88c63f7c4956c7",
+  "tables": [],
+  "warnings": []
+}

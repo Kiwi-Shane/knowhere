@@ -1,0 +1,4 @@
+*.pdf binary
+apps/worker/tests/qualification/fixtures/v3_production_structure/*.json -text
+apps/worker/tests/qualification/fixtures/v3_production_structure/artifacts/*.json -text
+examples/qualification/v3-production-structure-retrieval/*.json -text

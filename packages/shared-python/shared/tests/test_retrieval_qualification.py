@@ -104,3 +104,22 @@ def test_v3_result_rejects_missing_linked_assets() -> None:
         "linked_table_ids_mismatch",
         "linked_image_ids_mismatch",
     }
+
+
+def test_v3_result_requires_exact_native_object_and_structure_id_sets() -> None:
+    result = _result()
+    result["linked_native_object_ids"] = ["NSO-001", "NSO-OTHER"]
+    result["linked_structure_ids"] = ["NST-001"]
+
+    issues = validate_v3_structure_retrieval_result(
+        result,
+        expected_table_ids=set(),
+        expected_image_ids=set(),
+        expected_native_object_ids={"NSO-001"},
+        expected_structure_ids={"NST-001", "NST-002"},
+    )
+
+    assert {issue.code for issue in issues} == {
+        "linked_native_object_ids_mismatch",
+        "linked_structure_ids_mismatch",
+    }
