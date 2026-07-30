@@ -19,6 +19,16 @@ FIXTURE_SHA256 = (
     "6d368aa27e4dc8f82ff19ec02436b6a4ed53190f324028bfe2aedb198d1de8ec"
 )
 REPOSITORY_SHA = "b2287e32127ffdb28ab417e811ad5af24c6b4008"
+QUALIFICATION_IMPLEMENTATION_SHA = (
+    "9c477e86f352cf7490ff3bc0755610896cbe31c6"
+)
+REPORT_PATH = (
+    Path(__file__).resolve().parents[4]
+    / "examples"
+    / "qualification"
+    / "v3-production-structure-retrieval"
+    / "qualification-report.json"
+)
 REQUIRED_CONTROLS = {
     "fixture_set_sha",
     "profile_boundary",
@@ -125,3 +135,18 @@ def test_v3_production_profile_rejects_cross_namespace_retrieval() -> None:
     assert report["controls"]["namespace_isolation"]["status"] == "fail"
     assert report["technical_completion"] == "mechanical_fail"
 
+
+def test_committed_v3_production_retrieval_report_is_exactly_bound() -> None:
+    report = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
+
+    assert report["technical_completion"] == "qualified"
+    assert report["repository_sha"] == QUALIFICATION_IMPLEMENTATION_SHA
+    assert report["fixture_set_sha256"] == FIXTURE_SHA256
+    assert report["fixture_count"] == 24
+    assert report["passing_fixture_count"] == 24
+    assert len(report["retrieval_results"]) == 24
+    assert set(report["controls"]) == REQUIRED_CONTROLS
+    assert all(
+        control["status"] == "pass"
+        for control in report["controls"].values()
+    )
