@@ -29,6 +29,12 @@ _FORBIDDEN_AUTHORITY_FIELDS = frozenset(
 )
 _INTERNAL_DESTINATIONS = frozenset({"mineru", "knowhere-api", "object-storage"})
 _CASE_IDS = ("CASE-SYN-A", "CASE-SYN-B")
+_V3_PRODUCTION_REPLAY_REPORT_SHA256 = (
+    "5304a6ba14114083ea1edb4c5a3c97ccb5dbfe7406627f4e982ce4a13a7ef58d"
+)
+_V3_PRODUCTION_REPLAY_FILE_SHA256 = (
+    "d9e8b4860839d1b23ea59eac3f9738d01b1c54f3081f7799c40cc76396e6e8a2"
+)
 
 
 @dataclass(frozen=True)
@@ -417,11 +423,14 @@ def run_v3_production_structure_synthetic_qualification(
     actual_fixture_sha = _canonical_without(
         fixture_set, "fixture_set_sha256"
     )
-    record(
-        "fixture_set_sha",
+    fixture_seal_pass = (
         declared_fixture_sha
         == actual_fixture_sha
-        == expected_fixture_sha256,
+        == expected_fixture_sha256
+    )
+    record(
+        "fixture_set_sha",
+        fixture_seal_pass,
         "source-owned fixture set self-seal and expected seal match",
     )
 
@@ -434,8 +443,7 @@ def run_v3_production_structure_synthetic_qualification(
         else []
     )
     profile_id = _text_value(fixture_set.get("profile_id"))
-    record(
-        "profile_boundary",
+    profile_boundary_pass = (
         fixture_set.get("schema")
         == "mineru-v3-production-downstream-fixture-set/1.0"
         and profile_id == "mineru_complex_layout_structural_v2"
@@ -448,8 +456,46 @@ def run_v3_production_structure_synthetic_qualification(
         and boundaries.get("source_sufficiency_established") is False
         and boundaries.get("runtime_execution_allowed") is False
         and boundaries.get("provider_execution_allowed") is False
-        and boundaries.get("release_allowed") is False,
+        and boundaries.get("release_allowed") is False
+    )
+    record(
+        "profile_boundary",
+        profile_boundary_pass,
         "generic production profile remains bounded synthetic and non-release",
+    )
+    replay_path = fixture_root / "merged-replay-report.json"
+    replay_report: Mapping[str, Any] = {}
+    replay_file_pass = replay_path.is_file()
+    if replay_file_pass:
+        try:
+            loaded_replay = json.loads(replay_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            loaded_replay = {}
+        if isinstance(loaded_replay, Mapping):
+            replay_report = loaded_replay
+    replay_provenance_pass = (
+        replay_file_pass
+        and _file_sha256(replay_path)
+        == _V3_PRODUCTION_REPLAY_FILE_SHA256
+        and replay_report.get("schema")
+        == "mineru-v3-production-merged-replay/1.0"
+        and replay_report.get("report_sha256")
+        == _V3_PRODUCTION_REPLAY_REPORT_SHA256
+        and _canonical_without(replay_report, "report_sha256")
+        == _V3_PRODUCTION_REPLAY_REPORT_SHA256
+        and replay_report.get("downstream_fixture_set_sha256")
+        == expected_fixture_sha256
+        and replay_report.get("formal_holdout_consumed") is True
+        and replay_report.get("reviewed_tree_matches_merged_tree") is True
+        and replay_report.get("component_identities_match") is True
+        and replay_report.get("aggregate_results_match") is True
+        and replay_report.get("qualification_credit") is False
+        and replay_report.get("new_holdout_created") is False
+    )
+    record(
+        "merged_replay_provenance",
+        replay_provenance_pass,
+        "merged replay report byte seal, semantic seal, and no-credit state match",
     )
 
     native_hash_pass = True
@@ -466,6 +512,7 @@ def run_v3_production_structure_synthetic_qualification(
     other_namespace = "v3-production-other"
     results: dict[str, dict[str, Any]] = {}
     family_names: set[str] = set()
+    fixture_control_passes: dict[str, dict[str, bool]] = {}
 
     for raw_item in fixtures:
         if not isinstance(raw_item, Mapping):
@@ -494,12 +541,12 @@ def run_v3_production_structure_synthetic_qualification(
         native_path = _safe_fixture_path(
             fixture_root, item.get("native_pdf_relative_path")
         )
-        native_hash_pass = (
-            native_hash_pass
-            and native_path is not None
+        item_native_hash_pass = (
+            native_path is not None
             and native_path.is_file()
             and _file_sha256(native_path) == native_sha
         )
+        native_hash_pass = native_hash_pass and item_native_hash_pass
 
         object_map_hash = _canonical_without(
             object_map, "artifact_sha256"
@@ -511,9 +558,8 @@ def run_v3_production_structure_synthetic_qualification(
         }
         structure_ids = _prefixed_ids(association, "NST-")
         referenced_object_ids = _prefixed_ids(association, "NSO-")
-        identity_pass = (
-            identity_pass
-            and object_map.get("contract_version")
+        item_identity_pass = (
+            object_map.get("contract_version")
             == "native-structure-object-map-v1"
             and association.get("contract_version")
             == "structure-association-result-v1"
@@ -530,7 +576,7 @@ def run_v3_production_structure_synthetic_qualification(
         )
         for obj in object_map.get("objects", []):
             if not isinstance(obj, Mapping):
-                identity_pass = False
+                item_identity_pass = False
                 continue
             identity_input = {
                 "source_sha256": native_sha,
@@ -540,14 +586,15 @@ def run_v3_production_structure_synthetic_qualification(
                 "raw_object_sha256": obj.get("raw_object_sha256"),
                 "occurrence_index": obj.get("occurrence_index"),
             }
-            identity_pass = identity_pass and obj.get(
+            item_identity_pass = item_identity_pass and obj.get(
                 "object_id"
             ) == f"NSO-{canonical_fixture_sha256(identity_input)[:32]}"
-        object_link_pass = (
-            object_link_pass
-            and bool(object_ids)
+        identity_pass = identity_pass and item_identity_pass
+        item_object_link_pass = (
+            bool(object_ids)
             and referenced_object_ids <= object_ids
         )
+        object_link_pass = object_link_pass and item_object_link_pass
 
         outputs = manifest.get("outputs")
         if not isinstance(outputs, list):
@@ -556,11 +603,11 @@ def run_v3_production_structure_synthetic_qualification(
             "native-structure-object-map-v1": object_map,
             "structure-association-result-v1": association,
         }
-        artifact_hash_pass = artifact_hash_pass and len(outputs) == 2
+        item_artifact_hash_pass = len(outputs) == 2
         association_artifact_sha = ""
         for output in outputs:
             if not isinstance(output, Mapping):
-                artifact_hash_pass = False
+                item_artifact_hash_pass = False
                 continue
             artifact_type = _text_value(output.get("artifact_type"))
             artifact_path = _safe_fixture_path(
@@ -569,8 +616,8 @@ def run_v3_production_structure_synthetic_qualification(
             expected_payload = expected_artifacts.get(artifact_type)
             if artifact_type == "structure-association-result-v1":
                 association_artifact_sha = _text_value(output.get("sha256"))
-            artifact_hash_pass = (
-                artifact_hash_pass
+            item_artifact_hash_pass = (
+                item_artifact_hash_pass
                 and artifact_path is not None
                 and artifact_path.is_file()
                 and expected_payload is not None
@@ -581,12 +628,13 @@ def run_v3_production_structure_synthetic_qualification(
         manifest_file = fixture_root / "artifacts" / (
             f"{source_id}.document-extraction-manifest.json"
         )
-        artifact_hash_pass = (
-            artifact_hash_pass
+        item_artifact_hash_pass = (
+            item_artifact_hash_pass
             and manifest_file.is_file()
             and json.loads(manifest_file.read_text(encoding="utf-8"))
             == manifest
         )
+        artifact_hash_pass = artifact_hash_pass and item_artifact_hash_pass
 
         manifest_tables = [
             table
@@ -621,9 +669,8 @@ def run_v3_production_structure_synthetic_qualification(
         image_ids = {
             _text_value(image.get("image_id")) for image in manifest_images
         }
-        manifest_link_pass = (
-            manifest_link_pass
-            and manifest.get("source_id") == source_id
+        item_manifest_link_pass = (
+            manifest.get("source_id") == source_id
             and manifest.get("source_version_id") == native_sha
             and manifest.get("input_sha256") == native_sha
             and table_ids == association_table_ids
@@ -652,9 +699,8 @@ def run_v3_production_structure_synthetic_qualification(
             if hierarchy and isinstance(hierarchy[-1], Mapping)
             else None
         )
-        hierarchy_pass = (
-            hierarchy_pass
-            and parent_chain_pass
+        item_hierarchy_pass = (
+            parent_chain_pass
             and all(
                 part.get("section_id") == leaf_id
                 for part in [*manifest_blocks, *manifest_tables]
@@ -664,13 +710,13 @@ def run_v3_production_structure_synthetic_qualification(
                 for image in manifest_images
             )
         )
+        hierarchy_pass = hierarchy_pass and item_hierarchy_pass
 
         continuation_ids = _prefixed_ids(
             association.get("continuation_links", []), "NST-"
         )
-        continuation_pass = (
-            continuation_pass and continuation_ids <= association_table_ids
-        )
+        item_continuation_pass = continuation_ids <= association_table_ids
+        continuation_pass = continuation_pass and item_continuation_pass
 
         expected_assets = {
             _text_value(table.get("table_id")): canonical_fixture_sha256(
@@ -693,7 +739,8 @@ def run_v3_production_structure_synthetic_qualification(
             for asset in citation_assets
             if isinstance(asset, Mapping)
         }
-        citation_pass = citation_pass and actual_assets == expected_assets
+        item_citation_pass = actual_assets == expected_assets
+        citation_pass = citation_pass and item_citation_pass
 
         page_numbers = [
             int(block["page_number"])
@@ -743,16 +790,33 @@ def run_v3_production_structure_synthetic_qualification(
             expected_native_object_ids=object_ids,
             expected_structure_ids=structure_ids,
         )
-        manifest_link_pass = manifest_link_pass and not linked_issues
+        item_manifest_link_pass = item_manifest_link_pass and not linked_issues
+        manifest_link_pass = manifest_link_pass and item_manifest_link_pass
         results[source_id] = result
-        authority_pass = authority_pass and not validate_knowledge_retrieval_result(
+        item_authority_pass = not validate_knowledge_retrieval_result(
             result,
             allowed_source_ids={source_id},
             expected_request_id=result["request_id"],
             expected_source_version_id=native_sha,
             expected_extraction_block_ids=block_ids,
         )
+        authority_pass = authority_pass and item_authority_pass
         store.put(namespace, source_id, result)
+        fixture_control_passes[source_id] = {
+            "fixture_set_sha": fixture_seal_pass,
+            "profile_boundary": profile_boundary_pass,
+            "merged_replay_provenance": replay_provenance_pass,
+            "native_source_hash": item_native_hash_pass,
+            "artifact_file_hash": item_artifact_hash_pass,
+            "source_version_object_map_identity": item_identity_pass,
+            "object_structure_linkage": item_object_link_pass,
+            "block_table_image_object_linkage": item_manifest_link_pass,
+            "section_hierarchy": item_hierarchy_pass,
+            "cross_page_continuation": item_continuation_pass,
+            "citation_assets": item_citation_pass,
+            "authority_boundary": item_authority_pass,
+            "evidence_lead_only": result.get("evidence_lead_only") is True,
+        }
 
     record(
         "native_source_hash",
@@ -796,60 +860,97 @@ def run_v3_production_structure_synthetic_qualification(
     )
 
     ordered_ids = sorted(results)
-    first = results.get(ordered_ids[0]) if ordered_ids else None
-    allowlist_pass = False
-    stale_pass = False
-    isolation_pass = False
-    idempotency_pass = False
-    deletion_pass = False
-    restore_pass = False
-    if first is not None:
+    for index, source_id in enumerate(ordered_ids):
+        result = results[source_id]
         allowlist_issues = validate_knowledge_retrieval_result(
-            first,
+            result,
             allowed_source_ids={"V3P-EDGE-NOT-ALLOWED"},
-            expected_request_id=first["request_id"],
-            expected_source_version_id=first["source_version_id"],
-            expected_extraction_block_ids=first["extraction_block_ids"],
+            expected_request_id=result["request_id"],
+            expected_source_version_id=result["source_version_id"],
+            expected_extraction_block_ids=result["extraction_block_ids"],
         )
-        allowlist_pass = any(
+        item_allowlist_pass = any(
             issue.code == "source_not_allowlisted"
             for issue in allowlist_issues
         )
         stale_issues = validate_knowledge_retrieval_result(
-            first,
-            allowed_source_ids={first["source_id"]},
-            expected_request_id=first["request_id"],
-            expected_source_version_id=first["source_version_id"],
-            expected_extraction_block_ids=first["extraction_block_ids"],
+            result,
+            allowed_source_ids={result["source_id"]},
+            expected_request_id=result["request_id"],
+            expected_source_version_id=result["source_version_id"],
+            expected_extraction_block_ids=result["extraction_block_ids"],
             current_memory_snapshot_id="MEM-REPLACED",
             current_memory_snapshot_sha256="f" * 64,
             invalidated=True,
         )
         stale_codes = {issue.code for issue in stale_issues}
-        stale_pass = {"stale_result", "invalidated_result"} <= stale_codes
-        first_id = _text_value(first.get("source_id"))
-        isolation_pass = (
-            store.get(namespace, first_id) == first
-            and store.get(other_namespace, first_id) is None
+        item_stale_pass = {
+            "stale_result",
+            "invalidated_result",
+        } <= stale_codes
+        item_isolation_pass = (
+            store.get(namespace, source_id) == result
+            and store.get(other_namespace, source_id) is None
         )
-        idempotency_pass = store.put(namespace, first_id, first)
+        item_idempotency_pass = store.put(namespace, source_id, result)
 
-        store.backup(namespace, first_id)
-        peer_id = ordered_ids[1] if len(ordered_ids) > 1 else ""
-        store.delete(namespace, first_id, delete_backup=True)
-        deletion_pass = (
-            store.get(namespace, first_id) is None
-            and first_id not in store.objects.get(namespace, {})
-            and first_id not in store.queue.get(namespace, [])
-            and first_id not in store.backups.get(namespace, {})
-            and bool(peer_id)
-            and store.get(namespace, peer_id) == results[peer_id]
+        peer_id = (
+            ordered_ids[(index + 1) % len(ordered_ids)]
+            if len(ordered_ids) > 1
+            else ""
         )
+        deletion_store = _NamespacedSyntheticStore()
+        deletion_store.put(namespace, source_id, result)
         if peer_id:
-            store.backup(namespace, peer_id)
-            store.delete(namespace, peer_id, delete_backup=False)
-            store.restore(namespace, peer_id)
-            restore_pass = store.get(namespace, peer_id) == results[peer_id]
+            deletion_store.put(namespace, peer_id, results[peer_id])
+        deletion_store.backup(namespace, source_id)
+        deletion_store.delete(namespace, source_id, delete_backup=True)
+        item_deletion_pass = (
+            deletion_store.get(namespace, source_id) is None
+            and source_id not in deletion_store.objects.get(namespace, {})
+            and source_id not in deletion_store.queue.get(namespace, [])
+            and source_id not in deletion_store.backups.get(namespace, {})
+            and bool(peer_id)
+            and deletion_store.get(namespace, peer_id) == results[peer_id]
+        )
+        restore_store = _NamespacedSyntheticStore()
+        restore_store.put(namespace, source_id, result)
+        expected_restore_objects = copy.deepcopy(
+            restore_store.objects[namespace][source_id]
+        )
+        restore_store.backup(namespace, source_id)
+        restore_store.delete(namespace, source_id, delete_backup=False)
+        restore_store.restore(namespace, source_id)
+        item_restore_pass = (
+            restore_store.get(namespace, source_id) == result
+            and restore_store.objects.get(namespace, {}).get(source_id)
+            == expected_restore_objects
+            and restore_store.queue.get(namespace, []).count(source_id) == 1
+            and source_id in restore_store.backups.get(namespace, {})
+        )
+        fixture_control_passes[source_id].update(
+            {
+                "source_allowlist": item_allowlist_pass,
+                "stale_invalidation": item_stale_pass,
+                "namespace_isolation": item_isolation_pass,
+                "idempotency": item_idempotency_pass,
+                "scoped_deletion": item_deletion_pass,
+                "bounded_backup_restore": item_restore_pass,
+            }
+        )
+
+    def every_fixture(control_id: str) -> bool:
+        return len(fixture_control_passes) == 24 and all(
+            checks.get(control_id) is True
+            for checks in fixture_control_passes.values()
+        )
+
+    allowlist_pass = every_fixture("source_allowlist")
+    stale_pass = every_fixture("stale_invalidation")
+    isolation_pass = every_fixture("namespace_isolation")
+    idempotency_pass = every_fixture("idempotency")
+    deletion_pass = every_fixture("scoped_deletion")
+    restore_pass = every_fixture("bounded_backup_restore")
     record("source_allowlist", allowlist_pass, "unallowlisted source is rejected")
     record(
         "stale_invalidation",
@@ -893,6 +994,8 @@ def run_v3_production_structure_synthetic_qualification(
         no_egress_pass,
         "external model and network destination is denied",
     )
+    for checks in fixture_control_passes.values():
+        checks["no_external_model_egress"] = no_egress_pass
     record(
         "evidence_lead_only",
         len(results) == 24
@@ -901,6 +1004,15 @@ def run_v3_production_structure_synthetic_qualification(
     )
 
     failed = any(control["status"] == "fail" for control in controls.values())
+    fixture_control_results = {
+        source_id: {
+            control_id: {
+                "status": "pass" if passed else "fail",
+            }
+            for control_id, passed in sorted(checks.items())
+        }
+        for source_id, checks in sorted(fixture_control_passes.items())
+    }
     return {
         "technical_completion": "mechanical_fail" if failed else "qualified",
         "qualification_scope": "bounded_synthetic",
@@ -915,6 +1027,7 @@ def run_v3_production_structure_synthetic_qualification(
             results[source_id] for source_id in sorted(results)
         ],
         "controls": controls,
+        "fixture_control_results": fixture_control_results,
         "issues": issues,
         "private_data": False,
         "provider_execution": False,

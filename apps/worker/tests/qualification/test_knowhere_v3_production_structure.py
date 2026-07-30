@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from copy import deepcopy
 from pathlib import Path
 
@@ -18,7 +19,7 @@ FIXTURE_PATH = FIXTURE_ROOT / "fixture-set.json"
 FIXTURE_SHA256 = (
     "6d368aa27e4dc8f82ff19ec02436b6a4ed53190f324028bfe2aedb198d1de8ec"
 )
-REPOSITORY_SHA = "b2287e32127ffdb28ab417e811ad5af24c6b4008"
+TEST_REPOSITORY_SHA = "a" * 40
 QUALIFICATION_IMPLEMENTATION_SHA = (
     "589bc7a9327b5b9d6ee4cf26351bf2f3a4e145ca"
 )
@@ -32,6 +33,7 @@ REPORT_PATH = (
 REQUIRED_CONTROLS = {
     "fixture_set_sha",
     "profile_boundary",
+    "merged_replay_provenance",
     "native_source_hash",
     "artifact_file_hash",
     "source_version_object_map_identity",
@@ -65,7 +67,7 @@ def _run(
         fixture_set=fixture_set or _fixture(),
         fixture_root=FIXTURE_ROOT,
         expected_fixture_sha256=FIXTURE_SHA256,
-        repository_sha=REPOSITORY_SHA,
+        repository_sha=TEST_REPOSITORY_SHA,
         faults=faults,
     )
 
@@ -99,6 +101,10 @@ def test_v3_production_profile_qualifies_all_24_source_owned_fixtures() -> None:
         for result in report["retrieval_results"]
     )
     assert all(
+        result["knowhere_repository_sha"] == TEST_REPOSITORY_SHA
+        for result in report["retrieval_results"]
+    )
+    assert all(
         result["memory_snapshot_sha256"]
         == next(
             output["sha256"]
@@ -109,6 +115,15 @@ def test_v3_production_profile_qualifies_all_24_source_owned_fixtures() -> None:
             == "structure-association-result-v1"
         )
         for result in report["retrieval_results"]
+    )
+    assert set(report["fixture_control_results"]) == set(fixture_by_id)
+    assert all(
+        set(fixture_controls) == REQUIRED_CONTROLS
+        and all(
+            control["status"] == "pass"
+            for control in fixture_controls.values()
+        )
+        for fixture_controls in report["fixture_control_results"].values()
     )
     assert report["private_data"] is False
     assert report["provider_execution"] is False
@@ -151,6 +166,27 @@ def test_v3_production_profile_rejects_cross_namespace_retrieval() -> None:
     assert report["technical_completion"] == "mechanical_fail"
 
 
+def test_v3_production_profile_rejects_replay_provenance_tampering(
+    tmp_path: Path,
+) -> None:
+    fixture_root = tmp_path / "v3_production_structure"
+    shutil.copytree(FIXTURE_ROOT, fixture_root)
+    replay_path = fixture_root / "merged-replay-report.json"
+    replay = json.loads(replay_path.read_text(encoding="utf-8"))
+    replay["qualification_credit"] = True
+    replay_path.write_text(json.dumps(replay), encoding="utf-8")
+
+    report = run_v3_production_structure_synthetic_qualification(
+        fixture_set=_fixture(),
+        fixture_root=fixture_root,
+        expected_fixture_sha256=FIXTURE_SHA256,
+        repository_sha=TEST_REPOSITORY_SHA,
+    )
+
+    assert report["technical_completion"] == "mechanical_fail"
+    assert report["controls"]["merged_replay_provenance"]["status"] == "fail"
+
+
 def test_committed_v3_production_retrieval_report_is_exactly_bound() -> None:
     report = json.loads(REPORT_PATH.read_text(encoding="utf-8"))
 
@@ -164,4 +200,9 @@ def test_committed_v3_production_retrieval_report_is_exactly_bound() -> None:
     assert all(
         control["status"] == "pass"
         for control in report["controls"].values()
+    )
+    assert len(report["fixture_control_results"]) == 24
+    assert all(
+        set(fixture_controls) == REQUIRED_CONTROLS
+        for fixture_controls in report["fixture_control_results"].values()
     )
