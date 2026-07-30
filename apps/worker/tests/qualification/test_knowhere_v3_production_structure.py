@@ -72,6 +72,9 @@ def _run(
 
 def test_v3_production_profile_qualifies_all_24_source_owned_fixtures() -> None:
     report = _run()
+    fixture_by_id = {
+        fixture["fixture_id"]: fixture for fixture in _fixture()["fixtures"]
+    }
 
     assert report["technical_completion"] == "qualified"
     assert report["qualification_scope"] == "bounded_synthetic"
@@ -93,6 +96,18 @@ def test_v3_production_profile_qualifies_all_24_source_owned_fixtures() -> None:
         and result["evidence_lead_only"] is True
         and result["linked_native_object_ids"]
         and result["linked_structure_ids"]
+        for result in report["retrieval_results"]
+    )
+    assert all(
+        result["memory_snapshot_sha256"]
+        == next(
+            output["sha256"]
+            for output in fixture_by_id[result["source_id"]][
+                "document_extraction_manifest"
+            ]["outputs"]
+            if output["artifact_type"]
+            == "structure-association-result-v1"
+        )
         for result in report["retrieval_results"]
     )
     assert report["private_data"] is False

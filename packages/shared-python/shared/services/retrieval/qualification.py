@@ -557,16 +557,18 @@ def run_v3_production_structure_synthetic_qualification(
             "structure-association-result-v1": association,
         }
         artifact_hash_pass = artifact_hash_pass and len(outputs) == 2
+        association_artifact_sha = ""
         for output in outputs:
             if not isinstance(output, Mapping):
                 artifact_hash_pass = False
                 continue
+            artifact_type = _text_value(output.get("artifact_type"))
             artifact_path = _safe_fixture_path(
                 fixture_root, output.get("relative_path")
             )
-            expected_payload = expected_artifacts.get(
-                _text_value(output.get("artifact_type"))
-            )
+            expected_payload = expected_artifacts.get(artifact_type)
+            if artifact_type == "structure-association-result-v1":
+                association_artifact_sha = _text_value(output.get("sha256"))
             artifact_hash_pass = (
                 artifact_hash_pass
                 and artifact_path is not None
@@ -704,7 +706,9 @@ def run_v3_production_structure_synthetic_qualification(
                 result_id=f"RET-{source_id}",
                 request_id=f"REQ-{source_id}",
                 memory_snapshot_id=f"MEM-{source_id}",
-                memory_snapshot_sha256=canonical_fixture_sha256(association),
+                memory_snapshot_sha256=(
+                    association_artifact_sha or "0" * 64
+                ),
                 knowhere_repository_sha=repository_sha,
                 retrieval_configuration_sha256=expected_fixture_sha256,
                 source_id=source_id,
