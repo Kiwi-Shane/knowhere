@@ -1,0 +1,71 @@
+{
+  "contract_version": "document-extraction-manifest-v1",
+  "derivative_not_native_source_evidence": true,
+  "does_not_establish_source_sufficiency": true,
+  "errors": [],
+  "extraction_run_id": "v3-production-edge-v3p-edge-019",
+  "fallback_used": false,
+  "images": [
+    {
+      "asset_type": "native_page_region",
+      "image_id": "NSO-318aee41a38ce3d8b7a7c639aef2c01c",
+      "member_object_ids": [
+        "NSO-318aee41a38ce3d8b7a7c639aef2c01c"
+      ],
+      "page_number": 1,
+      "sha256": "6981d196151041d856100272d065257c59a2aa9fcf5714bf0a9b8946c92543d1"
+    }
+  ],
+  "input_sha256": "c2a42688f27262ae454a0c3faa2739bc24aca9842f61d7b9676426b07a5820e3",
+  "mineru_identity": {
+    "backend": "native_object_structure_association",
+    "configuration_sha256": "c4da5b51cac32588885c840bc4e0dc942d3fe4e3c74fa548d4f5eb98f7271f82",
+    "model_identifiers": {
+      "model_required": false,
+      "package_lock_sha256": "f0cf0243997894e46fb1e8a26e0eafaa8867f6c947c78831fb299618a3eff1c6",
+      "profile_id": "mineru_complex_layout_structural_v2",
+      "runtime_identity_digest": "sha256:a3fc8b2a7bc60098b2be37b158d4fcf58dc3e4a5bd80fea5b27ff7bab196f63e"
+    },
+    "package_version": "3.4.4",
+    "repository_sha": "7ffbbb7ca545553c9aa4e5d620a3b85da8654de8"
+  },
+  "native_page_count": 1,
+  "ocr_profile": null,
+  "outputs": [
+    {
+      "artifact_id": "V3P-EDGE-019-NATIVE-OBJECT-MAP",
+      "artifact_type": "native-structure-object-map-v1",
+      "relative_path": "artifacts/V3P-EDGE-019.native-structure-object-map.json",
+      "sha256": "946e0e30fbc724cc9da7d78642c00443c99a343005d0f9afd2373accf96ba12d"
+    },
+    {
+      "artifact_id": "V3P-EDGE-019-STRUCTURE-ASSOCIATION",
+      "artifact_type": "structure-association-result-v1",
+      "relative_path": "artifacts/V3P-EDGE-019.structure-association-result.json",
+      "sha256": "625bc316c49b19c7299b3ad689ce629371eb576a2a32c71e4816bf94bbb85948"
+    }
+  ],
+  "page_blocks": [
+    {
+      "artifact_path": "artifacts/V3P-EDGE-019.structure-association-result.json",
+      "block_id": "NST-007bb17d5a36f5d31ca2a4e440af904c",
+      "block_type": "text_line_group",
+      "content_sha256": "658834624b3a26d7904bce0f21d2b2df6e2fed251690c8eb656fb03f79c248fd",
+      "locator": "p1#NST-007bb17d5a36f5d31ca2a4e440af904c",
+      "page_number": 1,
+      "page_region_id": "NST-007bb17d5a36f5d31ca2a4e440af904c",
+      "reading_order_index": 1,
+      "section_id": "V3P-EDGE-019-SECTION"
+    }
+  ],
+  "runtime_identity": {
+    "accelerator_profile": "cpu-no-model-no-egress",
+    "architecture": "x86_64",
+    "os": "windows-11-offline-qualification"
+  },
+  "source_id": "V3P-EDGE-019",
+  "source_version_id": "c2a42688f27262ae454a0c3faa2739bc24aca9842f61d7b9676426b07a5820e3",
+  "status": "completed",
+  "tables": [],
+  "warnings": []
+}

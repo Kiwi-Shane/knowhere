@@ -7,6 +7,7 @@ import hashlib
 import json
 from collections.abc import Collection, Iterable, Mapping
 from dataclasses import dataclass
+from pathlib import Path
 from urllib.parse import urlparse
 from typing import Any
 
@@ -158,8 +159,10 @@ def validate_v3_structure_retrieval_result(
     *,
     expected_table_ids: Collection[str],
     expected_image_ids: Collection[str],
+    expected_native_object_ids: Collection[str] | None = None,
+    expected_structure_ids: Collection[str] | None = None,
 ) -> tuple[RetrievalQualificationIssue, ...]:
-    """Require exact source-owned V3 table and image identity sets."""
+    """Require exact source-owned V3 object, structure, and asset identity sets."""
 
     issues: list[RetrievalQualificationIssue] = []
     if _string_set(result.get("linked_table_ids")) != set(
@@ -178,6 +181,24 @@ def validate_v3_structure_retrieval_result(
             RetrievalQualificationIssue(
                 "linked_image_ids_mismatch",
                 "retrieval result image IDs differ from the V3 manifest",
+            )
+        )
+    if expected_native_object_ids is not None and _string_set(
+        result.get("linked_native_object_ids")
+    ) != set(expected_native_object_ids):
+        issues.append(
+            RetrievalQualificationIssue(
+                "linked_native_object_ids_mismatch",
+                "retrieval result native object IDs differ from the object map",
+            )
+        )
+    if expected_structure_ids is not None and _string_set(
+        result.get("linked_structure_ids")
+    ) != set(expected_structure_ids):
+        issues.append(
+            RetrievalQualificationIssue(
+                "linked_structure_ids_mismatch",
+                "retrieval result structure IDs differ from the association result",
             )
         )
     return tuple(issues)
@@ -244,6 +265,662 @@ class _DefaultDenyEgress:
 class _DisabledTelemetry:
     def emit(self, _event: Mapping[str, Any]) -> None:
         raise PermissionError("telemetry is disabled for D4 synthetic qualification")
+
+
+class _NamespacedSyntheticStore:
+    """Small deterministic state model for cross-case qualification controls."""
+
+    def __init__(self) -> None:
+        self.objects: dict[str, dict[str, dict[str, bytes]]] = {}
+        self.index: dict[str, dict[str, dict[str, Any]]] = {}
+        self.queue: dict[str, list[str]] = {}
+        self.backups: dict[str, dict[str, tuple[dict[str, bytes], dict[str, Any]]]] = {}
+
+    def put(
+        self,
+        namespace: str,
+        source_id: str,
+        result: Mapping[str, Any],
+    ) -> bool:
+        namespace_objects = self.objects.setdefault(namespace, {})
+        namespace_index = self.index.setdefault(namespace, {})
+        namespace_queue = self.queue.setdefault(namespace, [])
+        normalized = copy.deepcopy(dict(result))
+        existing = namespace_index.get(source_id)
+        if existing is not None:
+            return existing == normalized and namespace_queue.count(source_id) == 1
+        namespace_objects[source_id] = {
+            "derivative": canonical_fixture_sha256(normalized).encode("ascii")
+        }
+        namespace_index[source_id] = normalized
+        namespace_queue.append(source_id)
+        return True
+
+    def get(self, namespace: str, source_id: str) -> dict[str, Any] | None:
+        value = self.index.get(namespace, {}).get(source_id)
+        return copy.deepcopy(value) if value is not None else None
+
+    def backup(self, namespace: str, source_id: str) -> None:
+        objects = self.objects.get(namespace, {}).get(source_id)
+        result = self.index.get(namespace, {}).get(source_id)
+        if objects is None or result is None:
+            return
+        self.backups.setdefault(namespace, {})[source_id] = (
+            dict(objects),
+            copy.deepcopy(result),
+        )
+
+    def delete(
+        self,
+        namespace: str,
+        source_id: str,
+        *,
+        delete_backup: bool,
+    ) -> None:
+        self.objects.get(namespace, {}).pop(source_id, None)
+        self.index.get(namespace, {}).pop(source_id, None)
+        self.queue[namespace] = [
+            queued
+            for queued in self.queue.get(namespace, [])
+            if queued != source_id
+        ]
+        if delete_backup:
+            self.backups.get(namespace, {}).pop(source_id, None)
+
+    def restore(self, namespace: str, source_id: str) -> None:
+        backup = self.backups.get(namespace, {}).get(source_id)
+        if backup is None:
+            return
+        objects, result = backup
+        self.objects.setdefault(namespace, {})[source_id] = dict(objects)
+        self.index.setdefault(namespace, {})[source_id] = copy.deepcopy(result)
+        queue = self.queue.setdefault(namespace, [])
+        if source_id not in queue:
+            queue.append(source_id)
+
+
+def _canonical_without(value: Mapping[str, Any], field: str) -> str:
+    payload = dict(value)
+    payload.pop(field, None)
+    return canonical_fixture_sha256(payload)
+
+
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _prefixed_ids(value: Any, prefix: str) -> set[str]:
+    found: set[str] = set()
+    if isinstance(value, Mapping):
+        for nested in value.values():
+            found.update(_prefixed_ids(nested, prefix))
+    elif isinstance(value, Collection) and not isinstance(value, (str, bytes)):
+        for nested in value:
+            found.update(_prefixed_ids(nested, prefix))
+    elif isinstance(value, str):
+        found.update(
+            token
+            for token in value.split()
+            if token.startswith(prefix)
+        )
+    return found
+
+
+def _safe_fixture_path(root: Path, relative_path: object) -> Path | None:
+    if not isinstance(relative_path, str) or not relative_path:
+        return None
+    root = root.resolve()
+    candidate = (root / relative_path).resolve()
+    try:
+        candidate.relative_to(root)
+    except ValueError:
+        return None
+    return candidate
+
+
+def run_v3_production_structure_synthetic_qualification(
+    *,
+    fixture_set: Mapping[str, Any],
+    fixture_root: Path,
+    expected_fixture_sha256: str,
+    repository_sha: str,
+    faults: Iterable[str] = (),
+) -> dict[str, Any]:
+    """Qualify the 24-fixture generic V3 production edge without RA authority."""
+
+    fault_set = set(faults)
+    controls: dict[str, dict[str, str]] = {}
+    issues: list[dict[str, str]] = []
+
+    def record(control_id: str, passed: bool, detail: str) -> None:
+        if control_id in fault_set:
+            passed = False
+            detail = f"fault injected: {detail}"
+        controls[control_id] = {
+            "status": "pass" if passed else "fail",
+            "detail": detail,
+        }
+        if not passed:
+            issues.append(
+                {
+                    "code": "control_failed",
+                    "control_id": control_id,
+                    "detail": detail,
+                }
+            )
+
+    declared_fixture_sha = _text_value(fixture_set.get("fixture_set_sha256"))
+    actual_fixture_sha = _canonical_without(
+        fixture_set, "fixture_set_sha256"
+    )
+    record(
+        "fixture_set_sha",
+        declared_fixture_sha
+        == actual_fixture_sha
+        == expected_fixture_sha256,
+        "source-owned fixture set self-seal and expected seal match",
+    )
+
+    boundaries = fixture_set.get("boundaries")
+    fixtures_value = fixture_set.get("fixtures")
+    fixtures = (
+        list(fixtures_value)
+        if isinstance(fixtures_value, Collection)
+        and not isinstance(fixtures_value, (str, bytes, Mapping))
+        else []
+    )
+    profile_id = _text_value(fixture_set.get("profile_id"))
+    record(
+        "profile_boundary",
+        fixture_set.get("schema")
+        == "mineru-v3-production-downstream-fixture-set/1.0"
+        and profile_id == "mineru_complex_layout_structural_v2"
+        and fixture_set.get("fixture_count") == 24
+        and len(fixtures) == 24
+        and isinstance(boundaries, Mapping)
+        and boundaries.get("synthetic_only") is True
+        and boundaries.get("contains_private_data") is False
+        and boundaries.get("native_source_evidence") is False
+        and boundaries.get("source_sufficiency_established") is False
+        and boundaries.get("runtime_execution_allowed") is False
+        and boundaries.get("provider_execution_allowed") is False
+        and boundaries.get("release_allowed") is False,
+        "generic production profile remains bounded synthetic and non-release",
+    )
+
+    native_hash_pass = True
+    artifact_hash_pass = True
+    identity_pass = True
+    object_link_pass = True
+    manifest_link_pass = True
+    hierarchy_pass = True
+    continuation_pass = True
+    citation_pass = True
+    authority_pass = True
+    store = _NamespacedSyntheticStore()
+    namespace = "v3-production-synthetic"
+    other_namespace = "v3-production-other"
+    results: dict[str, dict[str, Any]] = {}
+    family_names: set[str] = set()
+
+    for raw_item in fixtures:
+        if not isinstance(raw_item, Mapping):
+            identity_pass = False
+            continue
+        item = raw_item
+        source_id = _text_value(item.get("fixture_id"))
+        native_sha = _text_value(item.get("native_sha256"))
+        object_map = item.get("native_object_map")
+        association = item.get("structure_association_result")
+        manifest = item.get("document_extraction_manifest")
+        hierarchy = item.get("section_hierarchy")
+        citation_assets = item.get("citation_assets")
+        if (
+            not source_id.startswith("V3P-EDGE-")
+            or not isinstance(object_map, Mapping)
+            or not isinstance(association, Mapping)
+            or not isinstance(manifest, Mapping)
+            or not isinstance(hierarchy, list)
+            or not isinstance(citation_assets, list)
+        ):
+            identity_pass = False
+            continue
+        family_names.add(_text_value(item.get("family")))
+
+        native_path = _safe_fixture_path(
+            fixture_root, item.get("native_pdf_relative_path")
+        )
+        native_hash_pass = (
+            native_hash_pass
+            and native_path is not None
+            and native_path.is_file()
+            and _file_sha256(native_path) == native_sha
+        )
+
+        object_map_hash = _canonical_without(
+            object_map, "artifact_sha256"
+        )
+        object_ids = {
+            _text_value(obj.get("object_id"))
+            for obj in object_map.get("objects", [])
+            if isinstance(obj, Mapping)
+        }
+        structure_ids = _prefixed_ids(association, "NST-")
+        referenced_object_ids = _prefixed_ids(association, "NSO-")
+        identity_pass = (
+            identity_pass
+            and object_map.get("contract_version")
+            == "native-structure-object-map-v1"
+            and association.get("contract_version")
+            == "structure-association-result-v1"
+            and object_map.get("source_id") == source_id
+            and association.get("source_id") == source_id
+            and object_map.get("source_version_id") == native_sha
+            and association.get("source_version_id") == native_sha
+            and object_map.get("input_sha256") == native_sha
+            and association.get("input_sha256") == native_sha
+            and object_map.get("artifact_sha256") == object_map_hash
+            and association.get("native_object_map_sha256")
+            == object_map_hash
+            and all(object_id.startswith("NSO-") for object_id in object_ids)
+        )
+        for obj in object_map.get("objects", []):
+            if not isinstance(obj, Mapping):
+                identity_pass = False
+                continue
+            identity_input = {
+                "source_sha256": native_sha,
+                "page_number": obj.get("page_number"),
+                "object_type": obj.get("object_type"),
+                "normalized_bbox_quantized": obj.get("normalized_bbox"),
+                "raw_object_sha256": obj.get("raw_object_sha256"),
+                "occurrence_index": obj.get("occurrence_index"),
+            }
+            identity_pass = identity_pass and obj.get(
+                "object_id"
+            ) == f"NSO-{canonical_fixture_sha256(identity_input)[:32]}"
+        object_link_pass = (
+            object_link_pass
+            and bool(object_ids)
+            and referenced_object_ids <= object_ids
+        )
+
+        outputs = manifest.get("outputs")
+        if not isinstance(outputs, list):
+            outputs = []
+        expected_artifacts = {
+            "native-structure-object-map-v1": object_map,
+            "structure-association-result-v1": association,
+        }
+        artifact_hash_pass = artifact_hash_pass and len(outputs) == 2
+        for output in outputs:
+            if not isinstance(output, Mapping):
+                artifact_hash_pass = False
+                continue
+            artifact_path = _safe_fixture_path(
+                fixture_root, output.get("relative_path")
+            )
+            expected_payload = expected_artifacts.get(
+                _text_value(output.get("artifact_type"))
+            )
+            artifact_hash_pass = (
+                artifact_hash_pass
+                and artifact_path is not None
+                and artifact_path.is_file()
+                and expected_payload is not None
+                and json.loads(artifact_path.read_text(encoding="utf-8"))
+                == expected_payload
+                and _file_sha256(artifact_path) == output.get("sha256")
+            )
+        manifest_file = fixture_root / "artifacts" / (
+            f"{source_id}.document-extraction-manifest.json"
+        )
+        artifact_hash_pass = (
+            artifact_hash_pass
+            and manifest_file.is_file()
+            and json.loads(manifest_file.read_text(encoding="utf-8"))
+            == manifest
+        )
+
+        manifest_tables = [
+            table
+            for table in manifest.get("tables", [])
+            if isinstance(table, Mapping)
+        ]
+        manifest_images = [
+            image
+            for image in manifest.get("images", [])
+            if isinstance(image, Mapping)
+        ]
+        manifest_blocks = [
+            block
+            for block in manifest.get("page_blocks", [])
+            if isinstance(block, Mapping)
+        ]
+        association_tables = [
+            table
+            for table in association.get("tables", [])
+            if isinstance(table, Mapping)
+        ]
+        table_ids = {
+            _text_value(table.get("table_id")) for table in manifest_tables
+        }
+        association_table_ids = {
+            _text_value(table.get("table_id"))
+            for table in association_tables
+        }
+        block_ids = {
+            _text_value(block.get("block_id")) for block in manifest_blocks
+        }
+        image_ids = {
+            _text_value(image.get("image_id")) for image in manifest_images
+        }
+        manifest_link_pass = (
+            manifest_link_pass
+            and manifest.get("source_id") == source_id
+            and manifest.get("source_version_id") == native_sha
+            and manifest.get("input_sha256") == native_sha
+            and table_ids == association_table_ids
+            and block_ids <= structure_ids
+            and image_ids <= (object_ids | structure_ids)
+            and _prefixed_ids(manifest_tables, "NSO-") <= object_ids
+            and _prefixed_ids(manifest_images, "NSO-") <= object_ids
+        )
+
+        hierarchy_ids = {
+            _text_value(section.get("section_id"))
+            for section in hierarchy
+            if isinstance(section, Mapping)
+        }
+        parent_chain_pass = bool(hierarchy)
+        for index, section in enumerate(hierarchy):
+            if not isinstance(section, Mapping):
+                parent_chain_pass = False
+                continue
+            parent = section.get("parent_section_id")
+            parent_chain_pass = parent_chain_pass and (
+                parent is None if index == 0 else parent in hierarchy_ids
+            )
+        leaf_id = _text_value(
+            hierarchy[-1].get("section_id")
+            if hierarchy and isinstance(hierarchy[-1], Mapping)
+            else None
+        )
+        hierarchy_pass = (
+            hierarchy_pass
+            and parent_chain_pass
+            and all(
+                part.get("section_id") == leaf_id
+                for part in [*manifest_blocks, *manifest_tables]
+            )
+            and all(
+                image.get("section_id") in {None, leaf_id}
+                for image in manifest_images
+            )
+        )
+
+        continuation_ids = _prefixed_ids(
+            association.get("continuation_links", []), "NST-"
+        )
+        continuation_pass = (
+            continuation_pass and continuation_ids <= association_table_ids
+        )
+
+        expected_assets = {
+            _text_value(table.get("table_id")): canonical_fixture_sha256(
+                table
+            )
+            for table in manifest_tables
+        }
+        expected_assets.update(
+            {
+                _text_value(image.get("image_id")): _text_value(
+                    image.get("sha256")
+                )
+                for image in manifest_images
+            }
+        )
+        actual_assets = {
+            _text_value(asset.get("asset_id")): _text_value(
+                asset.get("sha256")
+            )
+            for asset in citation_assets
+            if isinstance(asset, Mapping)
+        }
+        citation_pass = citation_pass and actual_assets == expected_assets
+
+        page_numbers = [
+            int(block["page_number"])
+            for block in manifest_blocks
+            if isinstance(block.get("page_number"), int)
+        ]
+        result = serialize_knowledge_retrieval_result(
+            {"score": 1.0},
+            context=KnowledgeRetrievalResultContext(
+                result_id=f"RET-{source_id}",
+                request_id=f"REQ-{source_id}",
+                memory_snapshot_id=f"MEM-{source_id}",
+                memory_snapshot_sha256=canonical_fixture_sha256(association),
+                knowhere_repository_sha=repository_sha,
+                retrieval_configuration_sha256=expected_fixture_sha256,
+                source_id=source_id,
+                source_version_id=native_sha,
+                retrieval_reason=(
+                    "bounded V3 production synthetic evidence retrieval"
+                ),
+            ),
+            locator=KnowledgeRetrievalResultLocator(
+                section_path=tuple(
+                    str(part)
+                    for part in hierarchy[-1].get("section_path", [])
+                ),
+                native_page_start=min(page_numbers or [1]),
+                native_page_end=max(page_numbers or [1]),
+                extraction_block_ids=tuple(sorted(block_ids)),
+                native_reference=(
+                    f"{native_sha}:p{min(page_numbers or [1])}"
+                    f"#{sorted(block_ids)[0]}"
+                ),
+                linked_table_ids=tuple(sorted(table_ids)),
+                linked_image_ids=tuple(sorted(image_ids)),
+            ),
+        )
+        result["linked_native_object_ids"] = sorted(object_ids)
+        result["linked_structure_ids"] = sorted(structure_ids)
+        result["evidence_lead_only"] = True
+        linked_issues = validate_v3_structure_retrieval_result(
+            result,
+            expected_table_ids=table_ids,
+            expected_image_ids=image_ids,
+            expected_native_object_ids=object_ids,
+            expected_structure_ids=structure_ids,
+        )
+        manifest_link_pass = manifest_link_pass and not linked_issues
+        results[source_id] = result
+        authority_pass = authority_pass and not validate_knowledge_retrieval_result(
+            result,
+            allowed_source_ids={source_id},
+            expected_request_id=result["request_id"],
+            expected_source_version_id=native_sha,
+            expected_extraction_block_ids=block_ids,
+        )
+        store.put(namespace, source_id, result)
+
+    record(
+        "native_source_hash",
+        native_hash_pass and len(results) == 24,
+        "all 24 native synthetic PDF byte hashes match source versions",
+    )
+    record(
+        "artifact_file_hash",
+        artifact_hash_pass and len(results) == 24,
+        "all declared artifacts match embedded contracts and exact file bytes",
+    )
+    record(
+        "source_version_object_map_identity",
+        identity_pass and len(results) == 24,
+        "source, version, map seal, and candidate-independent NSO identities match",
+    )
+    record(
+        "object_structure_linkage",
+        object_link_pass and len(results) == 24,
+        "every structure object reference resolves in its native object map",
+    )
+    record(
+        "block_table_image_object_linkage",
+        manifest_link_pass and len(results) == 24,
+        "manifest blocks, tables, images, objects, and structures remain linked",
+    )
+    record(
+        "section_hierarchy",
+        hierarchy_pass and len(results) == 24,
+        "document hierarchy is closed and all manifest items bind its leaf",
+    )
+    record(
+        "cross_page_continuation",
+        continuation_pass and len(results) == 24,
+        "all continuation endpoints resolve to source-owned table IDs",
+    )
+    record(
+        "citation_assets",
+        citation_pass and len(results) == 24,
+        "citation asset IDs and hashes match source-owned manifests",
+    )
+
+    ordered_ids = sorted(results)
+    first = results.get(ordered_ids[0]) if ordered_ids else None
+    allowlist_pass = False
+    stale_pass = False
+    isolation_pass = False
+    idempotency_pass = False
+    deletion_pass = False
+    restore_pass = False
+    if first is not None:
+        allowlist_issues = validate_knowledge_retrieval_result(
+            first,
+            allowed_source_ids={"V3P-EDGE-NOT-ALLOWED"},
+            expected_request_id=first["request_id"],
+            expected_source_version_id=first["source_version_id"],
+            expected_extraction_block_ids=first["extraction_block_ids"],
+        )
+        allowlist_pass = any(
+            issue.code == "source_not_allowlisted"
+            for issue in allowlist_issues
+        )
+        stale_issues = validate_knowledge_retrieval_result(
+            first,
+            allowed_source_ids={first["source_id"]},
+            expected_request_id=first["request_id"],
+            expected_source_version_id=first["source_version_id"],
+            expected_extraction_block_ids=first["extraction_block_ids"],
+            current_memory_snapshot_id="MEM-REPLACED",
+            current_memory_snapshot_sha256="f" * 64,
+            invalidated=True,
+        )
+        stale_codes = {issue.code for issue in stale_issues}
+        stale_pass = {"stale_result", "invalidated_result"} <= stale_codes
+        first_id = _text_value(first.get("source_id"))
+        isolation_pass = (
+            store.get(namespace, first_id) == first
+            and store.get(other_namespace, first_id) is None
+        )
+        idempotency_pass = store.put(namespace, first_id, first)
+
+        store.backup(namespace, first_id)
+        peer_id = ordered_ids[1] if len(ordered_ids) > 1 else ""
+        store.delete(namespace, first_id, delete_backup=True)
+        deletion_pass = (
+            store.get(namespace, first_id) is None
+            and first_id not in store.objects.get(namespace, {})
+            and first_id not in store.queue.get(namespace, [])
+            and first_id not in store.backups.get(namespace, {})
+            and bool(peer_id)
+            and store.get(namespace, peer_id) == results[peer_id]
+        )
+        if peer_id:
+            store.backup(namespace, peer_id)
+            store.delete(namespace, peer_id, delete_backup=False)
+            store.restore(namespace, peer_id)
+            restore_pass = store.get(namespace, peer_id) == results[peer_id]
+    record("source_allowlist", allowlist_pass, "unallowlisted source is rejected")
+    record(
+        "stale_invalidation",
+        stale_pass,
+        "stale and explicitly invalidated snapshots are rejected",
+    )
+    record(
+        "namespace_isolation",
+        isolation_pass,
+        "retrieval state is unavailable from a peer namespace",
+    )
+    record(
+        "idempotency",
+        idempotency_pass,
+        "duplicate publication preserves one identical indexed result",
+    )
+    record(
+        "scoped_deletion",
+        deletion_pass,
+        "source objects, index, queue, and backup delete without peer loss",
+    )
+    record(
+        "bounded_backup_restore",
+        restore_pass,
+        "one namespace-scoped derivative round-trips exactly",
+    )
+    record(
+        "authority_boundary",
+        authority_pass and len(results) == 24,
+        "Knowhere remains unverified and emits no RA-owned decision field",
+    )
+
+    egress = _DefaultDenyEgress()
+    no_egress_pass = False
+    try:
+        egress.check("https://external-model.example")
+    except PermissionError:
+        no_egress_pass = True
+    record(
+        "no_external_model_egress",
+        no_egress_pass,
+        "external model and network destination is denied",
+    )
+    record(
+        "evidence_lead_only",
+        len(results) == 24
+        and all(result.get("evidence_lead_only") is True for result in results.values()),
+        "all retrieval results are evidence leads, not source decisions",
+    )
+
+    failed = any(control["status"] == "fail" for control in controls.values())
+    return {
+        "technical_completion": "mechanical_fail" if failed else "qualified",
+        "qualification_scope": "bounded_synthetic",
+        "profile_id": profile_id,
+        "fixture_set_sha256": actual_fixture_sha,
+        "fixture_count": len(results),
+        "passing_fixture_count": (
+            len(results) if not failed else 0
+        ),
+        "family_count": len(family_names - {""}),
+        "retrieval_results": [
+            results[source_id] for source_id in sorted(results)
+        ],
+        "controls": controls,
+        "issues": issues,
+        "private_data": False,
+        "provider_execution": False,
+        "runtime_execution": False,
+        "external_model_execution": False,
+        "external_egress": False,
+        "ra_evidence_state": "deferred",
+        "release_decision": "defer",
+        "repository_sha": repository_sha,
+    }
 
 
 def run_v3_structure_synthetic_qualification(
