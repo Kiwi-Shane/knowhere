@@ -69,9 +69,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         raise RuntimeError("V3 production retrieval qualification failed")
     output = args.output.resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(
-        json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
-        encoding="utf-8",
+    output.write_bytes(
+        (
+            json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2)
+            + "\n"
+        ).encode("utf-8")
     )
     print(f"{output}: {report['repository_sha']}")
     return 0
