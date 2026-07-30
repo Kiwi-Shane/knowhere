@@ -21,7 +21,7 @@ FIXTURE_SHA256 = (
 )
 TEST_REPOSITORY_SHA = "a" * 40
 QUALIFICATION_IMPLEMENTATION_SHA = (
-    "589bc7a9327b5b9d6ee4cf26351bf2f3a4e145ca"
+    "cefb9dce7bc8e874e219b0b37039197286901bf5"
 )
 REPORT_PATH = (
     Path(__file__).resolve().parents[4]
