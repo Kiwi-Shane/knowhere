@@ -430,10 +430,19 @@ def run_v3_production_structure_synthetic_qualification(
     actual_fixture_sha = _canonical_without(
         fixture_set, "fixture_set_sha256"
     )
+    fixture_file_pass = True
+    if replay_evidence_profile == "remediation_replay":
+        fixture_file_path = fixture_root / "fixture-set.json"
+        fixture_file_pass = (
+            fixture_file_path.is_file()
+            and _file_sha256(fixture_file_path)
+            == _V3_PRODUCTION_REMEDIATION_FIXTURE_FILE_SHA256
+        )
     fixture_seal_pass = (
         declared_fixture_sha
         == actual_fixture_sha
         == expected_fixture_sha256
+        and fixture_file_pass
     )
     record(
         "fixture_set_sha",
@@ -677,11 +686,28 @@ def run_v3_production_structure_synthetic_qualification(
         manifest_file = fixture_root / "artifacts" / (
             f"{source_id}.document-extraction-manifest.json"
         )
+        try:
+            manifest_file_bytes = manifest_file.read_bytes()
+            manifest_file_payload = json.loads(
+                manifest_file_bytes.decode("utf-8")
+            )
+        except (OSError, UnicodeDecodeError, ValueError):
+            manifest_file_bytes = b""
+            manifest_file_payload = None
+        expected_manifest_file_bytes = (
+            json.dumps(
+                manifest,
+                ensure_ascii=False,
+                sort_keys=True,
+                indent=2,
+            )
+            + "\n"
+        ).encode("utf-8")
         item_artifact_hash_pass = (
             item_artifact_hash_pass
             and manifest_file.is_file()
-            and json.loads(manifest_file.read_text(encoding="utf-8"))
-            == manifest
+            and manifest_file_payload == manifest
+            and manifest_file_bytes == expected_manifest_file_bytes
         )
         artifact_hash_pass = artifact_hash_pass and item_artifact_hash_pass
 

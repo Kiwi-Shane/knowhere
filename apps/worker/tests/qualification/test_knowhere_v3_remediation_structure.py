@@ -136,6 +136,40 @@ def test_remediated_v3_edge_rejects_replay_provenance_tampering(
     assert report["controls"]["merged_replay_provenance"]["status"] == "fail"
 
 
+def test_remediated_v3_edge_rejects_fixture_set_byte_drift(
+    tmp_path: Path,
+) -> None:
+    fixture_root = tmp_path / "v3_production_structure_remediation"
+    shutil.copytree(FIXTURE_ROOT, fixture_root)
+    fixture_path = fixture_root / "fixture-set.json"
+    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+    fixture_path.write_text(json.dumps(fixture), encoding="utf-8")
+
+    report = _run(fixture_set=fixture, fixture_root=fixture_root)
+
+    assert report["technical_completion"] == "mechanical_fail"
+    assert report["controls"]["fixture_set_sha"]["status"] == "fail"
+
+
+def test_remediated_v3_edge_rejects_manifest_byte_drift(
+    tmp_path: Path,
+) -> None:
+    fixture_root = tmp_path / "v3_production_structure_remediation"
+    shutil.copytree(FIXTURE_ROOT, fixture_root)
+    manifest_path = (
+        fixture_root
+        / "artifacts"
+        / "V3P-EDGE-001.document-extraction-manifest.json"
+    )
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    report = _run(fixture_root=fixture_root)
+
+    assert report["technical_completion"] == "mechanical_fail"
+    assert report["controls"]["artifact_file_hash"]["status"] == "fail"
+
+
 def test_committed_remediated_v3_retrieval_report_is_exactly_bound() -> None:
     report_bytes = REPORT_PATH.read_bytes()
     report = json.loads(report_bytes)
