@@ -17,7 +17,7 @@ FIXTURE_ROOT = (
 FIXTURE_PATH = FIXTURE_ROOT / "fixture-set.json"
 FIXTURE_SHA256 = "dee23ff5acf3065ebb651790fbf57dbd6084c3a103f1492ccbea6a8d10e35203"
 QUALIFICATION_IMPLEMENTATION_SHA = (
-    "da2e898a75bf313a3db5ce13d6ae2ad1a02919bc"
+    "8ef0fe11289ca92e79c2c68c34a4486e064571c8"
 )
 REPORT_PATH = (
     Path(__file__).resolve().parents[4]
@@ -26,7 +26,7 @@ REPORT_PATH = (
     / "v3-production-remediation-structure-retrieval"
     / "qualification-report.json"
 )
-REPORT_SHA256 = "665b09802adf590fa4fb66d842f1975e9a08ec1d69c9e71dac933807e89737e1"
+REPORT_SHA256 = "a0cd5c2e2d180cee9f1fe4d5081316a9aea33b642567094f0b7453d0a1260113"
 TEST_REPOSITORY_SHA = "a" * 40
 REQUIRED_CONTROLS = {
     "fixture_set_sha",
