@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 from copy import deepcopy
@@ -15,6 +16,17 @@ FIXTURE_ROOT = (
 )
 FIXTURE_PATH = FIXTURE_ROOT / "fixture-set.json"
 FIXTURE_SHA256 = "dee23ff5acf3065ebb651790fbf57dbd6084c3a103f1492ccbea6a8d10e35203"
+QUALIFICATION_IMPLEMENTATION_SHA = (
+    "da2e898a75bf313a3db5ce13d6ae2ad1a02919bc"
+)
+REPORT_PATH = (
+    Path(__file__).resolve().parents[4]
+    / "examples"
+    / "qualification"
+    / "v3-production-remediation-structure-retrieval"
+    / "qualification-report.json"
+)
+REPORT_SHA256 = "665b09802adf590fa4fb66d842f1975e9a08ec1d69c9e71dac933807e89737e1"
 TEST_REPOSITORY_SHA = "a" * 40
 REQUIRED_CONTROLS = {
     "fixture_set_sha",
@@ -48,12 +60,13 @@ def _run(
     *,
     fixture_set: dict[str, object] | None = None,
     fixture_root: Path = FIXTURE_ROOT,
+    repository_sha: str = TEST_REPOSITORY_SHA,
 ) -> dict[str, object]:
     return run_v3_production_remediation_structure_synthetic_qualification(
         fixture_set=fixture_set or _fixture(),
         fixture_root=fixture_root,
         expected_fixture_sha256=FIXTURE_SHA256,
-        repository_sha=TEST_REPOSITORY_SHA,
+        repository_sha=repository_sha,
     )
 
 
@@ -121,3 +134,38 @@ def test_remediated_v3_edge_rejects_replay_provenance_tampering(
 
     assert report["technical_completion"] == "mechanical_fail"
     assert report["controls"]["merged_replay_provenance"]["status"] == "fail"
+
+
+def test_committed_remediated_v3_retrieval_report_is_exactly_bound() -> None:
+    report_bytes = REPORT_PATH.read_bytes()
+    report = json.loads(report_bytes)
+    rebuilt_report = _run(repository_sha=QUALIFICATION_IMPLEMENTATION_SHA)
+
+    assert hashlib.sha256(report_bytes).hexdigest() == REPORT_SHA256
+    assert report == rebuilt_report
+    assert report["technical_completion"] == "qualified"
+    assert report["repository_sha"] == QUALIFICATION_IMPLEMENTATION_SHA
+    assert report["fixture_set_sha256"] == FIXTURE_SHA256
+    assert report["fixture_count"] == 24
+    assert report["passing_fixture_count"] == 24
+    assert len(report["retrieval_results"]) == 24
+    assert set(report["controls"]) == REQUIRED_CONTROLS
+    assert all(
+        control["status"] == "pass"
+        for control in report["controls"].values()
+    )
+    assert len(report["fixture_control_results"]) == 24
+    assert all(
+        set(fixture_controls) == REQUIRED_CONTROLS
+        and all(
+            control["status"] == "pass"
+            for control in fixture_controls.values()
+        )
+        for fixture_controls in report["fixture_control_results"].values()
+    )
+    assert report["private_data"] is False
+    assert report["provider_execution"] is False
+    assert report["runtime_execution"] is False
+    assert report["external_model_execution"] is False
+    assert report["external_egress"] is False
+    assert report["release_decision"] == "defer"
