@@ -1,0 +1,173 @@
+{
+  "abstentions": [],
+  "caption_links": [],
+  "continuation_links": [],
+  "contract_version": "structure-association-result-v1",
+  "fallback_used": false,
+  "footnote_links": [],
+  "input_sha256": "cfa768e378a03325fca800dd7bba845a31340f04bf80f7af7e11568047218c22",
+  "native_object_map_sha256": "0be127fd411b1a1d1c24d64bbee7303980602eb28e5caf71ac04075e77546e6d",
+  "profile_id": "mineru_complex_layout_structural_v2",
+  "profile_release_id": "v3-production-synthetic-edge-v1",
+  "reading_order": [
+    "NST-e5ce2d224a52fdaa6600f5282fba51e3",
+    "NST-6e3cbd0ebd82aac1db5070e927096e10",
+    "NST-da661b73344d8b7d1c1dde7f8c49d432",
+    "NST-f18352421ec53aa896069810e881be52",
+    "NST-c70a9656d317844e6c118d16b719476c",
+    "NST-099c5b1f6f3ffa41bd6b3fcfd3499583",
+    "NST-fc5a608ddc40202f5fee4333d6dcca5a",
+    "NST-9415d6cc68760f4d217b5412015895c1",
+    "NST-0c0632106d8990f0711fab9a36c2117c"
+  ],
+  "regions": [
+    {
+      "confidence": 1.0,
+      "member_object_ids": [
+        "NSO-d113c4d46a2b9d18df7e4f367ea8d436"
+      ],
+      "normalized_bbox": [
+        0.052448,
+        0.06001,
+        0.173698,
+        0.073993
+      ],
+      "page_end": 1,
+      "page_start": 1,
+      "region_id": "NST-e5ce2d224a52fdaa6600f5282fba51e3",
+      "region_type": "text_line"
+    },
+    {
+      "confidence": 1.0,
+      "member_object_ids": [
+        "NSO-894d8295007e355055ac75d5fde150ff"
+      ],
+      "normalized_bbox": [
+        0.052448,
+        0.10662,
+        0.173698,
+        0.120603
+      ],
+      "page_end": 1,
+      "page_start": 1,
+      "region_id": "NST-6e3cbd0ebd82aac1db5070e927096e10",
+      "region_type": "text_line"
+    },
+    {
+      "confidence": 1.0,
+      "member_object_ids": [
+        "NSO-185dfa76cb8489b87b257c50375c143c"
+      ],
+      "normalized_bbox": [
+        0.052448,
+        0.15323,
+        0.173698,
+        0.167213
+      ],
+      "page_end": 1,
+      "page_start": 1,
+      "region_id": "NST-da661b73344d8b7d1c1dde7f8c49d432",
+      "region_type": "text_line"
+    },
+    {
+      "confidence": 1.0,
+      "member_object_ids": [
+        "NSO-2c64dc1d68db6403b0a53c2288a5e84d"
+      ],
+      "normalized_bbox": [
+        0.350816,
+        0.06001,
+        0.472066,
+        0.073993
+      ],
+      "page_end": 1,
+      "page_start": 1,
+      "region_id": "NST-f18352421ec53aa896069810e881be52",
+      "region_type": "text_line"
+    },
+    {
+      "confidence": 1.0,
+      "member_object_ids": [
+        "NSO-1690ba3c4a7dca4901d6233913d72ce0"
+      ],
+      "normalized_bbox": [
+        0.350816,
+        0.10662,
+        0.472066,
+        0.120603
+      ],
+      "page_end": 1,
+      "page_start": 1,
+      "region_id": "NST-c70a9656d317844e6c118d16b719476c",
+      "region_type": "text_line"
+    },
+    {
+      "confidence": 1.0,
+      "member_object_ids": [
+        "NSO-511d2b962b0fa03d925df5273a0a2731"
+      ],
+      "normalized_bbox": [
+        0.350816,
+        0.15323,
+        0.472066,
+        0.167213
+      ],
+      "page_end": 1,
+      "page_start": 1,
+      "region_id": "NST-099c5b1f6f3ffa41bd6b3fcfd3499583",
+      "region_type": "text_line"
+    },
+    {
+      "confidence": 1.0,
+      "member_object_ids": [
+        "NSO-dc49fd72aebd340951d2239614c3a057"
+      ],
+      "normalized_bbox": [
+        0.649184,
+        0.06001,
+        0.770434,
+        0.073993
+      ],
+      "page_end": 1,
+      "page_start": 1,
+      "region_id": "NST-fc5a608ddc40202f5fee4333d6dcca5a",
+      "region_type": "text_line"
+    },
+    {
+      "confidence": 1.0,
+      "member_object_ids": [
+        "NSO-4c11b0ecd30e2385ab3ed1edd5ffdfba"
+      ],
+      "normalized_bbox": [
+        0.649184,
+        0.10662,
+        0.770434,
+        0.120603
+      ],
+      "page_end": 1,
+      "page_start": 1,
+      "region_id": "NST-9415d6cc68760f4d217b5412015895c1",
+      "region_type": "text_line"
+    },
+    {
+      "confidence": 1.0,
+      "member_object_ids": [
+        "NSO-6fc03b84cb13d5074999500e33aef2b8"
+      ],
+      "normalized_bbox": [
+        0.649184,
+        0.15323,
+        0.770434,
+        0.167213
+      ],
+      "page_end": 1,
+      "page_start": 1,
+      "region_id": "NST-0c0632106d8990f0711fab9a36c2117c",
+      "region_type": "text_line"
+    }
+  ],
+  "source_id": "V3P-EDGE-017",
+  "source_version_id": "cfa768e378a03325fca800dd7bba845a31340f04bf80f7af7e11568047218c22",
+  "tables": [],
+  "warnings": []
+}

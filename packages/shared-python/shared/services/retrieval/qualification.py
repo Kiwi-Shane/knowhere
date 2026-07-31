@@ -35,6 +35,12 @@ _V3_PRODUCTION_REPLAY_REPORT_SHA256 = (
 _V3_PRODUCTION_REPLAY_FILE_SHA256 = (
     "d9e8b4860839d1b23ea59eac3f9738d01b1c54f3081f7799c40cc76396e6e8a2"
 )
+_V3_PRODUCTION_REMEDIATION_REPLAY_FILE_SHA256 = (
+    "98fca9bca8e5932388b54d7c51adceca1f4e4ef53265fad412c6048d36e6521f"
+)
+_V3_PRODUCTION_REMEDIATION_FIXTURE_FILE_SHA256 = (
+    "c9947104598c3533612ccf72658128742925cc85f44487c926363b394383935c"
+)
 
 
 @dataclass(frozen=True)
@@ -395,6 +401,7 @@ def run_v3_production_structure_synthetic_qualification(
     expected_fixture_sha256: str,
     repository_sha: str,
     faults: Iterable[str] = (),
+    replay_evidence_profile: str = "merged_formal",
 ) -> dict[str, Any]:
     """Qualify the 24-fixture generic V3 production edge without RA authority."""
 
@@ -463,7 +470,11 @@ def run_v3_production_structure_synthetic_qualification(
         profile_boundary_pass,
         "generic production profile remains bounded synthetic and non-release",
     )
-    replay_path = fixture_root / "merged-replay-report.json"
+    replay_path = fixture_root / (
+        "replay-report.json"
+        if replay_evidence_profile == "remediation_replay"
+        else "merged-replay-report.json"
+    )
     replay_report: Mapping[str, Any] = {}
     replay_file_pass = replay_path.is_file()
     if replay_file_pass:
@@ -473,29 +484,67 @@ def run_v3_production_structure_synthetic_qualification(
             loaded_replay = {}
         if isinstance(loaded_replay, Mapping):
             replay_report = loaded_replay
-    replay_provenance_pass = (
-        replay_file_pass
-        and _file_sha256(replay_path)
-        == _V3_PRODUCTION_REPLAY_FILE_SHA256
-        and replay_report.get("schema")
-        == "mineru-v3-production-merged-replay/1.0"
-        and replay_report.get("report_sha256")
-        == _V3_PRODUCTION_REPLAY_REPORT_SHA256
-        and _canonical_without(replay_report, "report_sha256")
-        == _V3_PRODUCTION_REPLAY_REPORT_SHA256
-        and replay_report.get("downstream_fixture_set_sha256")
-        == expected_fixture_sha256
-        and replay_report.get("formal_holdout_consumed") is True
-        and replay_report.get("reviewed_tree_matches_merged_tree") is True
-        and replay_report.get("component_identities_match") is True
-        and replay_report.get("aggregate_results_match") is True
-        and replay_report.get("qualification_credit") is False
-        and replay_report.get("new_holdout_created") is False
-    )
+    if replay_evidence_profile == "merged_formal":
+        replay_provenance_pass = (
+            replay_file_pass
+            and _file_sha256(replay_path)
+            == _V3_PRODUCTION_REPLAY_FILE_SHA256
+            and replay_report.get("schema")
+            == "mineru-v3-production-merged-replay/1.0"
+            and replay_report.get("report_sha256")
+            == _V3_PRODUCTION_REPLAY_REPORT_SHA256
+            and _canonical_without(replay_report, "report_sha256")
+            == _V3_PRODUCTION_REPLAY_REPORT_SHA256
+            and replay_report.get("downstream_fixture_set_sha256")
+            == expected_fixture_sha256
+            and replay_report.get("formal_holdout_consumed") is True
+            and replay_report.get("reviewed_tree_matches_merged_tree") is True
+            and replay_report.get("component_identities_match") is True
+            and replay_report.get("aggregate_results_match") is True
+            and replay_report.get("qualification_credit") is False
+            and replay_report.get("new_holdout_created") is False
+        )
+    elif replay_evidence_profile == "remediation_replay":
+        aggregate_metrics = replay_report.get("aggregate_metrics")
+        replay_provenance_pass = (
+            replay_file_pass
+            and _file_sha256(replay_path)
+            == _V3_PRODUCTION_REMEDIATION_REPLAY_FILE_SHA256
+            and replay_report.get("schema")
+            == "mineru-v3-private-remediation-downstream-replay/1.0"
+            and replay_report.get("candidate_repository_sha")
+            == "ce2b2c50c5462f11a3d7700c08a4ccdec4cb10bd"
+            and replay_report.get("candidate_tree_sha")
+            == "270c38c399d4fcb026720ecf8f72650ba4cb5ed9"
+            and replay_report.get("fixture_set_file_sha256")
+            == _V3_PRODUCTION_REMEDIATION_FIXTURE_FILE_SHA256
+            and replay_report.get("fixture_set_sha256")
+            == expected_fixture_sha256
+            and replay_report.get("fixture_count") == 24
+            and replay_report.get("deterministic_builds") == 2
+            and replay_report.get("deterministic_match") is True
+            and replay_report.get("consumed_native_identity_match") is True
+            and replay_report.get("contains_private_data") is False
+            and replay_report.get("new_holdout_created") is False
+            and replay_report.get("replacement_holdout") is False
+            and replay_report.get("qualification_credit") is False
+            and isinstance(aggregate_metrics, Mapping)
+            and bool(aggregate_metrics)
+            and not any(aggregate_metrics.values())
+        )
+    else:
+        replay_provenance_pass = False
     record(
         "merged_replay_provenance",
         replay_provenance_pass,
-        "merged replay report byte seal, semantic seal, and no-credit state match",
+        (
+            "remediation replay report byte seal and no-credit boundaries match"
+            if replay_evidence_profile == "remediation_replay"
+            else (
+                "merged replay report byte seal, semantic seal, and no-credit "
+                "state match"
+            )
+        ),
     )
 
     native_hash_pass = True
@@ -1038,6 +1087,26 @@ def run_v3_production_structure_synthetic_qualification(
         "release_decision": "defer",
         "repository_sha": repository_sha,
     }
+
+
+def run_v3_production_remediation_structure_synthetic_qualification(
+    *,
+    fixture_set: Mapping[str, Any],
+    fixture_root: Path,
+    expected_fixture_sha256: str,
+    repository_sha: str,
+    faults: Iterable[str] = (),
+) -> dict[str, Any]:
+    """Qualify the remediated V3 synthetic edge without release authority."""
+
+    return run_v3_production_structure_synthetic_qualification(
+        fixture_set=fixture_set,
+        fixture_root=fixture_root,
+        expected_fixture_sha256=expected_fixture_sha256,
+        repository_sha=repository_sha,
+        faults=faults,
+        replay_evidence_profile="remediation_replay",
+    )
 
 
 def run_v3_structure_synthetic_qualification(
@@ -1656,6 +1725,8 @@ __all__ = [
     "RetrievalQualificationIssue",
     "canonical_fixture_sha256",
     "run_d4_synthetic_qualification",
+    "run_v3_production_remediation_structure_synthetic_qualification",
+    "run_v3_production_structure_synthetic_qualification",
     "run_v3_structure_synthetic_qualification",
     "validate_knowledge_retrieval_result",
     "validate_v3_structure_retrieval_result",

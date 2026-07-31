@@ -1,0 +1,344 @@
+{
+  "artifact_sha256": "b87ba285811648b81198eead3ba932fe828a6f708f020f851d21d0b0e71b890a",
+  "contract_version": "native-structure-object-map-v1",
+  "derivative_not_native_source_evidence": true,
+  "errors": [],
+  "extractor_identity": {
+    "configuration_sha256": "5c7e445454a5cd2908e5355e4983cb7dbebac383a8e8ca69dab3ca3db1d29a95",
+    "package_lock_sha256": "f0cf0243997894e46fb1e8a26e0eafaa8867f6c947c78831fb299618a3eff1c6",
+    "repository_sha": "ce2b2c50c5462f11a3d7700c08a4ccdec4cb10bd",
+    "runtime_image_digest": "sha256:a3fc8b2a7bc60098b2be37b158d4fcf58dc3e4a5bd80fea5b27ff7bab196f63e",
+    "source_blob_sha256": "520af30af516e6561d37e45cf5912add1a43f834e52dcfec0a7c7b2f62c293ca"
+  },
+  "fallback_used": false,
+  "input_sha256": "520af30af516e6561d37e45cf5912add1a43f834e52dcfec0a7c7b2f62c293ca",
+  "objects": [
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        0.0,
+        0.0,
+        569.0,
+        706.0
+      ],
+      "normalized_bbox": [
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "object_id": "NSO-52e556b16d2b77bc59ed3534b6d75dbb",
+      "object_type": "page_region",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "1d921149063f6634167682b31e13c0f404cef1173494a37c430cf4793023b13b",
+      "source_locator": {
+        "object_ordinal": 1,
+        "page_number": 1
+      },
+      "text_sha256": null,
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        45.0,
+        20.333,
+        65.779,
+        30.233
+      ],
+      "normalized_bbox": [
+        0.079086,
+        0.957177,
+        0.115605,
+        0.9712
+      ],
+      "object_id": "NSO-60d3bdc5750d7cad5becc45dc3fd9192",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "a9262659acca1ecca0312edbb0c6277eab0469d9c433a9e3e46b526d7dae0672",
+      "source_locator": {
+        "object_ordinal": 2,
+        "page_number": 1
+      },
+      "text_sha256": "8487d2fecda9d3249094a16e5356ab0afd82433824723e99d9b2fc66e7b1437b",
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        111.74,
+        20.333,
+        132.519,
+        30.233
+      ],
+      "normalized_bbox": [
+        0.19638,
+        0.957177,
+        0.232898,
+        0.9712
+      ],
+      "object_id": "NSO-396aba456c71261a06947d0a9252af50",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "dd2819547b3ef63290b92e5d6714c01a7b754b55732dce2086edf0a71776a08e",
+      "source_locator": {
+        "object_ordinal": 3,
+        "page_number": 1
+      },
+      "text_sha256": "b33e57eb51c083697225afd0388c9e9d455e32d08ba7d27c71d3a21b3b0684ad",
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        41.0,
+        12.0,
+        107.74,
+        39.44
+      ],
+      "normalized_bbox": [
+        0.072056,
+        0.944136,
+        0.18935,
+        0.983003
+      ],
+      "object_id": "NSO-7443ec3a4d1f05fffeccdbcbdfce511d",
+      "object_type": "vector_rectangle",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "ac99536ec64005b15a250aaa724d393ccd95f4c4a108493d6563a66edce91161",
+      "source_locator": {
+        "object_ordinal": 4,
+        "page_number": 1
+      },
+      "text_sha256": null,
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        107.74,
+        12.0,
+        174.48,
+        39.44
+      ],
+      "normalized_bbox": [
+        0.18935,
+        0.944136,
+        0.306643,
+        0.983003
+      ],
+      "object_id": "NSO-881f21b30cd63910a27009022a839761",
+      "object_type": "vector_rectangle",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "8f9115fd965f04a255a53f9be161f11bd463ece938a0b36775edf6129a70b662",
+      "source_locator": {
+        "object_ordinal": 5,
+        "page_number": 1
+      },
+      "text_sha256": null,
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        0.0,
+        0.0,
+        569.0,
+        706.0
+      ],
+      "normalized_bbox": [
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "object_id": "NSO-c4b6fad0218ef8b1716f5ace8162080e",
+      "object_type": "page_region",
+      "occurrence_index": 0,
+      "page_number": 2,
+      "raw_object_sha256": "1d921149063f6634167682b31e13c0f404cef1173494a37c430cf4793023b13b",
+      "source_locator": {
+        "object_ordinal": 6,
+        "page_number": 2
+      },
+      "text_sha256": null,
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        45.0,
+        674.796,
+        70.344,
+        685.896
+      ],
+      "normalized_bbox": [
+        0.079086,
+        0.028476,
+        0.123627,
+        0.044198
+      ],
+      "object_id": "NSO-f14a4b4ab5aa296a8a4b47105a8b71e7",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 2,
+      "raw_object_sha256": "e4331e762886796e76b8ffbbdeb6cf4809e93c5df40d07ff6eafeee722afb480",
+      "source_locator": {
+        "object_ordinal": 7,
+        "page_number": 2
+      },
+      "text_sha256": "e4ccac543e8fb16419ddbc1861b0415568fa4087de9965b2b2520289a606c83e",
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        111.74,
+        674.796,
+        137.084,
+        685.896
+      ],
+      "normalized_bbox": [
+        0.19638,
+        0.028476,
+        0.240921,
+        0.044198
+      ],
+      "object_id": "NSO-8f18428a081b2f630261169e9e38f621",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 2,
+      "raw_object_sha256": "98da2e76030a52d9cab47abc3ad6c03b67f915440a82d39d2eb10d72389b2494",
+      "source_locator": {
+        "object_ordinal": 8,
+        "page_number": 2
+      },
+      "text_sha256": "20eebfeebad821279a1c9b4937336eab2f3c7e47c1678f34751f718b644c5a09",
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        41.0,
+        666.56,
+        107.74,
+        694.0
+      ],
+      "normalized_bbox": [
+        0.072056,
+        0.016997,
+        0.18935,
+        0.055864
+      ],
+      "object_id": "NSO-863b8cc9f571311575e6eeac695a4417",
+      "object_type": "vector_rectangle",
+      "occurrence_index": 0,
+      "page_number": 2,
+      "raw_object_sha256": "79d17b626bbc4dce988ec8a216b4aeeca4191be0ebf4c09fe369e462ba7dda52",
+      "source_locator": {
+        "object_ordinal": 9,
+        "page_number": 2
+      },
+      "text_sha256": null,
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        107.74,
+        666.56,
+        174.48,
+        694.0
+      ],
+      "normalized_bbox": [
+        0.18935,
+        0.016997,
+        0.306643,
+        0.055864
+      ],
+      "object_id": "NSO-0a28f07656fb07d6a68bc9c25b582620",
+      "object_type": "vector_rectangle",
+      "occurrence_index": 0,
+      "page_number": 2,
+      "raw_object_sha256": "159e9d99bf1a9196b645507e37a9b58ca4700a90e2f643cdb71587f3867c7adc",
+      "source_locator": {
+        "object_ordinal": 10,
+        "page_number": 2
+      },
+      "text_sha256": null,
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        530.0,
+        657.0,
+        549.0,
+        670.0
+      ],
+      "normalized_bbox": [
+        0.931459,
+        0.050992,
+        0.964851,
+        0.069405
+      ],
+      "object_id": "NSO-4d7c4627b18ad2c93bc9491841ba249d",
+      "object_type": "vector_rectangle",
+      "occurrence_index": 0,
+      "page_number": 2,
+      "raw_object_sha256": "3dcc041bb132844fdb7b13656a49afc3e6a117f9bceef532d2346fa51098fda9",
+      "source_locator": {
+        "object_ordinal": 11,
+        "page_number": 2
+      },
+      "text_sha256": null,
+      "warning_codes": []
+    }
+  ],
+  "page_geometry": [
+    {
+      "crop_box": [
+        0.0,
+        0.0,
+        569.0,
+        706.0
+      ],
+      "media_box": [
+        0.0,
+        0.0,
+        569.0,
+        706.0
+      ],
+      "normalized_height": 706.0,
+      "normalized_width": 569.0,
+      "page_number": 1,
+      "source_rotation": 0
+    },
+    {
+      "crop_box": [
+        0.0,
+        0.0,
+        569.0,
+        706.0
+      ],
+      "media_box": [
+        0.0,
+        0.0,
+        569.0,
+        706.0
+      ],
+      "normalized_height": 706.0,
+      "normalized_width": 569.0,
+      "page_number": 2,
+      "source_rotation": 0
+    }
+  ],
+  "source_id": "V3P-EDGE-011",
+  "source_version_id": "520af30af516e6561d37e45cf5912add1a43f834e52dcfec0a7c7b2f62c293ca",
+  "warnings": []
+}
