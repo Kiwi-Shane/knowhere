@@ -1,0 +1,202 @@
+{
+  "contract_version": "document-extraction-manifest-v1",
+  "derivative_not_native_source_evidence": true,
+  "does_not_establish_source_sufficiency": true,
+  "errors": [],
+  "extraction_run_id": "v3-production-edge-v3p-edge-022",
+  "fallback_used": false,
+  "images": [
+    {
+      "asset_type": "native_image_region",
+      "image_id": "NST-801651bc5eeac812f57f1b899a7d950e",
+      "member_object_ids": [
+        "NSO-f0e5651eba9b30df6498faff2629982f"
+      ],
+      "page_number": 1,
+      "sha256": "9121288302a55180cbd71f2a91d22fa7892fcbd015e5745918526dffc528f978"
+    },
+    {
+      "asset_type": "native_page_region",
+      "image_id": "NSO-9fdb07a348fe84c8bf4bab3784cac1ca",
+      "member_object_ids": [
+        "NSO-9fdb07a348fe84c8bf4bab3784cac1ca"
+      ],
+      "page_number": 1,
+      "sha256": "53e8a6b59406cae4d11b6362deaff9d9fa6524cf3c05c8a85afa6aa8dbd24ad9"
+    }
+  ],
+  "input_sha256": "9d11e0b1ad588c23b21772416f7b2dab99264de808877798a725b8fed9197845",
+  "mineru_identity": {
+    "backend": "native_object_structure_association",
+    "configuration_sha256": "5c7e445454a5cd2908e5355e4983cb7dbebac383a8e8ca69dab3ca3db1d29a95",
+    "model_identifiers": {
+      "model_required": false,
+      "package_lock_sha256": "f0cf0243997894e46fb1e8a26e0eafaa8867f6c947c78831fb299618a3eff1c6",
+      "profile_id": "mineru_complex_layout_structural_v2",
+      "runtime_identity_digest": "sha256:a3fc8b2a7bc60098b2be37b158d4fcf58dc3e4a5bd80fea5b27ff7bab196f63e"
+    },
+    "package_version": "3.4.4",
+    "repository_sha": "ce2b2c50c5462f11a3d7700c08a4ccdec4cb10bd"
+  },
+  "native_page_count": 1,
+  "ocr_profile": null,
+  "outputs": [
+    {
+      "artifact_id": "V3P-EDGE-022-NATIVE-OBJECT-MAP",
+      "artifact_type": "native-structure-object-map-v1",
+      "relative_path": "artifacts/V3P-EDGE-022.native-structure-object-map.json",
+      "sha256": "2ebf4f4a0f719a3ccd078fc7b0fa579e09c60bed022f5289a3540a360f2ae779"
+    },
+    {
+      "artifact_id": "V3P-EDGE-022-STRUCTURE-ASSOCIATION",
+      "artifact_type": "structure-association-result-v1",
+      "relative_path": "artifacts/V3P-EDGE-022.structure-association-result.json",
+      "sha256": "983ff321355a592c6ff28815ee143bf6e5489bfb6016ca78d19b3aaa5dfa816a"
+    }
+  ],
+  "page_blocks": [
+    {
+      "artifact_path": "artifacts/V3P-EDGE-022.structure-association-result.json",
+      "block_id": "NST-149fa2fcb7e5643619963f892e171c74",
+      "block_type": "table_cell",
+      "content_sha256": "dfb4c80659ac06076beb7df7e057d3207d9bc737a31cb25f7ce2c5c6bd472637",
+      "locator": "p1#NST-149fa2fcb7e5643619963f892e171c74",
+      "page_number": 1,
+      "page_region_id": "NST-149fa2fcb7e5643619963f892e171c74",
+      "reading_order_index": 1,
+      "section_id": "V3P-EDGE-022-SECTION"
+    },
+    {
+      "artifact_path": "artifacts/V3P-EDGE-022.structure-association-result.json",
+      "block_id": "NST-a2bac60c8fd43b3e7eff78afcfbe7ffa",
+      "block_type": "table_cell",
+      "content_sha256": "ef00648912ea0028b6fb10747362616535fda094ce38edbeff6987ad26b49314",
+      "locator": "p1#NST-a2bac60c8fd43b3e7eff78afcfbe7ffa",
+      "page_number": 1,
+      "page_region_id": "NST-a2bac60c8fd43b3e7eff78afcfbe7ffa",
+      "reading_order_index": 2,
+      "section_id": "V3P-EDGE-022-SECTION"
+    },
+    {
+      "artifact_path": "artifacts/V3P-EDGE-022.structure-association-result.json",
+      "block_id": "NST-ae211ac8081712bca7831baa251b3fbb",
+      "block_type": "table_cell",
+      "content_sha256": "9df93dda49709855c37bfd37bc17b155cb4169d2c036a2d08fc2afa761ce0666",
+      "locator": "p1#NST-ae211ac8081712bca7831baa251b3fbb",
+      "page_number": 1,
+      "page_region_id": "NST-ae211ac8081712bca7831baa251b3fbb",
+      "reading_order_index": 3,
+      "section_id": "V3P-EDGE-022-SECTION"
+    },
+    {
+      "artifact_path": "artifacts/V3P-EDGE-022.structure-association-result.json",
+      "block_id": "NST-0d20510cd949dec291ec4a53d618e2c5",
+      "block_type": "table_cell",
+      "content_sha256": "7c2a8b3a5435e431288f89bc4c2b5b01e354267bca9c876c792629c54c6e012b",
+      "locator": "p1#NST-0d20510cd949dec291ec4a53d618e2c5",
+      "page_number": 1,
+      "page_region_id": "NST-0d20510cd949dec291ec4a53d618e2c5",
+      "reading_order_index": 4,
+      "section_id": "V3P-EDGE-022-SECTION"
+    },
+    {
+      "artifact_path": "artifacts/V3P-EDGE-022.structure-association-result.json",
+      "block_id": "NST-11a8149172e2c799c8b77bb187832e4a",
+      "block_type": "text_line",
+      "content_sha256": "4453bbba62c882bfba7028f415e8027dac627bd2cce2f3243e937024b3f883ac",
+      "locator": "p1#NST-11a8149172e2c799c8b77bb187832e4a",
+      "page_number": 1,
+      "page_region_id": "NST-11a8149172e2c799c8b77bb187832e4a",
+      "reading_order_index": 6,
+      "section_id": "V3P-EDGE-022-SECTION"
+    },
+    {
+      "artifact_path": "artifacts/V3P-EDGE-022.structure-association-result.json",
+      "block_id": "NST-801651bc5eeac812f57f1b899a7d950e",
+      "block_type": "image",
+      "content_sha256": "4188813af96b816d13bb224b95126bded51f0951a788248a7f435449b69be6e5",
+      "locator": "p1#NST-801651bc5eeac812f57f1b899a7d950e",
+      "page_number": 1,
+      "page_region_id": "NST-801651bc5eeac812f57f1b899a7d950e",
+      "reading_order_index": 5,
+      "section_id": "V3P-EDGE-022-SECTION"
+    }
+  ],
+  "runtime_identity": {
+    "accelerator_profile": "cpu-no-model-no-egress",
+    "architecture": "x86_64",
+    "os": "windows-11-offline-qualification"
+  },
+  "source_id": "V3P-EDGE-022",
+  "source_version_id": "9d11e0b1ad588c23b21772416f7b2dab99264de808877798a725b8fed9197845",
+  "status": "completed",
+  "tables": [
+    {
+      "boundary_object_ids": [
+        "NSO-489105aeca622ed76858ff7011ef9749",
+        "NSO-6682f637e159135495f52a27194abd53",
+        "NSO-78676b5dce559a5439ee5c2a04bfd364",
+        "NSO-c6403422f9cdddbfb4728fa4242afff9"
+      ],
+      "cells": [
+        {
+          "cell_id": "NST-429781ce3160e869bdd26e8792ab89f4",
+          "column": 0,
+          "column_span": 1,
+          "confidence": 1.0,
+          "member_object_ids": [
+            "NSO-489105aeca622ed76858ff7011ef9749",
+            "NSO-aa4bd8cb0df182e72a231c07f3e311cf"
+          ],
+          "row": 0,
+          "row_span": 1,
+          "source_region_id": "NST-149fa2fcb7e5643619963f892e171c74"
+        },
+        {
+          "cell_id": "NST-3177fe4f380e05844f9746f4dd75265a",
+          "column": 1,
+          "column_span": 1,
+          "confidence": 1.0,
+          "member_object_ids": [
+            "NSO-c6403422f9cdddbfb4728fa4242afff9",
+            "NSO-f146a52f950cd286fef60d901c45155e"
+          ],
+          "row": 0,
+          "row_span": 1,
+          "source_region_id": "NST-a2bac60c8fd43b3e7eff78afcfbe7ffa"
+        },
+        {
+          "cell_id": "NST-98fdeb7307808bd29a3451390cc7cdbd",
+          "column": 0,
+          "column_span": 1,
+          "confidence": 1.0,
+          "member_object_ids": [
+            "NSO-72acd6314512feb8b0378fc9647ab66c",
+            "NSO-78676b5dce559a5439ee5c2a04bfd364"
+          ],
+          "row": 1,
+          "row_span": 1,
+          "source_region_id": "NST-ae211ac8081712bca7831baa251b3fbb"
+        },
+        {
+          "cell_id": "NST-18111bc68e20eac611883aa0d2d858a7",
+          "column": 1,
+          "column_span": 1,
+          "confidence": 1.0,
+          "member_object_ids": [
+            "NSO-6682f637e159135495f52a27194abd53",
+            "NSO-c0e6b45c9a14654c20b6bd5a0a2138e0"
+          ],
+          "row": 1,
+          "row_span": 1,
+          "source_region_id": "NST-0d20510cd949dec291ec4a53d618e2c5"
+        }
+      ],
+      "page_end": 1,
+      "page_start": 1,
+      "section_id": "V3P-EDGE-022-SECTION",
+      "table_id": "NST-28654502f287f5309d46dfb17c622063"
+    }
+  ],
+  "warnings": []
+}
