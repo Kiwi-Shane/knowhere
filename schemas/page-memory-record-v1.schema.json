@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Kiwi-Shane/knowhere/blob/main/schemas/page-memory-record-v1.schema.json",
+  "title": "Knowhere page memory record v1",
+  "description": "Case-bound page navigation metadata. It is exploratory and does not establish source sufficiency or an RA disposition.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "page_id",
+    "source_id",
+    "source_version_id",
+    "page_number",
+    "page_manifest_sha256",
+    "render_sha256",
+    "native_text_sha256",
+    "lexical_index_status",
+    "visual_index_status",
+    "visual_embedding_backend_id",
+    "visual_embedding_artifact_sha256",
+    "adjacent_page_ids",
+    "coarse_section_hints",
+    "warnings",
+    "verification_status"
+  ],
+  "properties": {
+    "contract_version": {
+      "const": "page-memory-record-v1"
+    },
+    "page_id": {
+      "type": "string",
+      "pattern": "^page-[0-9a-f]{64}$"
+    },
+    "source_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source_version_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "page_number": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "page_manifest_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "render_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "native_text_sha256": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "lexical_index_status": {
+      "type": "string",
+      "enum": ["ready", "empty", "extraction_warning", "unavailable"]
+    },
+    "visual_index_status": {
+      "type": "string",
+      "enum": ["ready", "disabled"]
+    },
+    "visual_embedding_backend_id": {
+      "type": ["string", "null"],
+      "enum": ["caller_supplied_precomputed_v1", null]
+    },
+    "visual_embedding_artifact_sha256": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "adjacent_page_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^page-[0-9a-f]{64}$"
+      },
+      "maxItems": 2
+    },
+    "coarse_section_hints": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "maxItems": 3
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "verification_status": {
+      "const": "exploratory_unverified"
+    }
+  }
+}
