@@ -24,9 +24,10 @@ class JobFileStorage:
     ) -> None:
         self._storage_adapter = storage_adapter
         self.uploads_bucket = uploads_bucket or settings.S3_BUCKET_NAME
-        configured_results_bucket = getattr(settings, "S3_RESULTS_BUCKET", "")
-        self.results_bucket = (
-            results_bucket or configured_results_bucket or self.uploads_bucket
+        self.results_bucket = results_bucket or getattr(
+            settings,
+            "S3_RESULTS_BUCKET",
+            settings.S3_BUCKET_NAME,
         )
 
     @property
@@ -175,7 +176,7 @@ class JobFileStorage:
         return self.delete_object(storage_key, bucket=self.uploads_bucket)
 
     def delete_result_bundle(self, *, job_id: str) -> int:
-        """Delete the result ZIP and every raw artifact for one job."""
+        """Delete one job's result ZIP and every raw result artifact."""
 
         normalized_job_id = str(job_id).strip()
         if not normalized_job_id or any(

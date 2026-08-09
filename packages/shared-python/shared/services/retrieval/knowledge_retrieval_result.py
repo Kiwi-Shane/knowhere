@@ -1,10 +1,8 @@
-"""Build the opt-in Knowhere knowledge retrieval result contract.
+"""Build the opt-in Knowhere knowledge-retrieval-result-v1 contract.
 
-This module is deliberately a pure boundary adapter.  It serializes one
-already-ranked retrieval row only when the caller supplies the source-owned
-memory, source-version, and native-locator context.  The normal retrieval
-routes do not call it yet; inferring native extraction blocks from a database
-chunk id would weaken the provenance contract.
+The adapter is intentionally not wired into the public retrieval routes yet.
+Callers must provide producer-owned source/version and native-locator context;
+database chunk identifiers are never treated as native extraction block IDs.
 """
 
 from __future__ import annotations
@@ -15,7 +13,6 @@ import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
-
 
 CONTRACT_VERSION = "knowledge-retrieval-result-v1"
 _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
@@ -69,12 +66,7 @@ def serialize_knowledge_retrieval_result(
     context: KnowledgeRetrievalResultContext,
     locator: KnowledgeRetrievalResultLocator,
 ) -> dict[str, Any]:
-    """Serialize one ranked row into ``knowledge-retrieval-result-v1``.
-
-    ``locator`` is required instead of being inferred from ``chunk_id`` or a
-    section string.  This keeps database retrieval identifiers separate from
-    the native extraction identifiers that a reviewer would need to verify.
-    """
+    """Serialize one already-ranked row into the source-owned contract."""
 
     if not isinstance(row, Mapping):
         raise KnowledgeRetrievalResultSerializationError("row must be a mapping")
@@ -149,14 +141,10 @@ def _validate_locator(
         minimum=1,
     )
     linked_table_ids = _string_sequence(
-        locator.linked_table_ids,
-        "linked_table_ids",
-        minimum=0,
+        locator.linked_table_ids, "linked_table_ids", minimum=0
     )
     linked_image_ids = _string_sequence(
-        locator.linked_image_ids,
-        "linked_image_ids",
-        minimum=0,
+        locator.linked_image_ids, "linked_image_ids", minimum=0
     )
     page_start = _positive_page(locator.native_page_start, "native_page_start")
     page_end = _positive_page(locator.native_page_end, "native_page_end")
@@ -271,3 +259,12 @@ def _warnings(context_warnings: object, row: Mapping[str, Any]) -> list[str]:
         warnings.append("retrieval_content_is_derivative")
 
     return list(dict.fromkeys(warnings))
+
+
+__all__ = [
+    "CONTRACT_VERSION",
+    "KnowledgeRetrievalResultContext",
+    "KnowledgeRetrievalResultLocator",
+    "KnowledgeRetrievalResultSerializationError",
+    "serialize_knowledge_retrieval_result",
+]

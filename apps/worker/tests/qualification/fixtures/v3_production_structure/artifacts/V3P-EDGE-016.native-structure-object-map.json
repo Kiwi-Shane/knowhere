@@ -1,0 +1,222 @@
+{
+  "artifact_sha256": "e4c2cff481b595c858c90b1f3e5ce2520c5796a35bf6b71a68f986756eb13680",
+  "contract_version": "native-structure-object-map-v1",
+  "derivative_not_native_source_evidence": true,
+  "errors": [],
+  "extractor_identity": {
+    "configuration_sha256": "c4da5b51cac32588885c840bc4e0dc942d3fe4e3c74fa548d4f5eb98f7271f82",
+    "package_lock_sha256": "f0cf0243997894e46fb1e8a26e0eafaa8867f6c947c78831fb299618a3eff1c6",
+    "repository_sha": "7ffbbb7ca545553c9aa4e5d620a3b85da8654de8",
+    "runtime_image_digest": "sha256:a3fc8b2a7bc60098b2be37b158d4fcf58dc3e4a5bd80fea5b27ff7bab196f63e",
+    "source_blob_sha256": "e6778fc6954bc2099072e5ab8c3e9128bd3eae8b880d08ce464d3f818f737a45"
+  },
+  "fallback_used": false,
+  "input_sha256": "e6778fc6954bc2099072e5ab8c3e9128bd3eae8b880d08ce464d3f818f737a45",
+  "objects": [
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        0.0,
+        0.0,
+        580.0,
+        683.0
+      ],
+      "normalized_bbox": [
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "object_id": "NSO-5ebbd9e1c618d7baf38aab119fcd40fc",
+      "object_type": "page_region",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "1d921149063f6634167682b31e13c0f404cef1173494a37c430cf4793023b13b",
+      "source_locator": {
+        "object_ordinal": 1,
+        "page_number": 1
+      },
+      "text_sha256": null,
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        30.0,
+        630.93,
+        97.81,
+        640.18
+      ],
+      "normalized_bbox": [
+        0.051724,
+        0.062694,
+        0.168638,
+        0.076237
+      ],
+      "object_id": "NSO-1fc51af7f60a8e50208b40b47470c93e",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "03d1c5905565a32f1688261e2b6eddd6ff9718671ed2250e7b2d09e868515e80",
+      "source_locator": {
+        "object_ordinal": 2,
+        "page_number": 1
+      },
+      "text_sha256": "64eaf9aef42fab1818d56b0d9a7ff4b30bc0c28c06366d0f899d1cfc3c884a55",
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        30.0,
+        598.93,
+        97.81,
+        608.18
+      ],
+      "normalized_bbox": [
+        0.051724,
+        0.109546,
+        0.168638,
+        0.123089
+      ],
+      "object_id": "NSO-59232e19efa6056a314b44ffa4cf8355",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "ee09359e9a9f647ee0b8af4d25a9957bca1babf4c0b8e347c859a11606eb7d73",
+      "source_locator": {
+        "object_ordinal": 3,
+        "page_number": 1
+      },
+      "text_sha256": "5f16795adce74939506eaad0e25c65b7f3e875576ee6328530beef0485b5a4ae",
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        30.0,
+        566.93,
+        97.81,
+        576.18
+      ],
+      "normalized_bbox": [
+        0.051724,
+        0.156398,
+        0.168638,
+        0.169941
+      ],
+      "object_id": "NSO-bb21e8d0e2717b20376302aac02a8010",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "203d3a90e91395b3c970954bd940d4bb9ae5fe4be9c40e35f57d0c00612045a9",
+      "source_locator": {
+        "object_ordinal": 4,
+        "page_number": 1
+      },
+      "text_sha256": "057dfe1916df7044026d23e0be02ede4a242e4f207beb0c3004bfac9e1b0bf18",
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        290.0,
+        630.93,
+        357.81,
+        640.18
+      ],
+      "normalized_bbox": [
+        0.5,
+        0.062694,
+        0.616914,
+        0.076237
+      ],
+      "object_id": "NSO-bedf2d1a329b336381d46434ebb957d6",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "e714c62d579926f124b6c4891b339e7baac51b44b34370cbe855216212b8848c",
+      "source_locator": {
+        "object_ordinal": 5,
+        "page_number": 1
+      },
+      "text_sha256": "5f082f1130518600ab14aa83f852d8b96fb7838cbdf56763d2d021961c9802cd",
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        290.0,
+        598.93,
+        357.81,
+        608.18
+      ],
+      "normalized_bbox": [
+        0.5,
+        0.109546,
+        0.616914,
+        0.123089
+      ],
+      "object_id": "NSO-c732ae22a4bec286705f112d5c7ef806",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "1aa95db891de6da749c7588e2381bc72ae2318c917ac1b91dae036c1fbdf5ee7",
+      "source_locator": {
+        "object_ordinal": 6,
+        "page_number": 1
+      },
+      "text_sha256": "4b7bf2767fc6553a5193e96157ffcb9e0ab4a87226635f25047fa5fe9db08088",
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        290.0,
+        566.93,
+        357.81,
+        576.18
+      ],
+      "normalized_bbox": [
+        0.5,
+        0.156398,
+        0.616914,
+        0.169941
+      ],
+      "object_id": "NSO-7c6300330ecc1bb8ce819518862b12af",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "20d6666df87828fa92e679fb43d2d54bff28dbdc8fe50514128971980a6a2c0a",
+      "source_locator": {
+        "object_ordinal": 7,
+        "page_number": 1
+      },
+      "text_sha256": "503c36088e3025fcbe88267813241ae5bfd71ae5a327d8dfa9b37bc1bae3fffb",
+      "warning_codes": []
+    }
+  ],
+  "page_geometry": [
+    {
+      "crop_box": [
+        0.0,
+        0.0,
+        580.0,
+        683.0
+      ],
+      "media_box": [
+        0.0,
+        0.0,
+        580.0,
+        683.0
+      ],
+      "normalized_height": 683.0,
+      "normalized_width": 580.0,
+      "page_number": 1,
+      "source_rotation": 0
+    }
+  ],
+  "source_id": "V3P-EDGE-016",
+  "source_version_id": "e6778fc6954bc2099072e5ab8c3e9128bd3eae8b880d08ce464d3f818f737a45",
+  "warnings": []
+}

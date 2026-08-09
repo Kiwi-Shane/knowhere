@@ -1,0 +1,8 @@
+*.pdf binary
+apps/worker/tests/qualification/fixtures/v3_production_structure/*.json -text
+apps/worker/tests/qualification/fixtures/v3_production_structure/artifacts/*.json -text
+apps/worker/tests/qualification/fixtures/v3_production_structure_remediation/*.json -text
+apps/worker/tests/qualification/fixtures/v3_production_structure_remediation/artifacts/*.json -text
+apps/worker/tests/qualification/fixtures/v3_production_structure_remediation/native/*.pdf binary
+examples/qualification/v3-production-structure-retrieval/*.json -text
+examples/qualification/v3-production-remediation-structure-retrieval/*.json -text

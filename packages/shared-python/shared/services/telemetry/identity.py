@@ -3,11 +3,17 @@
 from __future__ import annotations
 
 from contextlib import contextmanager
-import importlib
+from typing import Iterator, TextIO
+
 import os
 from pathlib import Path
-from typing import Any, Iterator, TextIO
 from uuid import UUID, uuid4
+
+try:
+    import fcntl
+except ImportError:  # pragma: no cover - exercised on Windows
+    fcntl = None  # type: ignore[assignment]
+    import msvcrt
 
 
 def get_or_create_installation_id(
@@ -29,7 +35,7 @@ def get_or_create_installation_id(
     lock_path = installation_id_path.with_suffix(f"{installation_id_path.suffix}.lock")
 
     with lock_path.open("a+", encoding="utf-8") as lock_file:
-        with _exclusive_file_lock(lock_file):
+        with _exclusive_lock(lock_file):
             existing_installation_id = _read_valid_installation_id(
                 installation_id_path
             )
@@ -45,30 +51,27 @@ def get_or_create_installation_id(
 
 
 @contextmanager
-def _exclusive_file_lock(lock_file: TextIO) -> Iterator[None]:
-    """Hold an exclusive lock using the current platform's native API."""
-    if os.name == "nt":
-        import msvcrt
+def _exclusive_lock(lock_file: TextIO) -> Iterator[None]:
+    """Lock the identity file on POSIX and Windows test/runtime hosts."""
 
-        lock_file.seek(0, os.SEEK_END)
-        if lock_file.tell() == 0:
-            lock_file.write("\0")
-            lock_file.flush()
-        lock_file.seek(0)
-        msvcrt.locking(lock_file.fileno(), msvcrt.LK_LOCK, 1)
+    if fcntl is not None:
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
         try:
             yield
         finally:
-            lock_file.seek(0)
-            msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK, 1)
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
         return
 
-    fcntl: Any = importlib.import_module("fcntl")
-    fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+    lock_file.seek(0)
+    lock_file.write("0")
+    lock_file.flush()
+    lock_file.seek(0)
+    msvcrt.locking(lock_file.fileno(), msvcrt.LK_LOCK, 1)
     try:
         yield
     finally:
-        fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+        lock_file.seek(0)
+        msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK, 1)
 
 
 def _read_valid_installation_id(installation_id_path: Path) -> str:

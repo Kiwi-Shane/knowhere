@@ -539,6 +539,42 @@ async def _insert_document_revision_with_chunks(
     }
 
 
+async def _fetch_document_related_counts(document_id: str) -> dict[str, int]:
+    row = await ContractDatabase.fetch_one(
+        """
+        SELECT
+            (SELECT COUNT(*) FROM documents WHERE document_id = :document_id) AS documents,
+            (SELECT COUNT(*) FROM document_sections WHERE document_id = :document_id) AS sections,
+            (SELECT COUNT(*) FROM document_chunks WHERE document_id = :document_id) AS chunks,
+            (SELECT COUNT(*) FROM graph_nodes WHERE owner_document_id = :document_id) AS graph_nodes,
+            (SELECT COUNT(*) FROM graph_edges WHERE owner_document_id = :document_id) AS graph_edges,
+            (SELECT COUNT(*) FROM retrieval_hit_stats WHERE document_id = :document_id) AS hit_stats,
+            (SELECT COUNT(*) FROM job_results WHERE document_id = :document_id) AS job_results,
+            (SELECT COUNT(*) FROM jobs WHERE job_metadata ->> 'document_id' = :document_id) AS jobs
+        """,
+        {"document_id": document_id},
+    )
+    assert row is not None
+    return {key: int(value) for key, value in row.items()}
+
+
+async def _cleanup_document_fixture(document_id: str) -> None:
+    await ContractDatabase.execute(
+        """
+        DELETE FROM jobs
+        WHERE job_id IN (
+            SELECT job_id FROM job_results WHERE document_id = :document_id
+        )
+           OR job_metadata ->> 'document_id' = :document_id
+        """,
+        {"document_id": document_id},
+    )
+    await ContractDatabase.execute(
+        "DELETE FROM documents WHERE document_id = :document_id",
+        {"document_id": document_id},
+    )
+
+
 def _upload_page_citation_source(*, job_id: str) -> None:
     from shared.services.storage.result_storage import JobResultStorage
 
