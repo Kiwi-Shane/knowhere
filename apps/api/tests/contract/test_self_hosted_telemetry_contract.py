@@ -293,6 +293,14 @@ def test_self_hosted_telemetry_defaults_to_enabled(
     assert config.TELEMETRY_POSTHOG_PROJECT_KEY == DEFAULT_TELEMETRY_POSTHOG_PROJECT_KEY
 
 
+def test_local_api_env_example_disables_telemetry_by_default() -> None:
+    env_example = Path(__file__).parents[2] / ".env.example"
+
+    lines = env_example.read_text(encoding="utf-8").splitlines()
+
+    assert "TELEMETRY_ENABLED=false" in lines
+
+
 def test_self_hosted_telemetry_env_can_disable_and_override_key(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

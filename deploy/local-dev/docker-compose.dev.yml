@@ -4,7 +4,10 @@ services:
     image: redis:7-alpine
     container_name: knowhere_redis
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
+    mem_limit: 3g
+    cpus: 2.0
+    pids_limit: 512
     command: redis-server --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru --stop-writes-on-bgsave-error no
     volumes:
       - redis_data:/data
@@ -21,7 +24,10 @@ services:
     image: postgres:15-alpine
     container_name: knowhere_postgres
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
+    mem_limit: 2g
+    cpus: 2.0
+    pids_limit: 512
     environment:
       POSTGRES_DB: Knowhere
       POSTGRES_USER: root
@@ -43,7 +49,10 @@ services:
     image: localstack/localstack:3.8
     container_name: knowhere_localstack
     ports:
-      - "4566:4566"
+      - "127.0.0.1:4566:4566"
+    mem_limit: 2g
+    cpus: 2.0
+    pids_limit: 512
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:

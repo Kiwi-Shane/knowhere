@@ -1,0 +1,32 @@
+{
+  "schema_version": "codex-validation-corpus/1.0",
+  "documents": [
+    {
+      "id": "canary-unit-pdf",
+      "root": "mineru",
+      "path": "tests/unittest/pdfs/test.pdf",
+      "tags": ["pdf", "smoke"],
+      "language": "en",
+      "pages": [1],
+      "expected_status": "completed"
+    },
+    {
+      "id": "canary-small-ocr",
+      "root": "mineru",
+      "path": "demo/pdfs/small_ocr.pdf",
+      "tags": ["pdf", "ocr"],
+      "language": "en",
+      "pages": [1, 2],
+      "expected_status": "completed"
+    },
+    {
+      "id": "canary-table-pdf",
+      "root": "mineru",
+      "path": "demo/pdfs/demo2.pdf",
+      "tags": ["pdf", "table"],
+      "language": "en",
+      "pages": [1, 2],
+      "expected_status": "completed"
+    }
+  ]
+}

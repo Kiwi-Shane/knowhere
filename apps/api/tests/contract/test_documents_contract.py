@@ -114,6 +114,42 @@ async def _fetch_document(document_id: str) -> dict[str, object]:
         await engine.dispose()
 
 
+async def _fetch_document_related_counts(document_id: str) -> dict[str, int]:
+    row = await ContractDatabase.fetch_one(
+        """
+        SELECT
+            (SELECT COUNT(*) FROM documents WHERE document_id = :document_id) AS documents,
+            (SELECT COUNT(*) FROM document_sections WHERE document_id = :document_id) AS sections,
+            (SELECT COUNT(*) FROM document_chunks WHERE document_id = :document_id) AS chunks,
+            (SELECT COUNT(*) FROM graph_nodes WHERE owner_document_id = :document_id) AS graph_nodes,
+            (SELECT COUNT(*) FROM graph_edges WHERE owner_document_id = :document_id) AS graph_edges,
+            (SELECT COUNT(*) FROM retrieval_hit_stats WHERE document_id = :document_id) AS hit_stats,
+            (SELECT COUNT(*) FROM job_results WHERE document_id = :document_id) AS job_results,
+            (SELECT COUNT(*) FROM jobs WHERE job_metadata ->> 'document_id' = :document_id) AS jobs
+        """,
+        {"document_id": document_id},
+    )
+    assert row is not None
+    return {key: int(value) for key, value in row.items()}
+
+
+async def _cleanup_document_fixture(document_id: str) -> None:
+    await ContractDatabase.execute(
+        """
+        DELETE FROM jobs
+        WHERE job_id IN (
+            SELECT job_id FROM job_results WHERE document_id = :document_id
+        )
+           OR job_metadata ->> 'document_id' = :document_id
+        """,
+        {"document_id": document_id},
+    )
+    await ContractDatabase.execute(
+        "DELETE FROM documents WHERE document_id = :document_id",
+        {"document_id": document_id},
+    )
+
+
 async def _fetch_graph_counts(
     *,
     document_id: str,
@@ -1387,7 +1423,7 @@ async def test_should_refuse_hard_delete_while_document_ingestion_is_active(
                 chunks=[
                     {
                         "id": f"dchk_{uuid4().hex[:12]}",
-                        "chunk_id": f"hard-delete-active-{uuid4().hex[:8]}",
+                        "chunk_id": "hard-delete-active-chunk",
                         "chunk_type": "text",
                         "content": "active ingestion must block deletion",
                         "source_chunk_path": "Chapter 1/Active",
@@ -1419,7 +1455,7 @@ async def test_should_refuse_hard_delete_while_document_ingestion_is_active(
 
 
 @pytest.mark.asyncio
-async def test_should_hard_delete_document_state_and_preserve_peer_retrieval(
+async def test_should_hard_delete_document_rows_storage_and_retrieval_visibility(
     developer_api_client_factory: Callable[
         [], AbstractAsyncContextManager[AsyncClient]
     ],
@@ -1430,6 +1466,7 @@ async def test_should_hard_delete_document_state_and_preserve_peer_retrieval(
     document_id = f"doc_{uuid4().hex[:12]}"
     peer_document_id = f"doc_{uuid4().hex[:12]}"
     source_marker = f"hard-delete-marker-{uuid4().hex}"
+    deleted_revision: dict[str, str] | None = None
 
     try:
         async with developer_api_client_factory() as api_client:
@@ -1438,7 +1475,7 @@ async def test_should_hard_delete_document_state_and_preserve_peer_retrieval(
                 chunks=[
                     {
                         "id": f"dchk_{uuid4().hex[:12]}",
-                        "chunk_id": f"hard-delete-{uuid4().hex[:8]}",
+                        "chunk_id": "hard-delete-chunk-1",
                         "chunk_type": "text",
                         "content": source_marker,
                         "source_chunk_path": "Chapter 1/Deleted",
@@ -1451,7 +1488,7 @@ async def test_should_hard_delete_document_state_and_preserve_peer_retrieval(
                 chunks=[
                     {
                         "id": f"dchk_{uuid4().hex[:12]}",
-                        "chunk_id": f"hard-delete-peer-{uuid4().hex[:8]}",
+                        "chunk_id": "hard-delete-peer-chunk-1",
                         "chunk_type": "text",
                         "content": "peer document remains",
                         "source_chunk_path": "Chapter 1/Peer",
@@ -1460,9 +1497,9 @@ async def test_should_hard_delete_document_state_and_preserve_peer_retrieval(
                 ],
             )
 
+            job_id = deleted_revision["job_id"]
             from app.api.v1.routes.documents import _document_service
 
-            job_id = deleted_revision["job_id"]
             storage_adapter = _document_service._file_storage.storage_adapter
             upload_storage = JobFileStorage(
                 storage_adapter=storage_adapter,
@@ -1473,10 +1510,10 @@ async def test_should_hard_delete_document_state_and_preserve_peer_retrieval(
                 results_bucket=_document_service._file_storage.results_bucket,
             )
             upload_key = f"uploads/{job_id}.pdf"
-            upload_path = Path("/tmp") / f"knowhere-d4-upload-{job_id}.pdf"
-            zip_path = Path("/tmp") / f"knowhere-d4-result-{job_id}.zip"
-            upload_path.write_bytes(b"D4 synthetic upload")
-            zip_path.write_bytes(b"D4 synthetic result")
+            upload_path = Path("/tmp") / f"knowhere-hard-delete-upload-{job_id}.pdf"
+            zip_path = Path("/tmp") / f"knowhere-hard-delete-result-{job_id}.zip"
+            upload_path.write_bytes(b"hard-delete upload")
+            zip_path.write_bytes(b"hard-delete result")
             try:
                 upload_storage.upload_local_file(
                     str(upload_path),
@@ -1555,7 +1592,8 @@ async def test_should_hard_delete_document_state_and_preserve_peer_retrieval(
             "job_results": 0,
             "jobs": 0,
         }
-        assert (await _fetch_document(peer_document_id))["status"] == "active"
+        peer = await _fetch_document(peer_document_id)
+        assert peer["status"] == "active"
     finally:
         await _cleanup_document_fixture(document_id)
         await _cleanup_document_fixture(peer_document_id)

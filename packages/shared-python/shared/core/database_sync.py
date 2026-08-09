@@ -30,7 +30,9 @@ def _on_invalidate(dbapi_connection, connection_record, exception):
 
 def _build_sync_url() -> str:
     """Build the sync SQLAlchemy URL for worker-side psycopg2 usage."""
-    return settings.DATABASE_URL.replace("postgresql+asyncpg", "postgresql+psycopg2")
+    return settings.get_runtime_database_url().replace(
+        "postgresql+asyncpg", "postgresql+psycopg2"
+    )
 
 
 def get_sync_engine() -> Engine:

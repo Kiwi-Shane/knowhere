@@ -2,6 +2,8 @@
 MinerU service configuration
 """
 
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
@@ -67,4 +69,75 @@ class MineruConfig(BaseModel):
     MINERU_URL_MODE_PRESIGN_EXPIRY: int = Field(
         default=3600,
         description="Presigned URL TTL in seconds for S3 URL mode ingestion.",
+    )
+    MINERU_LOCAL_PROJECT_PATH: str = Field(
+        default="",
+        description="Absolute path to a separate local MinerU checkout.",
+    )
+    MINERU_LOCAL_UV_EXECUTABLE: str = Field(
+        default="uv",
+        description="Absolute path or PATH-resolvable uv executable for local MinerU.",
+    )
+    MINERU_LOCAL_TIMEOUT_SECONDS: int = Field(
+        default=1800,
+        gt=0,
+        description="Timeout for one isolated local MinerU parse.",
+    )
+    MINERU_LOCAL_BACKEND: str = Field(
+        default="pipeline",
+        description="Default local MinerU backend for standalone exports.",
+    )
+    MINERU_LOCAL_METHOD: str = Field(
+        default="auto",
+        description="Default local MinerU parsing method.",
+    )
+    MINERU_LOCAL_LANGUAGE: str = Field(
+        default="en",
+        description="Default local MinerU document language.",
+    )
+    MINERU_LOCAL_OFFLINE: bool = Field(
+        default=True,
+        description="Request local-only model loading for standalone exports.",
+    )
+    MINERU_LOCAL_MAX_LOG_CHARS: int = Field(
+        default=8000,
+        gt=0,
+        description="Maximum sanitized stderr characters attached to local errors.",
+    )
+    MINERU_PROVIDER: Literal["cloud", "local"] = Field(
+        default="cloud",
+        description="PDF MinerU provider; local is explicit opt-in with no cloud fallback.",
+    )
+    MINERU_LOCAL_SHARD_CONCURRENCY: int = Field(
+        default=1,
+        ge=1,
+        description="Maximum concurrent local MinerU PDF shard parses.",
+    )
+    MINERU_LOCAL_PREFLIGHT_ON_STARTUP: bool = Field(
+        default=True,
+        description="Validate an explicitly selected local MinerU runtime at worker startup.",
+    )
+    MINERU_LOCAL_PYTHON_EXECUTABLE: str = Field(
+        default="",
+        description="Optional MinerU virtual-environment Python; derived from the project when empty.",
+    )
+    MINERU_LOCAL_MAX_CONCURRENT_JOBS: int = Field(
+        default=1,
+        ge=1,
+        description="Maximum independent local MinerU jobs admitted per worker process.",
+    )
+    MINERU_LOCAL_ADMISSION_TIMEOUT_SECONDS: int = Field(
+        default=30,
+        gt=0,
+        description="Maximum seconds a local MinerU job waits for process capacity.",
+    )
+    MINERU_LOCAL_MIN_FREE_DISK_GB: int = Field(
+        default=10,
+        ge=1,
+        description="Minimum free temporary-storage capacity required for local MinerU.",
+    )
+    MINERU_LOCAL_MIN_AVAILABLE_MEMORY_GB: int = Field(
+        default=8,
+        ge=1,
+        description="Minimum available system memory required for local MinerU.",
     )
