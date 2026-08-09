@@ -90,7 +90,7 @@ def _bundle(request: object) -> MinerUArtifactBundle:
     )
 
 
-def test_cloud_provider_is_default_and_delegates_all_arguments(
+def test_local_provider_is_default_and_cloud_remains_explicit_rollback(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     calls: list[tuple[object, ...]] = []
@@ -111,7 +111,7 @@ def test_cloud_provider_is_default_and_delegates_all_arguments(
     assert calls == [
         ("source.pdf", "document.pdf", str(tmp_path), {"s3_key": "in/key"})
     ]
-    assert MineruConfig().MINERU_PROVIDER == "cloud"
+    assert MineruConfig().MINERU_PROVIDER == "local"
 
 
 def test_local_provider_materializes_artifacts_without_cloud_or_raw_work(

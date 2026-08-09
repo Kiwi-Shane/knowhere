@@ -105,8 +105,11 @@ class MineruConfig(BaseModel):
         description="Maximum sanitized stderr characters attached to local errors.",
     )
     MINERU_PROVIDER: Literal["cloud", "local"] = Field(
-        default="cloud",
-        description="PDF MinerU provider; local is explicit opt-in with no cloud fallback.",
+        default="local",
+        description=(
+            "Default PDF MinerU provider is local; cloud is an explicit "
+            "rollback override with no implicit fallback."
+        ),
     )
     MINERU_LOCAL_SHARD_CONCURRENCY: int = Field(
         default=1,
