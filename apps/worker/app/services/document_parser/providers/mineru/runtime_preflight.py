@@ -128,8 +128,8 @@ def _probe_writable(root: Path) -> bool:
 
 
 def _probe_adapter(
+    project: Path,
     uv_executable: Path,
-    mineru_python: Path,
     *,
     run_command: RunCommand,
 ) -> bool:
@@ -138,7 +138,13 @@ def _probe_adapter(
     commands = (
         [str(uv_executable), "--version"],
         [
-            str(mineru_python),
+            str(uv_executable),
+            "run",
+            "--project",
+            str(project),
+            "--offline",
+            "--no-sync",
+            "python",
             "-I",
             "-c",
             "import mineru.integrations.knowhere.cli",
@@ -217,8 +223,8 @@ def check_local_mineru_runtime(
     if checks["project"] and checks["uv"] and checks["python"]:
         assert uv_executable is not None
         checks["adapter"] = _probe_adapter(
+            project,
             uv_executable,
-            mineru_python,
             run_command=run_command,
         )
     error_codes = tuple(

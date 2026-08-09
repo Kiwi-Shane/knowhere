@@ -62,7 +62,7 @@ class _Commands:
 
     def __call__(self, argv: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
         self.calls.append((argv, kwargs))
-        return_code = self.adapter_return_code if "-I" in argv else 0
+        return_code = self.adapter_return_code if len(self.calls) == 2 else 0
         return subprocess.CompletedProcess(
             argv,
             return_code,
@@ -126,12 +126,15 @@ def test_ready_local_runtime_is_content_free_and_uses_offline_argv(
         "error_codes": [],
     }
     project = Path(config.MINERU_LOCAL_PROJECT_PATH)
-    expected_python = project / ".venv" / (
-        "Scripts/python.exe" if os.name == "nt" else "bin/python"
-    )
     assert commands.calls[0][0] == [config.MINERU_LOCAL_UV_EXECUTABLE, "--version"]
     assert commands.calls[1][0] == [
-        str(expected_python.resolve()),
+        config.MINERU_LOCAL_UV_EXECUTABLE,
+        "run",
+        "--project",
+        str(project.resolve()),
+        "--offline",
+        "--no-sync",
+        "python",
         "-I",
         "-c",
         "import mineru.integrations.knowhere.cli",
