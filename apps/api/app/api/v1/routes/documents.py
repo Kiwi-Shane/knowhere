@@ -80,6 +80,27 @@ async def get_document(
     return document
 
 
+@router.delete("/{document_id}")
+async def delete_document(
+    document_id: str,
+    current_user: CurrentUser = Depends(with_current_user),
+    _write_permission: None = Depends(require_write_permission),
+    db: AsyncSession = Depends(get_db),
+):
+    response = await _document_service.delete_document(
+        db,
+        user_id=current_user.user_id,
+        document_id=document_id,
+    )
+    if response is None:
+        raise NotFoundException(
+            resource="Document",
+            resource_id=document_id,
+            internal_message="Document not found",
+        )
+    return response
+
+
 @router.get("/{document_id}/chunks")
 async def list_document_chunks(
     document_id: str,

@@ -118,6 +118,9 @@ async def test_read_only_dashboard_token_can_read_but_cannot_parse_or_archive(
         archive_document_response = await api_client.post(
             f"/api/v1/documents/{document_id}/archive"
         )
+        delete_document_response = await api_client.delete(
+            f"/api/v1/documents/{document_id}"
+        )
 
     assert list_jobs_response.status_code == 200
     assert get_document_response.status_code == 200
@@ -127,6 +130,9 @@ async def test_read_only_dashboard_token_can_read_but_cannot_parse_or_archive(
 
     assert archive_document_response.status_code == 403
     _assert_read_only_error(cast(dict[str, object], archive_document_response.json()))
+
+    assert delete_document_response.status_code == 403
+    _assert_read_only_error(cast(dict[str, object], delete_document_response.json()))
 
     assert await _count_user_jobs(user_id) == 0
     assert await _fetch_document_status(document_id) == "active"

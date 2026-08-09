@@ -1,0 +1,77 @@
+{
+  "abstentions": [],
+  "caption_links": [],
+  "continuation_links": [],
+  "contract_version": "structure-association-result-v1",
+  "fallback_used": false,
+  "footnote_links": [],
+  "input_sha256": "04d59e60d871425a03cee622b9779f89e8e92a588c854566731af10e56de040f",
+  "native_object_map_sha256": "a4506d03d85744a4b5aaf78b751185f7f5042f87b5e4f5cefd3036abc490f461",
+  "profile_id": "mineru_complex_layout_structural_v2",
+  "profile_release_id": "v3-production-synthetic-edge-v1",
+  "reading_order": [
+    "NST-45c2ff296d29c46d23776f5c64e183cb",
+    "NST-696cb3ebcffcbd4accb27a1b2b64fa27",
+    "NST-0ab632d95d63ec0a82e96bd6bcc9a3ac"
+  ],
+  "regions": [
+    {
+      "confidence": 1.0,
+      "member_object_ids": [
+        "NSO-53caa6fdb42a992a5277436037266828",
+        "NSO-a6966fe84e2846841f03e744a0aefc0f",
+        "NSO-b983d177f1d638ae594855a666ad42a2"
+      ],
+      "normalized_bbox": [
+        0.829222,
+        0.051903,
+        0.941198,
+        0.180953
+      ],
+      "page_end": 1,
+      "page_start": 1,
+      "region_id": "NST-45c2ff296d29c46d23776f5c64e183cb",
+      "region_type": "text_line_group"
+    },
+    {
+      "confidence": 1.0,
+      "member_object_ids": [
+        "NSO-3d59c3870e5a7b49c0cea60e8f8318f6",
+        "NSO-5a4d93d3548496cef375446a7767c99a",
+        "NSO-6fcf7a455ec0fbe351dfa1697ed1f7e8"
+      ],
+      "normalized_bbox": [
+        0.829222,
+        0.350634,
+        0.941198,
+        0.479685
+      ],
+      "page_end": 1,
+      "page_start": 1,
+      "region_id": "NST-696cb3ebcffcbd4accb27a1b2b64fa27",
+      "region_type": "text_line_group"
+    },
+    {
+      "confidence": 1.0,
+      "member_object_ids": [
+        "NSO-912837d19fbe934bb597a077de3f7245",
+        "NSO-91d44254b9263f35776f1a282eadfe9f",
+        "NSO-b50644fb2eac44da5f3ed8f7a3efe64c"
+      ],
+      "normalized_bbox": [
+        0.829222,
+        0.649366,
+        0.941198,
+        0.778416
+      ],
+      "page_end": 1,
+      "page_start": 1,
+      "region_id": "NST-0ab632d95d63ec0a82e96bd6bcc9a3ac",
+      "region_type": "text_line_group"
+    }
+  ],
+  "source_id": "V3P-EDGE-018",
+  "source_version_id": "04d59e60d871425a03cee622b9779f89e8e92a588c854566731af10e56de040f",
+  "tables": [],
+  "warnings": []
+}

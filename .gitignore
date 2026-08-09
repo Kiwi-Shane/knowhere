@@ -69,7 +69,8 @@ test_*.csv
 !requirements.csv
 
 # Local debugging scripts
-apps/worker/scripts/
+apps/worker/scripts/*
+!apps/worker/scripts/export_codex_review_package.py
 apps/worker/start_celery_worker.py
 apps/worker/start_celery_debug.sh
 apps/worker/clear_celery_queues.sh
@@ -88,6 +89,7 @@ SIMPLE_GUIDE.md
 USAGE_*.md
 
 # Deployment artifacts and secrets
+deploy/**/.d2-secrets/
 deploy/**/deploy-config.sh
 deploy/**/tfplan*
 deploy/**/.terraform/
@@ -113,6 +115,7 @@ LICENSE.txt
 .agent/
 .agent-hooks/
 .codex/
+.worktrees/
 CLAUDE.md
 
 # Codex-generated local files
@@ -125,3 +128,7 @@ doc-deploy/
 todos/
 *.egg-info/
 *.rdb
+
+# Standalone Codex document review packages
+.codex-review/
+review-package/

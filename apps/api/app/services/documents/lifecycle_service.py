@@ -10,11 +10,13 @@ from app.repositories.document_repository import DocumentRepository
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from shared.core.exceptions.domain_exceptions import ConflictException
 from shared.models.database.document import DocumentChunk, DocumentSection
 from shared.services.retrieval.cache_service import (
     invalidate_retrieval_cache_namespaces,
 )
 from shared.services.retrieval.graph.service import DocumentGraphService, GraphScope
+from shared.services.storage.job_file_storage import JobFileStorage
 from shared.services.storage.result_storage import ResultStorage, get_result_storage
 
 _DOCUMENT_CHUNK_ASSET_URL_EXPIRES_SECONDS = 7 * 24 * 60 * 60
@@ -23,6 +25,7 @@ _PAGE_CITATION_SOURCE_EXPIRES_SECONDS = 60 * 60
 _PAGE_CITATION_SOURCE_FILE_NAME = "source.pdf"
 _PAGE_CITATION_SOURCE_VARIANT = "normalized_pdf"
 _PAGE_MEMORY_PARSE_TRACK = "page_memory"
+_ACTIVE_JOB_STATUSES = frozenset({"waiting-file", "pending", "running", "converting"})
 
 
 def _datetime_payload(value: datetime | None) -> str | None:
@@ -163,10 +166,12 @@ class DocumentService:
         repository: DocumentRepository | None = None,
         graph_service: DocumentGraphService | None = None,
         result_storage: ResultStorage | None = None,
+        file_storage: JobFileStorage | None = None,
     ) -> None:
         self._repository = repository or DocumentRepository()
         self._graph_service = graph_service or DocumentGraphService()
         self._result_storage = result_storage
+        self._file_storage = file_storage or JobFileStorage()
 
     async def list_documents(
         self,
@@ -465,6 +470,85 @@ class DocumentService:
                 f"Cache invalidation failed after archiving document {document_id}: {e}"
             )
         return document_payload(document)
+
+    async def delete_document(
+        self,
+        db: AsyncSession,
+        *,
+        user_id: str,
+        document_id: str,
+    ) -> dict[str, Any] | None:
+        """Hard-delete one owned document and its durable derivatives."""
+
+        document = await self._repository.get_document(
+            db,
+            user_id=user_id,
+            document_id=document_id,
+        )
+        if document is None:
+            return None
+
+        jobs = await self._repository.list_document_jobs_for_deletion(
+            db,
+            user_id=user_id,
+            document_id=document_id,
+        )
+        active_jobs = [job.job_id for job in jobs if job.status in _ACTIVE_JOB_STATUSES]
+        if active_jobs:
+            raise ConflictException(
+                user_message="The document cannot be deleted while ingestion is active.",
+                reason="ABORTED",
+                resource="Document",
+                resource_id=document_id,
+                internal_message=(
+                    f"Document {document_id} has active jobs: {', '.join(active_jobs)}"
+                ),
+            )
+
+        previous_namespace = document.namespace
+        for job in jobs:
+            if job.s3_key:
+                expected_prefix = f"uploads/{job.job_id}"
+                if not (
+                    job.s3_key == expected_prefix
+                    or job.s3_key.startswith(f"{expected_prefix}.")
+                    or job.s3_key.startswith(f"{expected_prefix}/")
+                ):
+                    raise ConflictException(
+                        user_message="The document storage metadata cannot be safely deleted.",
+                        reason="ABORTED",
+                        resource="Document",
+                        resource_id=document_id,
+                        internal_message=(
+                            f"Job {job.job_id} has an unexpected upload key; deletion refused."
+                        ),
+                    )
+                self._file_storage.delete_upload_file(job.s3_key)
+            self._file_storage.delete_result_bundle(job_id=job.job_id)
+
+        await db.run_sync(
+            lambda sync_db: self._graph_service.remove_document_graph(
+                sync_db,
+                scope=GraphScope(user_id=user_id, namespace=document.namespace),
+                document_id=document_id,
+            )
+        )
+        document.current_job_result_id = None
+        for job in jobs:
+            await db.delete(job)
+        await db.delete(document)
+        await db.commit()
+
+        try:
+            await invalidate_retrieval_cache_namespaces(
+                user_id=user_id,
+                namespaces=[previous_namespace],
+            )
+        except Exception as exc:
+            logger.warning(
+                f"Cache invalidation failed after deleting document {document_id}: {exc}"
+            )
+        return {"document_id": document_id, "deleted": True}
 
 
 def _normalize_chunk_type(raw: str | None) -> str:

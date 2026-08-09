@@ -1,5 +1,6 @@
 import importlib
 import os
+import subprocess
 import sys
 from collections.abc import AsyncGenerator, Callable, Generator
 from contextlib import AbstractAsyncContextManager, asynccontextmanager
@@ -9,6 +10,7 @@ from types import ModuleType
 import pytest
 from httpx import ASGITransport, AsyncClient
 from pytest_postgresql import factories
+from pytest_postgresql.executor import PostgreSQLExecutor
 from pytest import MonkeyPatch
 from tests.support.import_environment import configure_import_environment, ensure_import_paths
 from shared.testing.contract_runtime import (
@@ -22,7 +24,28 @@ from shared.testing.contract_runtime import (
     prepare_contract_storage,
     seed_contract_developer,
 )
-from shared.testing.postgresql_environment import find_executable
+from shared.testing.postgresql_environment import (
+    configure_pytest_postgresql_for_current_platform,
+    find_executable,
+)
+
+configure_pytest_postgresql_for_current_platform()
+
+if not hasattr(os, "killpg"):
+    # mirakuru uses POSIX process-group cleanup; on Windows the PostgreSQL
+    # child process can be terminated directly during test teardown.
+    def _kill_windows_process(pid: int, _signal: int) -> None:
+        try:
+            os.kill(pid, _signal)
+        except PermissionError:
+            subprocess.run(
+                ["taskkill", "/PID", str(pid), "/T", "/F"],
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+
+    setattr(os, "killpg", _kill_windows_process)
 
 configure_import_environment()
 ensure_import_paths()
@@ -30,6 +53,15 @@ ensure_import_paths()
 _REPO_ROOT: Path = Path(__file__).resolve().parents[3]
 _API_ROOT: Path = _REPO_ROOT / "apps" / "api"
 _SHARED_ROOT: Path = _REPO_ROOT / "packages" / "shared-python"
+
+# pytest-postgresql 8.0.0 emits ``log_destination='stderr'``. PostgreSQL 17
+# treats the quote characters as part of the value and refuses to start. Keep
+# the compatibility normalization local to the contract-test process.
+PostgreSQLExecutor.BASE_PROC_START_COMMAND = (
+    PostgreSQLExecutor.BASE_PROC_START_COMMAND.replace(
+        "log_destination='stderr'", "log_destination=stderr"
+    ).replace("unix_socket_directories='{unixsocketdir}'", "unix_socket_directories={unixsocketdir}")
+)
 
 
 def _resolve_postgresql_executable() -> str | None:

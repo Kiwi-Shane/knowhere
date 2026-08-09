@@ -147,12 +147,11 @@ class PageEstimator:
         """Estimate pages for XLSX using row count."""
         import pandas as pd
 
-        workbook = pd.ExcelFile(file_path)
         total_rows = 0
-
-        for sheet_name in workbook.sheet_names:
-            dataframe = pd.read_excel(workbook, sheet_name=sheet_name)
-            total_rows += len(dataframe)
+        with pd.ExcelFile(file_path) as workbook:
+            for sheet_name in workbook.sheet_names:
+                dataframe = pd.read_excel(workbook, sheet_name=sheet_name)
+                total_rows += len(dataframe)
 
         return math.ceil(total_rows / ROWS_PER_PAGE)
 

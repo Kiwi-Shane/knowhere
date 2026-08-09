@@ -1,0 +1,222 @@
+{
+  "artifact_sha256": "182d732ba55caf68ec28ea0a10bb07372b73e6c2eb4dc053af1306ac813de478",
+  "contract_version": "native-structure-object-map-v1",
+  "derivative_not_native_source_evidence": true,
+  "errors": [],
+  "extractor_identity": {
+    "configuration_sha256": "c4da5b51cac32588885c840bc4e0dc942d3fe4e3c74fa548d4f5eb98f7271f82",
+    "package_lock_sha256": "f0cf0243997894e46fb1e8a26e0eafaa8867f6c947c78831fb299618a3eff1c6",
+    "repository_sha": "7ffbbb7ca545553c9aa4e5d620a3b85da8654de8",
+    "runtime_image_digest": "sha256:a3fc8b2a7bc60098b2be37b158d4fcf58dc3e4a5bd80fea5b27ff7bab196f63e",
+    "source_blob_sha256": "5060ebcf512b4c8f946eb6f6502480b8da9d5db01f93d9078a27dc2e75214e15"
+  },
+  "fallback_used": false,
+  "input_sha256": "5060ebcf512b4c8f946eb6f6502480b8da9d5db01f93d9078a27dc2e75214e15",
+  "objects": [
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        0.0,
+        0.0,
+        572.0,
+        701.0
+      ],
+      "normalized_bbox": [
+        0.0,
+        0.0,
+        1.0,
+        1.0
+      ],
+      "object_id": "NSO-0397887b1935eb3de23330810b84faea",
+      "object_type": "page_region",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "1d921149063f6634167682b31e13c0f404cef1173494a37c430cf4793023b13b",
+      "source_locator": {
+        "object_ordinal": 1,
+        "page_number": 1
+      },
+      "text_sha256": null,
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        63.0,
+        365.793,
+        76.453,
+        375.968
+      ],
+      "normalized_bbox": [
+        0.521816,
+        0.11014,
+        0.536331,
+        0.133659
+      ],
+      "object_id": "NSO-8502ec2b8d49e3f0259fa4594b068d04",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "998a7327b8d21a935f49cf768557b063078381da88426c160ba0a247f591e486",
+      "source_locator": {
+        "object_ordinal": 2,
+        "page_number": 1
+      },
+      "text_sha256": "1398b376fdcce25c5a5399367e76891e85121c010ec919cc243b1a519d95bbc6",
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        152.89,
+        365.793,
+        166.343,
+        375.968
+      ],
+      "normalized_bbox": [
+        0.521816,
+        0.26729,
+        0.536331,
+        0.290809
+      ],
+      "object_id": "NSO-7b8273ecf282767f27f5557ccebc5555",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "1fd37d480ddc36c457a97c553e2a530be9387d84f326a54a2f20ab2df5cb9e77",
+      "source_locator": {
+        "object_ordinal": 3,
+        "page_number": 1
+      },
+      "text_sha256": "0cd20d37dbaa799d1d2f6f04adbab0b9e958b083f38e06512cdefadd20863f98",
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        63.0,
+        398.913,
+        108.243,
+        409.088
+      ],
+      "normalized_bbox": [
+        0.569063,
+        0.11014,
+        0.583578,
+        0.189236
+      ],
+      "object_id": "NSO-c830e1cd85b79e3038bd5aa0f328053d",
+      "object_type": "text_span",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "792fdc58264fdf5daad8f40dc4f2e59a7e94915bd72089b67274b02df068c51a",
+      "source_locator": {
+        "object_ordinal": 4,
+        "page_number": 1
+      },
+      "text_sha256": "608d374db7d1422265d138efb29c8d3f31b4ee92c70c1e25846809cca57c0090",
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        59.0,
+        354.51,
+        148.89,
+        387.63
+      ],
+      "normalized_bbox": [
+        0.50572,
+        0.103147,
+        0.552967,
+        0.260297
+      ],
+      "object_id": "NSO-ade87127b157d9e0fcd83793c45e8c7c",
+      "object_type": "vector_rectangle",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "df81a0c34b0dce910c3ae2c17fb75068e02129fe8bdfc0aee7ec5ad0daf397e2",
+      "source_locator": {
+        "object_ordinal": 5,
+        "page_number": 1
+      },
+      "text_sha256": null,
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        148.89,
+        354.51,
+        238.78,
+        387.63
+      ],
+      "normalized_bbox": [
+        0.50572,
+        0.260297,
+        0.552967,
+        0.417448
+      ],
+      "object_id": "NSO-5476e096f0bd2006c17f9043d15dee28",
+      "object_type": "vector_rectangle",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "69b09ed66968e11e0cfd512319a6f0fa11d673c76827b5b94ccdab0a3827d0b4",
+      "source_locator": {
+        "object_ordinal": 6,
+        "page_number": 1
+      },
+      "text_sha256": null,
+      "warning_codes": []
+    },
+    {
+      "confidence": 1.0,
+      "native_bbox": [
+        59.0,
+        387.63,
+        238.78,
+        420.75
+      ],
+      "normalized_bbox": [
+        0.552967,
+        0.103147,
+        0.600214,
+        0.417448
+      ],
+      "object_id": "NSO-5d02f1737b8d5cc26fd91946501eb9e8",
+      "object_type": "vector_rectangle",
+      "occurrence_index": 0,
+      "page_number": 1,
+      "raw_object_sha256": "51aa7c4a0b59c086b857bf7d59289845a6444bfcb81e82298d248a5ea4d636fb",
+      "source_locator": {
+        "object_ordinal": 7,
+        "page_number": 1
+      },
+      "text_sha256": null,
+      "warning_codes": []
+    }
+  ],
+  "page_geometry": [
+    {
+      "crop_box": [
+        0.0,
+        0.0,
+        572.0,
+        701.0
+      ],
+      "media_box": [
+        0.0,
+        0.0,
+        572.0,
+        701.0
+      ],
+      "normalized_height": 572.0,
+      "normalized_width": 701.0,
+      "page_number": 1,
+      "source_rotation": 90
+    }
+  ],
+  "source_id": "V3P-EDGE-006",
+  "source_version_id": "5060ebcf512b4c8f946eb6f6502480b8da9d5db01f93d9078a27dc2e75214e15",
+  "warnings": []
+}
