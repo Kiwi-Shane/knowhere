@@ -1,8 +1,9 @@
 # Local MinerU production canary
 
-Use this runbook only for a dedicated local MinerU worker deployment. Cloud
-remains the default provider, and the local deployment must use its own queue.
-Do not change `MINERU_PROVIDER` in place on a busy worker.
+Use this runbook for the default local MinerU PDF ingestion deployment. The
+application default is now `MINERU_PROVIDER=local`; the deployment must provide
+the local MinerU checkout and executable and must not change provider mode on a
+busy worker. Cloud is an explicit rollback override, not an implicit fallback.
 
 ## 1. Confirm content-free readiness
 
@@ -38,9 +39,9 @@ deployment memory limit.
 This application offline flag is not external network isolation. Firewall
 isolation verification remains a separate operator-run backlog item (BL-001).
 
-## 3. Start the dedicated worker
+## 3. Start the local MinerU worker
 
-Start a new local-only deployment and queue with worker concurrency 1. Configure
+Start a deployment with worker concurrency 1. Keep the default
 `MINERU_PROVIDER=local`, startup preflight enabled, local job capacity 1, and
 the validated project and executable paths. Route only explicitly approved,
 non-confidential PDFs between 1 and 20 pages. Do not route DOCX files.
@@ -61,8 +62,9 @@ page range, confidentiality, and concurrency gates unchanged.
 
 ## 5. Roll back safely
 
-Stop routing new work to the local queue, drain or explicitly fail its remaining
-jobs, and route new jobs to a separately configured cloud worker. Do not mutate
+Stop routing new work to the local worker, drain or explicitly fail its
+remaining jobs, and start or route new jobs to a separately configured worker
+with the explicit override `MINERU_PROVIDER=cloud`. Do not mutate
 `MINERU_PROVIDER` on a busy worker and do not silently replay failed local jobs
 through cloud processing. Preserve content-free metrics and sanitized logs for
 the incident review, then remove the generated canary output.

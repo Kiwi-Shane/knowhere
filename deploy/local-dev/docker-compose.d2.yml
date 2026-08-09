@@ -42,6 +42,7 @@ x-d2-application-environment: &d2-application-environment
   API_STANDALONE_MODE_ENABLED: "true"
   BILLING_ENABLED: "false"
   LLM_MOCK_ENABLED: "true"
+  # Explicit synthetic-harness override; application production default is local.
   MINERU_PROVIDER: cloud
   MINERU_LOCAL_PREFLIGHT_ON_STARTUP: "false"
 
